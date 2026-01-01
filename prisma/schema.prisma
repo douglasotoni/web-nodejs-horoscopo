@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Configuração para o seed
+// O Prisma procura automaticamente por prisma/seed.ts
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Sign {
+  aries
+  taurus
+  gemini
+  cancer
+  leo
+  virgo
+  libra
+  scorpio
+  sagittarius
+  capricorn
+  aquarius
+  pisces
+}
+
+enum Weekday {
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+  sunday
+}
+
+enum UserRole {
+  admin
+  editor
+  viewer
+}
+
+enum PredictionStatus {
+  draft
+  published
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  role          UserRole @default(viewer)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model DailyPrediction {
+  id          String           @id @default(uuid())
+  sign        Sign
+  weekday     Weekday
+  isoWeek     Int              @map("iso_week")
+  isoYear     Int              @map("iso_year")
+  text        String           @db.Text
+  luckyNumber Int              @map("lucky_number")
+  status      PredictionStatus @default(draft)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@unique([sign, weekday, isoWeek, isoYear])
+  @@index([sign, weekday, isoWeek, isoYear])
+  @@map("daily_predictions")
+}
+
+model WeeklyPrediction {
+  id          String           @id @default(uuid())
+  sign        Sign
+  isoWeek     Int              @map("iso_week")
+  isoYear     Int              @map("iso_year")
+  text        String           @db.Text
+  luckyNumber Int              @map("lucky_number")
+  status      PredictionStatus @default(draft)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@unique([sign, isoWeek, isoYear])
+  @@index([sign, isoWeek, isoYear])
+  @@map("weekly_predictions")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  action    String
+  entity    String
+  entityId  String?  @map("entity_id")
+  metadata  String?  @db.Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@map("audit_logs")
+}
+
