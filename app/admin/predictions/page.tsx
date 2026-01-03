@@ -60,7 +60,8 @@ export default function AdminPredictionsPage() {
   const [isoWeek, setIsoWeek] = useState(currentWeek)
   const [isoYear, setIsoYear] = useState(currentYear)
   const [predictions, setPredictions] = useState<Record<string, PredictionData>>({})
-  const [globalStatus, setGlobalStatus] = useState<'draft' | 'published'>('draft')
+  const [globalStatus] = useState<'draft' | 'published'>('published') // Sempre publicado
+  const [predictionStyle, setPredictionStyle] = useState<'bem-humorado' | 'natural' | 'vibe-country' | 'vibe-pop'>('natural')
   const [loading, setLoading] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState('')
@@ -480,7 +481,7 @@ export default function AdminPredictionsPage() {
         <h1>Gerenciar Previsões</h1>
 
         <div className="card" style={{ marginBottom: '2rem' }}>
-          <div className="grid grid-3">
+          <div className="grid grid-4">
             <div className="form-group">
               <label className="form-label">Tipo</label>
               <select
@@ -509,15 +510,29 @@ export default function AdminPredictionsPage() {
               </small>
             </div>
 
-            <div className="form-group">
+            <div className="form-group" style={{ display: 'none' }}>
+              {/* Status oculto - sempre será 'published' */}
               <label className="form-label">Status (para todos)</label>
               <select
                 className="form-select"
                 value={globalStatus}
-                onChange={(e) => setGlobalStatus(e.target.value as 'draft' | 'published')}
+                onChange={(e) => {}}
               >
-                <option value="draft">Rascunho</option>
                 <option value="published">Publicado</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Estilo da Previsão</label>
+              <select
+                className="form-select"
+                value={predictionStyle}
+                onChange={(e) => setPredictionStyle(e.target.value as 'bem-humorado' | 'natural' | 'vibe-country' | 'vibe-pop')}
+              >
+                <option value="bem-humorado">Bem humorado</option>
+                <option value="natural">Natural</option>
+                <option value="vibe-country">Vibe Country</option>
+                <option value="vibe-pop">Vibe pop</option>
               </select>
             </div>
           </div>
@@ -575,35 +590,11 @@ export default function AdminPredictionsPage() {
                 {index + 1}. {SIGN_NAMES[sign]}
                 {!hasData && <span style={{ fontSize: '0.8rem', color: '#999', marginLeft: '0.5rem' }}>(vazio)</span>}
               </h3>
-              
-              <div className="form-group">
-                <label className="form-label">Texto</label>
-                <textarea
-                  className="form-textarea"
-                  value={predictions[sign]?.text || ''}
-                  onChange={(e) => updatePrediction(sign, 'text', e.target.value)}
-                  rows={4}
-                  placeholder="Digite o texto da previsão..."
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Número da Sorte</label>
-                <input
-                  type="number"
-                  className="form-input"
-                  value={predictions[sign]?.luckyNumber || 1}
-                  onChange={(e) => updatePrediction(sign, 'luckyNumber', Number(e.target.value))}
-                  min={1}
-                  max={60}
-                  style={{ maxWidth: '200px' }}
-                />
-              </div>
 
               {/* Informações que mudam por período */}
-              {(predictions[sign]?.luckyColor || predictions[sign]?.emotion || predictions[sign]?.practicalAdvice || predictions[sign]?.compatibleSigns || predictions[sign]?.impactPhrase) && (
+              {(predictions[sign]?.text || predictions[sign]?.luckyNumber || predictions[sign]?.luckyColor || predictions[sign]?.emotion || predictions[sign]?.practicalAdvice || predictions[sign]?.compatibleSigns || predictions[sign]?.impactPhrase) && (
                 <div style={{ 
-                  marginTop: '1.5rem', 
+                  marginTop: '1rem', 
                   padding: '1rem', 
                   backgroundColor: '#f0f8ff', 
                   borderRadius: '8px',
@@ -614,30 +605,68 @@ export default function AdminPredictionsPage() {
                   </h4>
                   
                   <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-                    gap: '1rem' 
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem'
                   }}>
-                    {predictions[sign]?.luckyColor && (
+                    {predictions[sign]?.text && (
                       <div>
-                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Cor da Sorte:</strong>
-                        <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
-                          {predictions[sign].luckyColor}
+                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Texto da Previsão:</strong>
+                        <div style={{ 
+                          marginTop: '0.5rem', 
+                          padding: '0.75rem', 
+                          backgroundColor: '#fff', 
+                          borderRadius: '4px',
+                          border: '1px solid #ddd',
+                          lineHeight: '1.6',
+                          whiteSpace: 'pre-wrap'
+                        }}>
+                          {predictions[sign].text}
+                        </div>
+                      </div>
+                    )}
+
+                    {predictions[sign]?.luckyNumber && (
+                      <div>
+                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Número da Sorte:</strong>
+                        <div style={{ 
+                          marginTop: '0.25rem',
+                          fontSize: '1.2rem',
+                          fontWeight: 'bold',
+                          color: '#0070f3'
+                        }}>
+                          {predictions[sign].luckyNumber}
                         </div>
                       </div>
                     )}
                     
-                    {predictions[sign]?.emotion && (
-                      <div>
-                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Emoção:</strong>
-                        <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
-                          {predictions[sign].emotion}
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                      gap: '1rem',
+                      marginTop: '0.5rem'
+                    }}>
+                      {predictions[sign]?.luckyColor && (
+                        <div>
+                          <strong style={{ color: '#666', fontSize: '0.9rem' }}>Cor da Sorte:</strong>
+                          <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
+                            {predictions[sign].luckyColor}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                      
+                      {predictions[sign]?.emotion && (
+                        <div>
+                          <strong style={{ color: '#666', fontSize: '0.9rem' }}>Emoção:</strong>
+                          <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
+                            {predictions[sign].emotion}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     
                     {predictions[sign]?.practicalAdvice && (
-                      <div style={{ gridColumn: '1 / -1' }}>
+                      <div>
                         <strong style={{ color: '#666', fontSize: '0.9rem' }}>Conselho Prático:</strong>
                         <div style={{ marginTop: '0.25rem' }}>
                           {predictions[sign].practicalAdvice}
@@ -646,7 +675,7 @@ export default function AdminPredictionsPage() {
                     )}
                     
                     {predictions[sign]?.compatibleSigns && (
-                      <div style={{ gridColumn: '1 / -1' }}>
+                      <div>
                         <strong style={{ color: '#666', fontSize: '0.9rem' }}>Signos Compatíveis:</strong>
                         <div style={{ 
                           marginTop: '0.5rem', 
@@ -678,7 +707,7 @@ export default function AdminPredictionsPage() {
                     )}
                     
                     {predictions[sign]?.impactPhrase && (
-                      <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem', padding: '0.75rem', backgroundColor: '#fff', borderRadius: '4px', borderLeft: '3px solid #0070f3' }}>
+                      <div style={{ marginTop: '0.5rem', padding: '0.75rem', backgroundColor: '#fff', borderRadius: '4px', borderLeft: '3px solid #0070f3' }}>
                         <strong style={{ color: '#0070f3', fontSize: '0.9rem' }}>Frase de Impacto:</strong>
                         <div style={{ marginTop: '0.25rem', fontStyle: 'italic', color: '#333' }}>
                           "{predictions[sign].impactPhrase}"
@@ -736,15 +765,6 @@ export default function AdminPredictionsPage() {
                   </div>
                 </div>
               )}
-
-              <button
-                onClick={() => saveSinglePrediction(sign)}
-                className="btn btn-primary"
-                style={{ width: '100%', marginTop: '0.5rem' }}
-                disabled={loading || !predictions[sign]?.text?.trim()}
-              >
-                Salvar {SIGN_NAMES[sign]}
-              </button>
             </div>
             )
           })}
