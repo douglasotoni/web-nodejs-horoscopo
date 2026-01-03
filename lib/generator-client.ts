@@ -404,6 +404,229 @@ const seasonalThemes: Record<'spring' | 'summer' | 'autumn' | 'winter', string[]
   winter: ['introspecção', 'planejamento', 'calor interno', 'reflexão profunda', 'preparação para o futuro']
 }
 
+// 1. Elementos e qualidades astrológicas
+const signElements: Record<Sign, 'fogo' | 'terra' | 'ar' | 'água'> = {
+  aries: 'fogo',
+  taurus: 'terra',
+  gemini: 'ar',
+  cancer: 'água',
+  leo: 'fogo',
+  virgo: 'terra',
+  libra: 'ar',
+  scorpio: 'água',
+  sagittarius: 'fogo',
+  capricorn: 'terra',
+  aquarius: 'ar',
+  pisces: 'água'
+}
+
+const signQualities: Record<Sign, 'cardinal' | 'fixo' | 'mutável'> = {
+  aries: 'cardinal',
+  taurus: 'fixo',
+  gemini: 'mutável',
+  cancer: 'cardinal',
+  leo: 'fixo',
+  virgo: 'mutável',
+  libra: 'cardinal',
+  scorpio: 'fixo',
+  sagittarius: 'mutável',
+  capricorn: 'cardinal',
+  aquarius: 'fixo',
+  pisces: 'mutável'
+}
+
+// 2. Planetas regentes
+const rulingPlanets: Record<Sign, string> = {
+  aries: 'Marte',
+  taurus: 'Vênus',
+  gemini: 'Mercúrio',
+  cancer: 'Lua',
+  leo: 'Sol',
+  virgo: 'Mercúrio',
+  libra: 'Vênus',
+  scorpio: 'Marte',
+  sagittarius: 'Júpiter',
+  capricorn: 'Saturno',
+  aquarius: 'Urano',
+  pisces: 'Netuno'
+}
+
+// 3. Cores da sorte por signo
+const luckyColors: Record<Sign, string[]> = {
+  aries: ['vermelho', 'laranja', 'coral', 'escarlate'],
+  taurus: ['verde', 'rosa', 'azul claro', 'marrom'],
+  gemini: ['amarelo', 'azul', 'prata', 'branco'],
+  cancer: ['prata', 'branco', 'azul claro', 'verde água'],
+  leo: ['dourado', 'laranja', 'amarelo', 'vermelho'],
+  virgo: ['marrom', 'bege', 'verde oliva', 'amarelo claro'],
+  libra: ['rosa', 'azul', 'verde', 'branco'],
+  scorpio: ['vermelho escuro', 'preto', 'roxo', 'marrom'],
+  sagittarius: ['roxo', 'azul', 'laranja', 'dourado'],
+  capricorn: ['preto', 'marrom', 'cinza', 'verde escuro'],
+  aquarius: ['azul', 'prata', 'roxo', 'branco'],
+  pisces: ['verde água', 'roxo', 'azul claro', 'rosa']
+}
+
+// 4. Emoções específicas por signo
+const emotions: Record<Sign, string[]> = {
+  aries: ['coragem', 'entusiasmo', 'determinação', 'confiança', 'impulsividade'],
+  taurus: ['tranquilidade', 'prazer', 'satisfação', 'estabilidade', 'sensualidade'],
+  gemini: ['curiosidade', 'alegria', 'versatilidade', 'inquietação', 'entusiasmo'],
+  cancer: ['sensibilidade', 'nostalgia', 'proteção', 'carinho', 'intuição'],
+  leo: ['orgulho', 'generosidade', 'alegria', 'confiança', 'criatividade'],
+  virgo: ['precisão', 'modéstia', 'preocupação', 'organização', 'discernimento'],
+  libra: ['harmonia', 'beleza', 'diplomacia', 'equilíbrio', 'romance'],
+  scorpio: ['intensidade', 'paixão', 'mistério', 'transformação', 'profundidade'],
+  sagittarius: ['liberdade', 'otimismo', 'aventura', 'filosofia', 'expansão'],
+  capricorn: ['ambição', 'disciplina', 'responsabilidade', 'realismo', 'perseverança'],
+  aquarius: ['originalidade', 'liberdade', 'humanitarismo', 'inovação', 'independência'],
+  pisces: ['intuição', 'compaixão', 'sonhos', 'espiritualidade', 'empatia']
+}
+
+// 5. Conselhos práticos por signo
+const practicalAdvices: Record<Sign, string[]> = {
+  aries: [
+    'Inicie um novo projeto hoje',
+    'Tome uma decisão importante',
+    'Faça exercícios físicos',
+    'Expresse sua opinião com confiança',
+    'Assuma a liderança em uma situação'
+  ],
+  taurus: [
+    'Dedique tempo para relaxar',
+    'Aprecie uma boa refeição',
+    'Cuidar do jardim ou plantas',
+    'Organize seu espaço pessoal',
+    'Valorize os momentos de prazer'
+  ],
+  gemini: [
+    'Leia um livro interessante',
+    'Converse com pessoas novas',
+    'Aprenda algo novo hoje',
+    'Escreva suas ideias',
+    'Faça networking'
+  ],
+  cancer: [
+    'Passe tempo com a família',
+    'Cozinhe algo especial',
+    'Cuide de alguém querido',
+    'Reflita sobre suas emoções',
+    'Crie um ambiente acolhedor'
+  ],
+  leo: [
+    'Expresse sua criatividade',
+    'Celebre suas conquistas',
+    'Compartilhe sua alegria',
+    'Faça algo que te divirta',
+    'Seja generoso com os outros'
+  ],
+  virgo: [
+    'Organize sua rotina',
+    'Cuide da sua saúde',
+    'Revise detalhes importantes',
+    'Faça uma lista de tarefas',
+    'Pratique mindfulness'
+  ],
+  libra: [
+    'Harmonize seu ambiente',
+    'Passe tempo com seu parceiro',
+    'Aprecie arte e beleza',
+    'Busque equilíbrio nas decisões',
+    'Seja diplomático em conflitos'
+  ],
+  scorpio: [
+    'Explore sua intuição',
+    'Transforme algo em sua vida',
+    'Aprofunde um relacionamento',
+    'Investigue algo que te intriga',
+    'Libere o que não serve mais'
+  ],
+  sagittarius: [
+    'Planeje uma viagem',
+    'Explore novos lugares',
+    'Estude algo que te interessa',
+    'Pratique esportes',
+    'Compartilhe sua filosofia'
+  ],
+  capricorn: [
+    'Trabalhe em seus objetivos',
+    'Planeje o futuro',
+    'Assuma responsabilidades',
+    'Demonstre sua competência',
+    'Construa algo duradouro'
+  ],
+  aquarius: [
+    'Inove em algo',
+    'Conecte-se com grupos',
+    'Apoie uma causa social',
+    'Use tecnologia criativamente',
+    'Seja original e autêntico'
+  ],
+  pisces: [
+    'Pratique meditação',
+    'Expresse sua criatividade',
+    'Ajude alguém necessitado',
+    'Conecte-se com sua espiritualidade',
+    'Confie em sua intuição'
+  ]
+}
+
+// 6. Compatibilidade básica por elemento
+const compatibleElements: Record<'fogo' | 'terra' | 'ar' | 'água', string[]> = {
+  fogo: ['Fogo e Ar', 'energia e ação', 'criatividade e entusiasmo'],
+  terra: ['Terra e Água', 'estabilidade e emoção', 'praticidade e sensibilidade'],
+  ar: ['Ar e Fogo', 'comunicação e ação', 'intelecto e criatividade'],
+  água: ['Água e Terra', 'emoção e estabilidade', 'intuição e praticidade']
+}
+
+// 7. Significados numerológicos (1-60)
+const numerologyMeanings: string[] = [
+  'Novos começos e liderança', 'Cooperação e harmonia', 'Criatividade e expressão',
+  'Estabilidade e organização', 'Liberdade e aventura', 'Amor e responsabilidade',
+  'Espiritualidade e introspecção', 'Poder e materialismo', 'Humanitarismo e compaixão',
+  'Completude e realização', 'Intuição e inspiração', 'Sacrifício e serviço',
+  'Transformação e renovação', 'Equilíbrio e justiça', 'Criatividade e expansão',
+  'Amor e relacionamentos', 'Espiritualidade e sabedoria', 'Materialismo e realização',
+  'Comunicação e expressão', 'Completude e perfeição', 'Criatividade e originalidade',
+  'Cooperação e parceria', 'Mistério e transformação', 'Comunicação e adaptabilidade',
+  'Amor e harmonia', 'Espiritualidade e intuição', 'Criatividade e expressão',
+  'Poder e liderança', 'Intuição e compaixão', 'Criatividade e comunicação',
+  'Transformação e renovação', 'Comunicação e expressão', 'Espiritualidade e sabedoria',
+  'Criatividade e expansão', 'Amor e relacionamentos', 'Materialismo e realização',
+  'Intuição e inspiração', 'Comunicação e adaptabilidade', 'Transformação e renovação',
+  'Criatividade e originalidade', 'Amor e harmonia', 'Espiritualidade e introspecção',
+  'Poder e materialismo', 'Comunicação e expressão', 'Criatividade e expansão',
+  'Intuição e compaixão', 'Transformação e renovação', 'Amor e relacionamentos',
+  'Espiritualidade e sabedoria', 'Criatividade e originalidade', 'Comunicação e adaptabilidade',
+  'Poder e liderança', 'Intuição e inspiração', 'Amor e harmonia',
+  'Transformação e renovação', 'Criatividade e expressão', 'Espiritualidade e introspecção',
+  'Comunicação e expressão', 'Criatividade e expansão', 'Amor e relacionamentos'
+]
+
+// 8. Frases de impacto
+const impactPhrases: string[] = [
+  'O universo conspira a seu favor',
+  'Sua intuição é sua melhor guia',
+  'As estrelas estão alinhadas para você',
+  'Você tem o poder de criar sua realidade',
+  'Confie no processo e mantenha a fé',
+  'Grandes coisas estão por vir',
+  'Sua energia atrai o que você precisa',
+  'O momento é perfeito para agir',
+  'Você está no caminho certo',
+  'A sabedoria está dentro de você',
+  'Seus sonhos estão mais próximos do que imagina',
+  'A vida está conspirando para seu sucesso',
+  'Você é mais forte do que pensa',
+  'As oportunidades estão batendo à sua porta',
+  'Sua luz brilha intensamente hoje',
+  'O destino está trabalhando a seu favor',
+  'Você tem tudo que precisa para ter sucesso',
+  'A magia está acontecendo agora',
+  'Seus desejos estão se manifestando',
+  'Você está exatamente onde precisa estar'
+]
+
 // Validação de qualidade e diversidade
 function validatePredictionQuality(sentences: string[], seedNums: number[]): boolean {
   // Verifica se há repetição excessiva de palavras
@@ -431,6 +654,15 @@ function validatePredictionQuality(sentences: string[], seedNums: number[]): boo
 export function generateDailyPredictionClient(context: GeneratorContext): {
   text: string
   luckyNumber: number
+  element: string
+  quality: string
+  rulingPlanet: string
+  luckyColor: string
+  emotion: string
+  practicalAdvice: string
+  compatibleSigns: string
+  numerologyMeaning: string
+  impactPhrase: string
 } {
   const seasonal = getSeasonalContext(context.isoWeek, context.isoYear)
   const moonPhase = getMoonPhase(seasonal.date)
@@ -533,7 +765,49 @@ export function generateDailyPredictionClient(context: GeneratorContext): {
   // Adicionar número da sorte no texto (sempre no final)
   const textWithLuckyNumber = text + ` Seu número da sorte é ${luckyNumber}.`
   
-  return { text: textWithLuckyNumber, luckyNumber }
+  // 1. Elemento e qualidade
+  const element = signElements[context.sign]
+  const quality = signQualities[context.sign]
+  
+  // 2. Planeta regente
+  const rulingPlanet = rulingPlanets[context.sign]
+  
+  // 3. Cor da sorte (selecionada baseada na seed)
+  const colorSeed = generateLuckyNumber(seed + 'color')
+  const luckyColor = getRandomElement(luckyColors[context.sign], colorSeed)
+  
+  // 4. Emoção específica
+  const emotionSeed = generateLuckyNumber(seed + 'emotion')
+  const emotion = getRandomElement(emotions[context.sign], emotionSeed)
+  
+  // 5. Conselho prático
+  const adviceSeed = generateLuckyNumber(seed + 'advice')
+  const practicalAdvice = getRandomElement(practicalAdvices[context.sign], adviceSeed)
+  
+  // 6. Compatibilidade
+  const compatibleInfo = compatibleElements[element]
+  const compatibleSigns = `Signos de ${compatibleInfo[0]} trazem ${compatibleInfo[1]}`
+  
+  // 7. Significado numerológico
+  const numerologyMeaning = numerologyMeanings[(luckyNumber - 1) % numerologyMeanings.length]
+  
+  // 8. Frase de impacto
+  const impactSeed = generateLuckyNumber(seed + 'impact')
+  const impactPhrase = getRandomElement(impactPhrases, impactSeed)
+  
+  return {
+    text: textWithLuckyNumber,
+    luckyNumber,
+    element,
+    quality,
+    rulingPlanet,
+    luckyColor,
+    emotion,
+    practicalAdvice,
+    compatibleSigns,
+    numerologyMeaning,
+    impactPhrase
+  }
 }
 
 export function generateWeeklyPredictionClient(context: Omit<GeneratorContext, 'weekday'>): {

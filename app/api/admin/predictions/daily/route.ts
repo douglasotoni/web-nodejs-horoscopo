@@ -13,6 +13,15 @@ const createSchema = z.object({
   isoYear: z.number().int().positive(),
   text: z.string().min(10).optional(),
   luckyNumber: z.number().int().min(1).max(60).optional(),
+  element: z.string().optional(),
+  quality: z.string().optional(),
+  rulingPlanet: z.string().optional(),
+  luckyColor: z.string().optional(),
+  emotion: z.string().optional(),
+  practicalAdvice: z.string().optional(),
+  compatibleSigns: z.string().optional(),
+  numerologyMeaning: z.string().optional(),
+  impactPhrase: z.string().optional(),
   status: z.enum(['draft', 'published']).optional(),
   generate: z.boolean().optional()
 })
@@ -125,6 +134,15 @@ export async function POST(req: NextRequest) {
 
     let text = data.text
     let luckyNumber = data.luckyNumber
+    let element = data.element
+    let quality = data.quality
+    let rulingPlanet = data.rulingPlanet
+    let luckyColor = data.luckyColor
+    let emotion = data.emotion
+    let practicalAdvice = data.practicalAdvice
+    let compatibleSigns = data.compatibleSigns
+    let numerologyMeaning = data.numerologyMeaning
+    let impactPhrase = data.impactPhrase
 
     if (data.generate && !text) {
       const generated = generateDailyPrediction({
@@ -135,6 +153,15 @@ export async function POST(req: NextRequest) {
       })
       text = generated.text
       luckyNumber = generated.luckyNumber
+      element = generated.element
+      quality = generated.quality
+      rulingPlanet = generated.rulingPlanet
+      luckyColor = generated.luckyColor
+      emotion = generated.emotion
+      practicalAdvice = generated.practicalAdvice
+      compatibleSigns = generated.compatibleSigns
+      numerologyMeaning = generated.numerologyMeaning
+      impactPhrase = generated.impactPhrase
     }
 
     if (!text || !luckyNumber) {
@@ -144,6 +171,24 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Preparar dados para update (incluir apenas campos definidos)
+    const updateData: any = {
+      text,
+      luckyNumber,
+      status: data.status || 'draft'
+    }
+    
+    // Adicionar novos campos apenas se estiverem definidos
+    if (element !== undefined) updateData.element = element
+    if (quality !== undefined) updateData.quality = quality
+    if (rulingPlanet !== undefined) updateData.rulingPlanet = rulingPlanet
+    if (luckyColor !== undefined) updateData.luckyColor = luckyColor
+    if (emotion !== undefined) updateData.emotion = emotion
+    if (practicalAdvice !== undefined) updateData.practicalAdvice = practicalAdvice
+    if (compatibleSigns !== undefined) updateData.compatibleSigns = compatibleSigns
+    if (numerologyMeaning !== undefined) updateData.numerologyMeaning = numerologyMeaning
+    if (impactPhrase !== undefined) updateData.impactPhrase = impactPhrase
+    
     const prediction = await prisma.dailyPrediction.upsert({
       where: {
         sign_weekday_isoWeek_isoYear: {
@@ -153,11 +198,7 @@ export async function POST(req: NextRequest) {
           isoYear: data.isoYear
         }
       },
-      update: {
-        text,
-        luckyNumber,
-        status: data.status || 'draft'
-      },
+      update: updateData,
       create: {
         sign: data.sign,
         weekday: data.weekday,
@@ -165,6 +206,15 @@ export async function POST(req: NextRequest) {
         isoYear: data.isoYear,
         text,
         luckyNumber,
+        element: element || null,
+        quality: quality || null,
+        rulingPlanet: rulingPlanet || null,
+        luckyColor: luckyColor || null,
+        emotion: emotion || null,
+        practicalAdvice: practicalAdvice || null,
+        compatibleSigns: compatibleSigns || null,
+        numerologyMeaning: numerologyMeaning || null,
+        impactPhrase: impactPhrase || null,
         status: data.status || 'draft'
       }
     })
@@ -215,6 +265,15 @@ export async function PUT(req: NextRequest) {
       data: {
         text: data.text,
         luckyNumber: data.luckyNumber,
+        element: data.element,
+        quality: data.quality,
+        rulingPlanet: data.rulingPlanet,
+        luckyColor: data.luckyColor,
+        emotion: data.emotion,
+        practicalAdvice: data.practicalAdvice,
+        compatibleSigns: data.compatibleSigns,
+        numerologyMeaning: data.numerologyMeaning,
+        impactPhrase: data.impactPhrase,
         status: data.status
       }
     })

@@ -64,16 +64,25 @@ model User {
 }
 
 model DailyPrediction {
-  id          String           @id @default(uuid())
-  sign        Sign
-  weekday     Weekday
-  isoWeek     Int              @map("iso_week")
-  isoYear     Int              @map("iso_year")
-  text        String           @db.Text
-  luckyNumber Int              @map("lucky_number")
-  status      PredictionStatus @default(draft)
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
+  id                String           @id @default(uuid())
+  sign              Sign
+  weekday           Weekday
+  isoWeek           Int              @map("iso_week")
+  isoYear           Int              @map("iso_year")
+  text              String           @db.Text
+  luckyNumber       Int              @map("lucky_number")
+  element           String?          // fogo, terra, ar, água
+  quality           String?          // cardinal, fixo, mutável
+  rulingPlanet      String?          // planeta regente
+  luckyColor        String?          // cor da sorte
+  emotion           String?          // emoção específica
+  practicalAdvice   String?          @map("practical_advice") // conselho prático
+  compatibleSigns   String?          @map("compatible_signs") // signos compatíveis
+  numerologyMeaning String?          @map("numerology_meaning") // significado numerológico
+  impactPhrase      String?          @map("impact_phrase") // frase de impacto
+  status            PredictionStatus @default(draft)
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
 
   @@unique([sign, weekday, isoWeek, isoYear])
   @@index([sign, weekday, isoWeek, isoYear])
