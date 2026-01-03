@@ -571,12 +571,28 @@ const practicalAdvices: Record<Sign, string[]> = {
   ]
 }
 
-// 6. Compatibilidade básica por elemento
-const compatibleElements: Record<'fogo' | 'terra' | 'ar' | 'água', string[]> = {
-  fogo: ['Fogo e Ar', 'energia e ação', 'criatividade e entusiasmo'],
-  terra: ['Terra e Água', 'estabilidade e emoção', 'praticidade e sensibilidade'],
-  ar: ['Ar e Fogo', 'comunicação e ação', 'intelecto e criatividade'],
-  água: ['Água e Terra', 'emoção e estabilidade', 'intuição e praticidade']
+// 6. Compatibilidade básica por elemento - signos específicos
+const compatibleSignsByElement: Record<'fogo' | 'terra' | 'ar' | 'água', Sign[]> = {
+  fogo: ['aries', 'leo', 'sagittarius', 'gemini', 'libra', 'aquarius'], // Fogo e Ar
+  terra: ['taurus', 'virgo', 'capricorn', 'cancer', 'scorpio', 'pisces'], // Terra e Água
+  ar: ['gemini', 'libra', 'aquarius', 'aries', 'leo', 'sagittarius'], // Ar e Fogo
+  água: ['cancer', 'scorpio', 'pisces', 'taurus', 'virgo', 'capricorn'] // Água e Terra
+}
+
+// Nomes dos signos em português para exibição
+const signNames: Record<Sign, string> = {
+  aries: 'Áries',
+  taurus: 'Touro',
+  gemini: 'Gêmeos',
+  cancer: 'Câncer',
+  leo: 'Leão',
+  virgo: 'Virgem',
+  libra: 'Libra',
+  scorpio: 'Escorpião',
+  sagittarius: 'Sagitário',
+  capricorn: 'Capricórnio',
+  aquarius: 'Aquário',
+  pisces: 'Peixes'
 }
 
 // 7. Significados numerológicos (1-60)
@@ -687,12 +703,12 @@ export function generateDailyPredictionClient(context: GeneratorContext): {
     
     // Frase positiva inicial
     const positiveTemplate = getRandomElement(templates.positive, seedNums[3])
-    sentences.push(positiveTemplate
-      .replace('{action}', `explorar ${signTheme}`)
-      .replace('{focus}', signTheme)
-      .replace('{area}', signTheme)
-    )
-    
+  sentences.push(positiveTemplate
+    .replace('{action}', `explorar ${signTheme}`)
+    .replace('{focus}', signTheme)
+    .replace('{area}', signTheme)
+  )
+  
     // Frase do dia da semana
     const weekdayAction = getRandomElement(weekdayThemes[context.weekday], seedNums[4])
     const weekPosition = context.weekday === 'monday' ? 'início' : 
@@ -722,15 +738,15 @@ export function generateDailyPredictionClient(context: GeneratorContext): {
     // Conselho ou advertência
     if (seedNums[6] % 3 === 0) {
       const advice = getRandomElement(templates.advice, seedNums[7])
-      sentences.push(advice
-        .replace('{investment}', signTheme)
-        .replace('{dedication}', weekdayTheme)
-        .replace('{priority}', signTheme)
-        .replace('{enjoy}', weekdayTheme)
-        .replace('{focus}', signTheme)
+    sentences.push(advice
+      .replace('{investment}', signTheme)
+      .replace('{dedication}', weekdayTheme)
+      .replace('{priority}', signTheme)
+      .replace('{enjoy}', weekdayTheme)
+      .replace('{focus}', signTheme)
         .replace('{area}', signTheme)
-      )
-    } else {
+    )
+  } else {
       sentences.push(getRandomElement(templates.caution, seedNums[8]))
     }
     
@@ -784,9 +800,25 @@ export function generateDailyPredictionClient(context: GeneratorContext): {
   const adviceSeed = generateLuckyNumber(seed + 'advice')
   const practicalAdvice = getRandomElement(practicalAdvices[context.sign], adviceSeed)
   
-  // 6. Compatibilidade
-  const compatibleInfo = compatibleElements[element]
-  const compatibleSigns = `Signos de ${compatibleInfo[0]} trazem ${compatibleInfo[1]}`
+  // 6. Compatibilidade - seleciona 2-3 signos compatíveis aleatoriamente
+  const compatibleSignsList = compatibleSignsByElement[element]
+  const compatibleSeed = generateLuckyNumber(seed + 'compatible')
+  const numCompatible = 2 + (compatibleSeed % 2) // 2 ou 3 signos
+  const selectedCompatible: Sign[] = []
+  
+  // Seleciona signos compatíveis diferentes do signo atual
+  const availableSigns = compatibleSignsList.filter(s => s !== context.sign)
+  for (let i = 0; i < numCompatible && i < availableSigns.length; i++) {
+    const signSeed = generateLuckyNumber(seed + `compatible-${i}`)
+    const selected = availableSigns[signSeed % availableSigns.length]
+    if (!selectedCompatible.includes(selected)) {
+      selectedCompatible.push(selected)
+    }
+  }
+  
+  // Formata como string com nomes em português
+  const compatibleSignsNames = selectedCompatible.map(s => signNames[s]).join(', ')
+  const compatibleSigns = `Signos compatíveis: ${compatibleSignsNames}`
   
   // 7. Significado numerológico
   const numerologyMeaning = numerologyMeanings[(luckyNumber - 1) % numerologyMeanings.length]
@@ -859,17 +891,17 @@ export function generateWeeklyPredictionClient(context: Omit<GeneratorContext, '
     while (focusArea2 === focusArea1) {
       focusArea2 = getRandomElement(areas, seedNums[5] + 1)
     }
-    
-    sentences.push(`As áreas de ${focusArea1} e ${focusArea2} merecem atenção especial.`)
-    
+  
+  sentences.push(`As áreas de ${focusArea1} e ${focusArea2} merecem atenção especial.`)
+  
     // Conselho principal
     const advice = getRandomElement(templates.advice, seedNums[6])
-    sentences.push(advice
-      .replace('{investment}', signTheme)
-      .replace('{dedication}', 'seus projetos pessoais')
-      .replace('{priority}', 'equilíbrio')
-      .replace('{enjoy}', 'as oportunidades que surgirem')
-      .replace('{focus}', signTheme)
+  sentences.push(advice
+    .replace('{investment}', signTheme)
+    .replace('{dedication}', 'seus projetos pessoais')
+    .replace('{priority}', 'equilíbrio')
+    .replace('{enjoy}', 'as oportunidades que surgirem')
+    .replace('{focus}', signTheme)
       .replace('{area}', signTheme)
     )
     

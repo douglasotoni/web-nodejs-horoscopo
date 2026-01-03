@@ -600,51 +600,24 @@ export default function AdminPredictionsPage() {
                 />
               </div>
 
-              {/* Informações Astrológicas Adicionais */}
-              {(predictions[sign]?.element || predictions[sign]?.quality || predictions[sign]?.rulingPlanet || predictions[sign]?.luckyColor || predictions[sign]?.emotion || predictions[sign]?.practicalAdvice || predictions[sign]?.compatibleSigns || predictions[sign]?.numerologyMeaning || predictions[sign]?.impactPhrase) && (
+              {/* Informações que mudam por período */}
+              {(predictions[sign]?.luckyColor || predictions[sign]?.emotion || predictions[sign]?.practicalAdvice || predictions[sign]?.compatibleSigns || predictions[sign]?.impactPhrase) && (
                 <div style={{ 
                   marginTop: '1.5rem', 
                   padding: '1rem', 
-                  backgroundColor: '#f5f5f5', 
+                  backgroundColor: '#f0f8ff', 
                   borderRadius: '8px',
-                  border: '1px solid #e0e0e0'
+                  border: '1px solid #b3d9ff'
                 }}>
-                  <h4 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.1rem', color: '#333' }}>
-                    Informações Astrológicas
+                  <h4 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1rem', color: '#0066cc' }}>
+                    Informações do Período
                   </h4>
                   
                   <div style={{ 
                     display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
                     gap: '1rem' 
                   }}>
-                    {predictions[sign]?.element && (
-                      <div>
-                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Elemento:</strong>
-                        <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
-                          {predictions[sign].element}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {predictions[sign]?.quality && (
-                      <div>
-                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Qualidade:</strong>
-                        <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
-                          {predictions[sign].quality}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {predictions[sign]?.rulingPlanet && (
-                      <div>
-                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Planeta Regente:</strong>
-                        <div style={{ marginTop: '0.25rem' }}>
-                          {predictions[sign].rulingPlanet}
-                        </div>
-                      </div>
-                    )}
-                    
                     {predictions[sign]?.luckyColor && (
                       <div>
                         <strong style={{ color: '#666', fontSize: '0.9rem' }}>Cor da Sorte:</strong>
@@ -674,18 +647,32 @@ export default function AdminPredictionsPage() {
                     
                     {predictions[sign]?.compatibleSigns && (
                       <div style={{ gridColumn: '1 / -1' }}>
-                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Compatibilidade:</strong>
-                        <div style={{ marginTop: '0.25rem' }}>
-                          {predictions[sign].compatibleSigns}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {predictions[sign]?.numerologyMeaning && (
-                      <div style={{ gridColumn: '1 / -1' }}>
-                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Significado Numerológico:</strong>
-                        <div style={{ marginTop: '0.25rem' }}>
-                          {predictions[sign].numerologyMeaning}
+                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Signos Compatíveis:</strong>
+                        <div style={{ 
+                          marginTop: '0.5rem', 
+                          display: 'flex', 
+                          flexWrap: 'wrap', 
+                          gap: '0.5rem' 
+                        }}>
+                          {predictions[sign].compatibleSigns
+                            .replace('Signos compatíveis: ', '')
+                            .split(', ')
+                            .map((signName, idx) => (
+                              <span
+                                key={idx}
+                                style={{
+                                  padding: '0.4rem 0.8rem',
+                                  backgroundColor: '#0070f3',
+                                  color: '#fff',
+                                  borderRadius: '20px',
+                                  fontSize: '0.85rem',
+                                  fontWeight: '500',
+                                  display: 'inline-block'
+                                }}
+                              >
+                                {signName.trim()}
+                              </span>
+                            ))}
                         </div>
                       </div>
                     )}
@@ -695,6 +682,54 @@ export default function AdminPredictionsPage() {
                         <strong style={{ color: '#0070f3', fontSize: '0.9rem' }}>Frase de Impacto:</strong>
                         <div style={{ marginTop: '0.25rem', fontStyle: 'italic', color: '#333' }}>
                           "{predictions[sign].impactPhrase}"
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Informações Astrológicas Imutáveis do Signo */}
+              {(predictions[sign]?.element || predictions[sign]?.quality || predictions[sign]?.rulingPlanet) && (
+                <div style={{ 
+                  marginTop: '1.5rem', 
+                  padding: '1rem', 
+                  backgroundColor: '#f5f5f5', 
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0'
+                }}>
+                  <h4 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.1rem', color: '#333' }}>
+                    Informações Astrológicas
+                  </h4>
+                  
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                    gap: '1rem' 
+                  }}>
+                    {predictions[sign]?.element && (
+                      <div>
+                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Elemento:</strong>
+                        <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
+                          {predictions[sign].element}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {predictions[sign]?.quality && (
+                      <div>
+                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Qualidade:</strong>
+                        <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
+                          {predictions[sign].quality}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {predictions[sign]?.rulingPlanet && (
+                      <div>
+                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Planeta Regente:</strong>
+                        <div style={{ marginTop: '0.25rem' }}>
+                          {predictions[sign].rulingPlanet}
                         </div>
                       </div>
                     )}
