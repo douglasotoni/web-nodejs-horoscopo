@@ -21,6 +21,95 @@ const updateSchema = createSchema.partial().extend({
   id: z.string().uuid()
 })
 
+const querySchema = z.object({
+  sign: z.enum(['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']).optional(),
+  weekday: z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']).optional(),
+  isoWeek: z.coerce.number().int().positive().optional(),
+  isoYear: z.coerce.number().int().positive().optional()
+})
+
+export async function GET(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session || !canEditPredictions(session.user.role)) {
+      return NextResponse.json(
+        { error: 'Não autorizado' },
+        { status: 403 }
+      )
+    }
+
+    const searchParams = req.nextUrl.searchParams
+    const params = {
+      sign: searchParams.get('sign') || undefined,
+      weekday: searchParams.get('weekday') || undefined,
+      isoWeek: searchParams.get('isoWeek') || undefined,
+      isoYear: searchParams.get('isoYear') || undefined
+    }
+
+    console.log('Parâmetros recebidos:', params)
+
+    const validated = querySchema.parse(params)
+    console.log('Parâmetros validados:', validated)
+
+    if (validated.sign && validated.weekday && validated.isoWeek && validated.isoYear) {
+      // Buscar previsão específica
+      const prediction = await prisma.dailyPrediction.findUnique({
+        where: {
+          sign_weekday_isoWeek_isoYear: {
+            sign: validated.sign,
+            weekday: validated.weekday,
+            isoWeek: validated.isoWeek,
+            isoYear: validated.isoYear
+          }
+        }
+      })
+
+      if (!prediction) {
+        return NextResponse.json(
+          { error: 'Previsão não encontrada' },
+          { status: 404 }
+        )
+      }
+
+      return NextResponse.json(prediction)
+    } else if (validated.weekday && validated.isoWeek && validated.isoYear) {
+      // Buscar todas as previsões para a data/semana
+      const predictions = await prisma.dailyPrediction.findMany({
+        where: {
+          weekday: validated.weekday,
+          isoWeek: validated.isoWeek,
+          isoYear: validated.isoYear
+        },
+        orderBy: {
+          sign: 'asc'
+        }
+      })
+
+      // Sempre retornar um array, mesmo que vazio
+      return NextResponse.json(predictions || [])
+    } else {
+      return NextResponse.json(
+        { error: 'Parâmetros inválidos' },
+        { status: 400 }
+      )
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error('Erro de validação Zod:', error.errors)
+      return NextResponse.json(
+        { error: 'Parâmetros inválidos', details: error.errors },
+        { status: 400 }
+      )
+    }
+
+    console.error('Error fetching daily predictions:', error)
+    return NextResponse.json(
+      { error: 'Erro ao buscar previsões', message: error instanceof Error ? error.message : 'Erro desconhecido' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)

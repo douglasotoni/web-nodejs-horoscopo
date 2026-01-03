@@ -19,11 +19,11 @@ export async function GET(req: NextRequest) {
       isoYear: searchParams.get('isoYear')
     }
 
-    const { isoWeek, isoYear } = getCurrentISOWeek()
+    const { week, year } = getCurrentISOWeek()
     const validated = querySchema.parse({
       ...params,
-      isoWeek: params.isoWeek || isoWeek,
-      isoYear: params.isoYear || isoYear
+      isoWeek: params.isoWeek || week,
+      isoYear: params.isoYear || year
     })
 
     const signs: Sign[] = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']

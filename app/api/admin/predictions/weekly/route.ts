@@ -20,6 +20,91 @@ const updateSchema = createSchema.partial().extend({
   id: z.string().uuid()
 })
 
+const querySchema = z.object({
+  sign: z.enum(['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']).optional(),
+  isoWeek: z.coerce.number().int().positive().optional(),
+  isoYear: z.coerce.number().int().positive().optional()
+})
+
+export async function GET(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session || !canEditPredictions(session.user.role)) {
+      return NextResponse.json(
+        { error: 'Não autorizado' },
+        { status: 403 }
+      )
+    }
+
+    const searchParams = req.nextUrl.searchParams
+    const params = {
+      sign: searchParams.get('sign') || undefined,
+      isoWeek: searchParams.get('isoWeek') || undefined,
+      isoYear: searchParams.get('isoYear') || undefined
+    }
+
+    console.log('Parâmetros recebidos (weekly):', params)
+
+    const validated = querySchema.parse(params)
+    console.log('Parâmetros validados (weekly):', validated)
+
+    if (validated.sign && validated.isoWeek && validated.isoYear) {
+      // Buscar previsão específica
+      const prediction = await prisma.weeklyPrediction.findUnique({
+        where: {
+          sign_isoWeek_isoYear: {
+            sign: validated.sign,
+            isoWeek: validated.isoWeek,
+            isoYear: validated.isoYear
+          }
+        }
+      })
+
+      if (!prediction) {
+        return NextResponse.json(
+          { error: 'Previsão não encontrada' },
+          { status: 404 }
+        )
+      }
+
+      return NextResponse.json(prediction)
+    } else if (validated.isoWeek && validated.isoYear) {
+      // Buscar todas as previsões para a semana
+      const predictions = await prisma.weeklyPrediction.findMany({
+        where: {
+          isoWeek: validated.isoWeek,
+          isoYear: validated.isoYear
+        },
+        orderBy: {
+          sign: 'asc'
+        }
+      })
+
+      // Sempre retornar um array, mesmo que vazio
+      return NextResponse.json(predictions || [])
+    } else {
+      return NextResponse.json(
+        { error: 'Parâmetros inválidos' },
+        { status: 400 }
+      )
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error('Erro de validação Zod (weekly):', error.errors)
+      return NextResponse.json(
+        { error: 'Parâmetros inválidos', details: error.errors },
+        { status: 400 }
+      )
+    }
+
+    console.error('Error fetching weekly predictions:', error)
+    return NextResponse.json(
+      { error: 'Erro ao buscar previsões', message: error instanceof Error ? error.message : 'Erro desconhecido' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -40,8 +125,7 @@ export async function POST(req: NextRequest) {
       const generated = generateWeeklyPrediction({
         sign: data.sign,
         isoWeek: data.isoWeek,
-        isoYear: data.isoYear,
-        weekday: 'monday' // não usado na semanal
+        isoYear: data.isoYear
       })
       text = generated.text
       luckyNumber = generated.luckyNumber

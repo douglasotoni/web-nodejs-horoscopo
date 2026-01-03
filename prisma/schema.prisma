@@ -102,7 +102,7 @@ model AuditLog {
   action    String
   entity    String
   entityId  String?  @map("entity_id")
-  metadata  String?  @db.Json
+  metadata  Json?    @db.Json
   createdAt DateTime @default(now()) @map("created_at")
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
