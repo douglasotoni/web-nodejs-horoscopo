@@ -37,6 +37,13 @@ interface PredictionData {
   compatibleSigns?: string
   numerologyMeaning?: string
   impactPhrase?: string
+  recommendedActivities?: string
+  dailyAlert?: string
+  energyLevel?: number
+  crystal?: string
+  mantra?: string
+  loveAdvice?: string
+  careerAdvice?: string
   status: 'draft' | 'published'
 }
 
@@ -133,6 +140,13 @@ export default function AdminPredictionsPage() {
                 compatibleSigns: prediction.compatibleSigns,
                 numerologyMeaning: prediction.numerologyMeaning,
                 impactPhrase: prediction.impactPhrase,
+                recommendedActivities: prediction.recommendedActivities,
+                dailyAlert: prediction.dailyAlert,
+                energyLevel: prediction.energyLevel,
+                crystal: prediction.crystal,
+                mantra: prediction.mantra,
+                loveAdvice: prediction.loveAdvice,
+                careerAdvice: prediction.careerAdvice,
                 status: prediction.status || 'draft'
               }
             }
@@ -153,6 +167,13 @@ export default function AdminPredictionsPage() {
             compatibleSigns: data.compatibleSigns,
             numerologyMeaning: data.numerologyMeaning,
             impactPhrase: data.impactPhrase,
+            recommendedActivities: data.recommendedActivities,
+            dailyAlert: data.dailyAlert,
+            energyLevel: data.energyLevel,
+            crystal: data.crystal,
+            mantra: data.mantra,
+            loveAdvice: data.loveAdvice,
+            careerAdvice: data.careerAdvice,
             status: data.status || 'draft'
           }
         } else {
@@ -203,39 +224,54 @@ export default function AdminPredictionsPage() {
       
       for (const sign of SIGNS) {
         try {
-          let result
           if (type === 'daily') {
-            result = generateDailyPredictionClient({
+            const result = generateDailyPredictionClient({
               sign: sign as any,
               weekday: weekday as any,
               isoWeek,
               isoYear
             })
+            
+            newPredictions[sign] = {
+              ...predictions[sign],
+              text: result.text,
+              luckyNumber: result.luckyNumber,
+              element: result.element,
+              quality: result.quality,
+              rulingPlanet: result.rulingPlanet,
+              luckyColor: result.luckyColor,
+              emotion: result.emotion,
+              practicalAdvice: result.practicalAdvice,
+              compatibleSigns: result.compatibleSigns,
+              numerologyMeaning: result.numerologyMeaning,
+              impactPhrase: result.impactPhrase,
+              recommendedActivities: result.recommendedActivities,
+              dailyAlert: result.dailyAlert,
+              energyLevel: result.energyLevel,
+              crystal: result.crystal,
+              mantra: result.mantra,
+              loveAdvice: result.loveAdvice,
+              careerAdvice: result.careerAdvice,
+              status: globalStatus
+            }
+            
+            console.log(`Previsão gerada para ${SIGN_NAMES[sign]}:`, result.text.substring(0, 50) + '...')
           } else {
-            result = generateWeeklyPredictionClient({
+            const result = generateWeeklyPredictionClient({
               sign: sign as any,
               isoWeek,
               isoYear
             })
+            
+            newPredictions[sign] = {
+              ...predictions[sign],
+              text: result.text,
+              luckyNumber: result.luckyNumber,
+              status: globalStatus
+            }
+            
+            console.log(`Previsão gerada para ${SIGN_NAMES[sign]}:`, result.text.substring(0, 50) + '...')
           }
-          
-          newPredictions[sign] = {
-            ...predictions[sign],
-            text: result.text,
-            luckyNumber: result.luckyNumber,
-            element: result.element,
-            quality: result.quality,
-            rulingPlanet: result.rulingPlanet,
-            luckyColor: result.luckyColor,
-            emotion: result.emotion,
-            practicalAdvice: result.practicalAdvice,
-            compatibleSigns: result.compatibleSigns,
-            numerologyMeaning: result.numerologyMeaning,
-            impactPhrase: result.impactPhrase,
-            status: globalStatus
-          }
-          
-          console.log(`Previsão gerada para ${SIGN_NAMES[sign]}:`, result.text.substring(0, 50) + '...')
         } catch (err) {
           console.error(`Erro ao gerar previsão para ${sign}:`, err)
           // Continua para o próximo signo mesmo se houver erro
@@ -307,6 +343,13 @@ export default function AdminPredictionsPage() {
         if (pred.compatibleSigns) body.compatibleSigns = pred.compatibleSigns
         if (pred.numerologyMeaning) body.numerologyMeaning = pred.numerologyMeaning
         if (pred.impactPhrase) body.impactPhrase = pred.impactPhrase
+        if (pred.recommendedActivities) body.recommendedActivities = pred.recommendedActivities
+        if (pred.dailyAlert) body.dailyAlert = pred.dailyAlert
+        if (pred.energyLevel !== undefined) body.energyLevel = pred.energyLevel
+        if (pred.crystal) body.crystal = pred.crystal
+        if (pred.mantra) body.mantra = pred.mantra
+        if (pred.loveAdvice) body.loveAdvice = pred.loveAdvice
+        if (pred.careerAdvice) body.careerAdvice = pred.careerAdvice
         
         if (type === 'daily') {
           body.weekday = weekday
@@ -362,6 +405,13 @@ export default function AdminPredictionsPage() {
               compatibleSigns: savedData.compatibleSigns,
               numerologyMeaning: savedData.numerologyMeaning,
               impactPhrase: savedData.impactPhrase,
+              recommendedActivities: savedData.recommendedActivities,
+              dailyAlert: savedData.dailyAlert,
+              energyLevel: savedData.energyLevel,
+              crystal: savedData.crystal,
+              mantra: savedData.mantra,
+              loveAdvice: savedData.loveAdvice,
+              careerAdvice: savedData.careerAdvice,
               status: savedData.status || globalStatus
             }
           }
@@ -382,11 +432,11 @@ export default function AdminPredictionsPage() {
       setError('Texto é obrigatório')
       return
     }
-    
+
     setLoading(true)
     setError('')
     setSuccess('')
-    
+
     try {
       const url = type === 'daily' 
         ? '/api/admin/predictions/daily'
@@ -411,24 +461,24 @@ export default function AdminPredictionsPage() {
       if (pred.compatibleSigns) body.compatibleSigns = pred.compatibleSigns
       if (pred.numerologyMeaning) body.numerologyMeaning = pred.numerologyMeaning
       if (pred.impactPhrase) body.impactPhrase = pred.impactPhrase
-      
+
       if (type === 'daily') {
         body.weekday = weekday
       }
-      
+
       if (pred.id) {
         body.id = pred.id
       }
       
       console.log(`Salvando ${SIGN_NAMES[sign]} com campos:`, Object.keys(body))
-      
+
       const res = await fetch(url, {
         method: pred.id ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
         credentials: 'include'
       })
-      
+
       if (res.ok) {
         const savedData = await res.json()
         // Atualizar o estado local com os dados salvos (incluindo todos os campos)
@@ -482,17 +532,17 @@ export default function AdminPredictionsPage() {
 
         <div className="card" style={{ marginBottom: '2rem' }}>
           <div className="grid grid-4">
-            <div className="form-group">
-              <label className="form-label">Tipo</label>
-              <select
-                className="form-select"
-                value={type}
-                onChange={(e) => setType(e.target.value as PredictionType)}
-              >
-                <option value="daily">Diária</option>
-                <option value="weekly">Semanal</option>
-              </select>
-            </div>
+          <div className="form-group">
+            <label className="form-label">Tipo</label>
+            <select
+              className="form-select"
+              value={type}
+              onChange={(e) => setType(e.target.value as PredictionType)}
+            >
+              <option value="daily">Diária</option>
+              <option value="weekly">Semanal</option>
+            </select>
+          </div>
 
             <div className="form-group">
               <label className="form-label">Data</label>
@@ -590,6 +640,54 @@ export default function AdminPredictionsPage() {
                 {index + 1}. {SIGN_NAMES[sign]}
                 {!hasData && <span style={{ fontSize: '0.8rem', color: '#999', marginLeft: '0.5rem' }}>(vazio)</span>}
               </h3>
+
+              {/* Informações Astrológicas Imutáveis do Signo */}
+              {(predictions[sign]?.element || predictions[sign]?.quality || predictions[sign]?.rulingPlanet) && (
+                <div style={{ 
+                  marginTop: '1rem', 
+                  padding: '1rem', 
+                  backgroundColor: '#f5f5f5', 
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0'
+                }}>
+                  <h4 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.1rem', color: '#333' }}>
+                    Informações Astrológicas
+                  </h4>
+                  
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                    gap: '1rem' 
+                  }}>
+                    {predictions[sign]?.element && (
+                      <div>
+                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Elemento:</strong>
+                        <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
+                          {predictions[sign].element}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {predictions[sign]?.quality && (
+                      <div>
+                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Qualidade:</strong>
+                        <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
+                          {predictions[sign].quality}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {predictions[sign]?.rulingPlanet && (
+                      <div>
+                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Planeta Regente:</strong>
+                        <div style={{ marginTop: '0.25rem' }}>
+                          {predictions[sign].rulingPlanet}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Informações que mudam por período */}
               {(predictions[sign]?.text || predictions[sign]?.luckyNumber || predictions[sign]?.luckyColor || predictions[sign]?.emotion || predictions[sign]?.practicalAdvice || predictions[sign]?.compatibleSigns || predictions[sign]?.impactPhrase) && (
@@ -718,54 +816,169 @@ export default function AdminPredictionsPage() {
                 </div>
               )}
 
-              {/* Informações Astrológicas Imutáveis do Signo */}
-              {(predictions[sign]?.element || predictions[sign]?.quality || predictions[sign]?.rulingPlanet) && (
+              {/* Card específico para os novos campos */}
+              {(predictions[sign]?.recommendedActivities || predictions[sign]?.dailyAlert || predictions[sign]?.energyLevel || predictions[sign]?.crystal || predictions[sign]?.mantra || predictions[sign]?.loveAdvice || predictions[sign]?.careerAdvice) && (
                 <div style={{ 
                   marginTop: '1.5rem', 
-                  padding: '1rem', 
-                  backgroundColor: '#f5f5f5', 
+                  padding: '1.5rem', 
+                  backgroundColor: '#fff3cd', 
                   borderRadius: '8px',
-                  border: '1px solid #e0e0e0'
+                  border: '1px solid #ffc107'
                 }}>
-                  <h4 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.1rem', color: '#333' }}>
-                    Informações Astrológicas
+                  <h4 style={{ marginTop: 0, marginBottom: '1.5rem', fontSize: '1.2rem', color: '#856404', fontWeight: 'bold' }}>
+                    Informações Adicionais do Dia
                   </h4>
                   
                   <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-                    gap: '1rem' 
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1.25rem'
                   }}>
-                    {predictions[sign]?.element && (
+                    {predictions[sign]?.recommendedActivities && (
                       <div>
-                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Elemento:</strong>
-                        <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
-                          {predictions[sign].element}
+                        <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
+                          ✨ Atividades Recomendadas:
+                        </strong>
+                        <div style={{ 
+                          padding: '0.75rem', 
+                          backgroundColor: '#fff', 
+                          borderRadius: '4px',
+                          border: '1px solid #ffc107',
+                          color: '#333'
+                        }}>
+                          {predictions[sign].recommendedActivities}
                         </div>
                       </div>
                     )}
-                    
-                    {predictions[sign]?.quality && (
+
+                    {predictions[sign]?.dailyAlert && (
                       <div>
-                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Qualidade:</strong>
-                        <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
-                          {predictions[sign].quality}
+                        <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
+                          ⚠️ Alerta do Dia:
+                        </strong>
+                        <div style={{ 
+                          padding: '0.75rem', 
+                          backgroundColor: '#fff3cd', 
+                          borderRadius: '4px',
+                          border: '1px solid #ff9800',
+                          borderLeft: '4px solid #ff9800',
+                          color: '#856404',
+                          fontWeight: '500'
+                        }}>
+                          {predictions[sign].dailyAlert}
                         </div>
                       </div>
                     )}
-                    
-                    {predictions[sign]?.rulingPlanet && (
+
+                    {predictions[sign]?.energyLevel !== undefined && (
                       <div>
-                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Planeta Regente:</strong>
-                        <div style={{ marginTop: '0.25rem' }}>
-                          {predictions[sign].rulingPlanet}
+                        <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
+                          ⚡ Energia do Dia:
+                        </strong>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <div style={{ 
+                            fontSize: '1.5rem', 
+                            fontWeight: 'bold', 
+                            color: predictions[sign].energyLevel! >= 7 ? '#28a745' : predictions[sign].energyLevel! >= 4 ? '#ffc107' : '#dc3545'
+                          }}>
+                            {predictions[sign].energyLevel}/10
+                          </div>
+                          <div style={{ 
+                            flex: 1, 
+                            height: '20px', 
+                            backgroundColor: '#e0e0e0', 
+                            borderRadius: '10px',
+                            overflow: 'hidden'
+                          }}>
+                            <div style={{ 
+                              width: `${(predictions[sign].energyLevel! / 10) * 100}%`, 
+                              height: '100%', 
+                              backgroundColor: predictions[sign].energyLevel! >= 7 ? '#28a745' : predictions[sign].energyLevel! >= 4 ? '#ffc107' : '#dc3545',
+                              transition: 'width 0.3s ease'
+                            }} />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {predictions[sign]?.crystal && (
+                      <div>
+                        <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
+                          💎 Pedra/Cristal do Dia:
+                        </strong>
+                        <div style={{ 
+                          padding: '0.75rem', 
+                          backgroundColor: '#fff', 
+                          borderRadius: '4px',
+                          border: '1px solid #ffc107',
+                          color: '#333',
+                          textTransform: 'capitalize'
+                        }}>
+                          {predictions[sign].crystal}
+                        </div>
+                      </div>
+                    )}
+
+                    {predictions[sign]?.mantra && (
+                      <div>
+                        <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
+                          🧘 Mantra ou Afirmação:
+                        </strong>
+                        <div style={{ 
+                          padding: '1rem', 
+                          backgroundColor: '#fff', 
+                          borderRadius: '4px',
+                          border: '1px solid #ffc107',
+                          borderLeft: '4px solid #9c27b0',
+                          color: '#333',
+                          fontStyle: 'italic',
+                          textAlign: 'center',
+                          fontSize: '1.05rem'
+                        }}>
+                          "{predictions[sign].mantra}"
+                        </div>
+                      </div>
+                    )}
+
+                    {predictions[sign]?.loveAdvice && (
+                      <div>
+                        <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
+                          💕 Conselho Amoroso:
+                        </strong>
+                        <div style={{ 
+                          padding: '0.75rem', 
+                          backgroundColor: '#fff', 
+                          borderRadius: '4px',
+                          border: '1px solid #ffc107',
+                          borderLeft: '4px solid #e91e63',
+                          color: '#333'
+                        }}>
+                          {predictions[sign].loveAdvice}
+                        </div>
+                      </div>
+                    )}
+
+                    {predictions[sign]?.careerAdvice && (
+                      <div>
+                        <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
+                          💼 Conselho Profissional:
+                        </strong>
+                        <div style={{ 
+                          padding: '0.75rem', 
+                          backgroundColor: '#fff', 
+                          borderRadius: '4px',
+                          border: '1px solid #ffc107',
+                          borderLeft: '4px solid #2196f3',
+                          color: '#333'
+                        }}>
+                          {predictions[sign].careerAdvice}
                         </div>
                       </div>
                     )}
                   </div>
                 </div>
-              )}
-            </div>
+            )}
+          </div>
             )
           })}
         </div>

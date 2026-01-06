@@ -22,6 +22,13 @@ const createSchema = z.object({
   compatibleSigns: z.string().optional(),
   numerologyMeaning: z.string().optional(),
   impactPhrase: z.string().optional(),
+  recommendedActivities: z.string().optional().nullable(),
+  dailyAlert: z.string().optional().nullable(),
+  energyLevel: z.number().int().min(1).max(10).optional().nullable(),
+  crystal: z.string().optional().nullable(),
+  mantra: z.string().optional().nullable(),
+  loveAdvice: z.string().optional().nullable(),
+  careerAdvice: z.string().optional().nullable(),
   status: z.enum(['draft', 'published']).optional(),
   generate: z.boolean().optional()
 })
@@ -143,6 +150,13 @@ export async function POST(req: NextRequest) {
     let compatibleSigns = data.compatibleSigns
     let numerologyMeaning = data.numerologyMeaning
     let impactPhrase = data.impactPhrase
+    let recommendedActivities = data.recommendedActivities
+    let dailyAlert = data.dailyAlert
+    let energyLevel = data.energyLevel
+    let crystal = data.crystal
+    let mantra = data.mantra
+    let loveAdvice = data.loveAdvice
+    let careerAdvice = data.careerAdvice
 
     if (data.generate && !text) {
       const generated = generateDailyPrediction({
@@ -162,6 +176,13 @@ export async function POST(req: NextRequest) {
       compatibleSigns = generated.compatibleSigns
       numerologyMeaning = generated.numerologyMeaning
       impactPhrase = generated.impactPhrase
+      recommendedActivities = generated.recommendedActivities
+      dailyAlert = generated.dailyAlert
+      energyLevel = generated.energyLevel
+      crystal = generated.crystal
+      mantra = generated.mantra
+      loveAdvice = generated.loveAdvice
+      careerAdvice = generated.careerAdvice
     }
 
     if (!text || !luckyNumber) {
@@ -188,6 +209,13 @@ export async function POST(req: NextRequest) {
     if (compatibleSigns !== undefined) updateData.compatibleSigns = compatibleSigns
     if (numerologyMeaning !== undefined) updateData.numerologyMeaning = numerologyMeaning
     if (impactPhrase !== undefined) updateData.impactPhrase = impactPhrase
+    if (recommendedActivities !== undefined) updateData.recommendedActivities = recommendedActivities
+    if (dailyAlert !== undefined) updateData.dailyAlert = dailyAlert
+    if (energyLevel !== undefined) updateData.energyLevel = energyLevel
+    if (crystal !== undefined) updateData.crystal = crystal
+    if (mantra !== undefined) updateData.mantra = mantra
+    if (loveAdvice !== undefined) updateData.loveAdvice = loveAdvice
+    if (careerAdvice !== undefined) updateData.careerAdvice = careerAdvice
     
     const prediction = await prisma.dailyPrediction.upsert({
       where: {
@@ -215,6 +243,13 @@ export async function POST(req: NextRequest) {
         compatibleSigns: compatibleSigns || null,
         numerologyMeaning: numerologyMeaning || null,
         impactPhrase: impactPhrase || null,
+        recommendedActivities: recommendedActivities || null,
+        dailyAlert: dailyAlert || null,
+        energyLevel: energyLevel || null,
+        crystal: crystal || null,
+        mantra: mantra || null,
+        loveAdvice: loveAdvice || null,
+        careerAdvice: careerAdvice || null,
         status: data.status || 'draft'
       }
     })
@@ -260,22 +295,31 @@ export async function PUT(req: NextRequest) {
       )
     }
 
+    // Preparar dados para update (incluir apenas campos definidos)
+    const updateData: any = {}
+    if (data.text !== undefined) updateData.text = data.text
+    if (data.luckyNumber !== undefined) updateData.luckyNumber = data.luckyNumber
+    if (data.element !== undefined) updateData.element = data.element
+    if (data.quality !== undefined) updateData.quality = data.quality
+    if (data.rulingPlanet !== undefined) updateData.rulingPlanet = data.rulingPlanet
+    if (data.luckyColor !== undefined) updateData.luckyColor = data.luckyColor
+    if (data.emotion !== undefined) updateData.emotion = data.emotion
+    if (data.practicalAdvice !== undefined) updateData.practicalAdvice = data.practicalAdvice
+    if (data.compatibleSigns !== undefined) updateData.compatibleSigns = data.compatibleSigns
+    if (data.numerologyMeaning !== undefined) updateData.numerologyMeaning = data.numerologyMeaning
+    if (data.impactPhrase !== undefined) updateData.impactPhrase = data.impactPhrase
+    if (data.recommendedActivities !== undefined) updateData.recommendedActivities = data.recommendedActivities
+    if (data.dailyAlert !== undefined) updateData.dailyAlert = data.dailyAlert
+    if (data.energyLevel !== undefined) updateData.energyLevel = data.energyLevel
+    if (data.crystal !== undefined) updateData.crystal = data.crystal
+    if (data.mantra !== undefined) updateData.mantra = data.mantra
+    if (data.loveAdvice !== undefined) updateData.loveAdvice = data.loveAdvice
+    if (data.careerAdvice !== undefined) updateData.careerAdvice = data.careerAdvice
+    if (data.status !== undefined) updateData.status = data.status
+
     const prediction = await prisma.dailyPrediction.update({
       where: { id: data.id },
-      data: {
-        text: data.text,
-        luckyNumber: data.luckyNumber,
-        element: data.element,
-        quality: data.quality,
-        rulingPlanet: data.rulingPlanet,
-        luckyColor: data.luckyColor,
-        emotion: data.emotion,
-        practicalAdvice: data.practicalAdvice,
-        compatibleSigns: data.compatibleSigns,
-        numerologyMeaning: data.numerologyMeaning,
-        impactPhrase: data.impactPhrase,
-        status: data.status
-      }
+      data: updateData
     })
 
     return NextResponse.json(prediction)

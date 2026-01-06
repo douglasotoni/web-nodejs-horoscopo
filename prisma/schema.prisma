@@ -80,6 +80,13 @@ model DailyPrediction {
   compatibleSigns   String?          @map("compatible_signs") // signos compatíveis
   numerologyMeaning String?          @map("numerology_meaning") // significado numerológico
   impactPhrase      String?          @map("impact_phrase") // frase de impacto
+  recommendedActivities String?      @map("recommended_activities") // atividades recomendadas
+  dailyAlert        String?          @map("daily_alert") // alerta do dia
+  energyLevel       Int?             @map("energy_level") // energia do dia (1-10)
+  crystal           String?          // pedra/cristal do dia
+  mantra            String?          // mantra ou afirmação
+  loveAdvice        String?          @map("love_advice") // conselho amoroso específico
+  careerAdvice      String?          @map("career_advice") // conselho profissional
   status            PredictionStatus @default(draft)
   createdAt         DateTime         @default(now()) @map("created_at")
   updatedAt         DateTime         @updatedAt @map("updated_at")

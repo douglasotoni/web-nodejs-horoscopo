@@ -571,6 +571,729 @@ const practicalAdvices: Record<Sign, string[]> = {
   ]
 }
 
+// Novos campos: Atividades recomendadas, Alertas, Cristais, Mantras, Conselhos
+const recommendedActivities: Record<Sign, string[]> = {
+  aries: [
+    'Exercícios físicos intensos', 'Iniciar novos projetos', 'Tomar decisões importantes',
+    'Competições esportivas', 'Liderar equipes', 'Aventuras ao ar livre',
+    'Praticar artes marciais', 'Explorar novos lugares', 'Atividades de ação'
+  ],
+  taurus: [
+    'Cuidar do jardim', 'Cozinhar receitas especiais', 'Massagem relaxante',
+    'Apreciar música ao vivo', 'Compras em feiras', 'Artesanato manual',
+    'Caminhadas na natureza', 'Sessão de spa', 'Degustação de vinhos'
+  ],
+  gemini: [
+    'Leitura de livros', 'Conversas interessantes', 'Cursos online',
+    'Escrita criativa', 'Networking', 'Jogos de palavras',
+    'Podcasts educativos', 'Visitas a museus', 'Aulas de idiomas'
+  ],
+  cancer: [
+    'Tempo com família', 'Cozinhar para entes queridos', 'Organizar álbuns de fotos',
+    'Cuidar de plantas', 'Meditação em casa', 'Conversas profundas',
+    'Atividades caseiras', 'Cuidar de animais', 'Preparar refeições especiais'
+  ],
+  leo: [
+    'Expressão artística', 'Apresentações públicas', 'Fotografia criativa',
+    'Teatro ou cinema', 'Celebrações', 'Dança',
+    'Eventos sociais', 'Criar conteúdo', 'Atividades com crianças'
+  ],
+  virgo: [
+    'Organização pessoal', 'Exercícios de yoga', 'Leitura sobre saúde',
+    'Planejamento detalhado', 'Cuidados com alimentação', 'Atividades de limpeza',
+    'Estudos práticos', 'Rotinas de bem-estar', 'Trabalhos manuais precisos'
+  ],
+  libra: [
+    'Apreciar arte', 'Sessões de beleza', 'Encontros sociais',
+    'Decoração de ambientes', 'Música harmoniosa', 'Negociações',
+    'Parcerias criativas', 'Eventos culturais', 'Atividades em grupo'
+  ],
+  scorpio: [
+    'Meditação profunda', 'Investigação de temas', 'Transformação pessoal',
+    'Terapias alternativas', 'Estudos psicológicos', 'Atividades intensas',
+    'Exploração espiritual', 'Exercícios de força', 'Reflexão introspectiva'
+  ],
+  sagittarius: [
+    'Viagens curtas', 'Esportes ao ar livre', 'Estudos filosóficos',
+    'Exploração cultural', 'Aventuras', 'Prática de esportes',
+    'Caminhadas longas', 'Aulas de algo novo', 'Atividades de expansão'
+  ],
+  capricorn: [
+    'Planejamento estratégico', 'Trabalho focado', 'Exercícios de disciplina',
+    'Estudos profissionais', 'Organização de metas', 'Atividades estruturadas',
+    'Desenvolvimento de carreira', 'Exercícios de resistência', 'Trabalhos práticos'
+  ],
+  aquarius: [
+    'Inovação tecnológica', 'Atividades em grupo', 'Causas sociais',
+    'Eventos comunitários', 'Criatividade original', 'Networking amplo',
+    'Projetos inovadores', 'Atividades futuristas', 'Colaborações'
+  ],
+  pisces: [
+    'Meditação guiada', 'Arte criativa', 'Música relaxante',
+    'Atividades aquáticas', 'Voluntariado', 'Sonhos e visualizações',
+    'Terapias holísticas', 'Atividades espirituais', 'Conexão com natureza'
+  ]
+}
+
+const dailyAlerts: Record<Sign, string[]> = {
+  aries: [
+    'Evite impulsividade em decisões importantes',
+    'Cuidado com confrontos desnecessários',
+    'Não ignore sinais de cansaço',
+    'Evite agir sem pensar nas consequências',
+    'Atenção para não ser muito agressivo'
+  ],
+  taurus: [
+    'Evite teimosia excessiva',
+    'Cuidado com gastos impulsivos',
+    'Não resista demais a mudanças necessárias',
+    'Evite comodismo extremo',
+    'Atenção para não ser muito possessivo'
+  ],
+  gemini: [
+    'Evite superficialidade em assuntos importantes',
+    'Cuidado com promessas que não pode cumprir',
+    'Não se distraia demais',
+    'Evite fofocas e conversas vazias',
+    'Atenção para não ser muito disperso'
+  ],
+  cancer: [
+    'Evite sensibilidade excessiva',
+    'Cuidado para não se isolar demais',
+    'Não guarde ressentimentos',
+    'Evite apego emocional exagerado',
+    'Atenção para não ser muito defensivo'
+  ],
+  leo: [
+    'Evite orgulho excessivo',
+    'Cuidado com vaidade desmedida',
+    'Não ignore opiniões dos outros',
+    'Evite ser muito autoritário',
+    'Atenção para não ser muito dramático'
+  ],
+  virgo: [
+    'Evite perfeccionismo obsessivo',
+    'Cuidado com críticas excessivas',
+    'Não se preocupe demais com detalhes',
+    'Evite ansiedade desnecessária',
+    'Atenção para não ser muito crítico consigo mesmo'
+  ],
+  libra: [
+    'Evite indecisão prolongada',
+    'Cuidado para não evitar conflitos importantes',
+    'Não dependa demais da aprovação alheia',
+    'Evite superficialidade em relacionamentos',
+    'Atenção para não ser muito passivo'
+  ],
+  scorpio: [
+    'Evite ciúmes excessivos',
+    'Cuidado com manipulação emocional',
+    'Não guarde segredos desnecessários',
+    'Evite vingança ou ressentimento',
+    'Atenção para não ser muito controlador'
+  ],
+  sagittarius: [
+    'Evite promessas que não pode cumprir',
+    'Cuidado com falta de tato',
+    'Não ignore compromissos',
+    'Evite ser muito direto sem considerar sentimentos',
+    'Atenção para não ser muito irresponsável'
+  ],
+  capricorn: [
+    'Evite trabalho excessivo',
+    'Cuidado com frieza emocional',
+    'Não ignore necessidades pessoais',
+    'Evite ser muito rígido',
+    'Atenção para não ser muito pessimista'
+  ],
+  aquarius: [
+    'Evite distanciamento emocional',
+    'Cuidado com rebeldia desnecessária',
+    'Não ignore sentimentos dos outros',
+    'Evite ser muito excêntrico',
+    'Atenção para não ser muito imprevisível'
+  ],
+  pisces: [
+    'Evite escapismo da realidade',
+    'Cuidado com vitimização',
+    'Não se deixe enganar facilmente',
+    'Evite confusão emocional',
+    'Atenção para não ser muito passivo'
+  ]
+}
+
+const crystals: Record<Sign, string[]> = {
+  aries: ['Rubi', 'Ágata de fogo', 'Jaspe vermelho', 'Coral', 'Granada'],
+  taurus: ['Esmeralda', 'Quartzo rosa', 'Ágata musgo', 'Lápis-lazúli', 'Jade'],
+  gemini: ['Ágata', 'Citrino', 'Topázio amarelo', 'Ámbar', 'Calcita'],
+  cancer: ['Pérola', 'Quartzo rosa', 'Opala', 'Água-marinha', 'Lua'],
+  leo: ['Topázio', 'Citrino', 'Âmbar', 'Olho de tigre', 'Pirita'],
+  virgo: ['Safira', 'Jaspe', 'Ágata musgo', 'Peridoto', 'Amazonita'],
+  libra: ['Opala', 'Quartzo rosa', 'Lápis-lazúli', 'Água-marinha', 'Turquesa'],
+  scorpio: ['Obsidiana', 'Ágata musgo', 'Granada', 'Turmalina preta', 'Jaspe vermelho'],
+  sagittarius: ['Turquesa', 'Lápis-lazúli', 'Sodalita', 'Ametista', 'Topázio azul'],
+  capricorn: ['Ônix', 'Quartzo fumê', 'Obsidiana', 'Ágata', 'Hematita'],
+  aquarius: ['Ametista', 'Quartzo cristal', 'Sodalita', 'Lápis-lazúli', 'Água-marinha'],
+  pisces: ['Água-marinha', 'Ametista', 'Quartzo rosa', 'Opala', 'Pérola']
+}
+
+const mantras: string[] = [
+  'Sou capaz de superar qualquer desafio',
+  'A abundância flui naturalmente para mim',
+  'Estou em harmonia com o universo',
+  'Minha energia atrai o que desejo',
+  'Confio no processo da vida',
+  'Sou merecedor de amor e felicidade',
+  'Cada dia é uma nova oportunidade',
+  'Minha intuição me guia com sabedoria',
+  'Estou aberto a receber bênçãos',
+  'Sou grato por todas as experiências',
+  'Minha criatividade flui livremente',
+  'Estou em paz comigo mesmo',
+  'Aceito o que não posso mudar',
+  'Transformo desafios em oportunidades',
+  'Sou forte e resiliente',
+  'Minha luz brilha intensamente',
+  'Estou conectado com minha essência',
+  'Aproveito cada momento presente',
+  'Sou compassivo comigo e com os outros',
+  'Minha jornada é única e especial'
+]
+
+const loveAdvices: Record<Sign, string[]> = {
+  aries: [
+    'Seja direto e honesto sobre seus sentimentos',
+    'Mostre interesse ativo no seu parceiro',
+    'Surpreenda com gestos espontâneos de carinho',
+    'Evite discussões por coisas pequenas',
+    'Valorize a independência do outro'
+  ],
+  taurus: [
+    'Demonstre afeto através de ações práticas',
+    'Crie momentos românticos especiais',
+    'Seja paciente e compreensivo',
+    'Valorize a estabilidade no relacionamento',
+    'Expresse seus sentimentos com calma'
+  ],
+  gemini: [
+    'Mantenha a comunicação aberta e sincera',
+    'Compartilhe seus pensamentos e ideias',
+    'Seja espontâneo e divertido',
+    'Evite superficialidade emocional',
+    'Valorize conversas profundas'
+  ],
+  cancer: [
+    'Demonstre cuidado e proteção',
+    'Crie um ambiente emocional seguro',
+    'Seja sensível às necessidades do parceiro',
+    'Valorize momentos íntimos e especiais',
+    'Expresse seus sentimentos com vulnerabilidade'
+  ],
+  leo: [
+    'Demonstre generosidade e carinho',
+    'Celebre o relacionamento com alegria',
+    'Seja romântico e apaixonado',
+    'Valorize o reconhecimento mútuo',
+    'Compartilhe momentos de diversão'
+  ],
+  virgo: [
+    'Demonstre cuidado através de ações práticas',
+    'Seja atencioso com os detalhes',
+    'Valorize a comunicação clara',
+    'Evite críticas desnecessárias',
+    'Mostre apoio e compreensão'
+  ],
+  libra: [
+    'Busque harmonia e equilíbrio',
+    'Valorize a parceria e cooperação',
+    'Seja diplomático em discussões',
+    'Crie momentos de beleza juntos',
+    'Demonstre apreço e gratidão'
+  ],
+  scorpio: [
+    'Aprofunde a conexão emocional',
+    'Seja intenso e apaixonado',
+    'Valorize a intimidade e confiança',
+    'Evite ciúmes excessivos',
+    'Demonstre lealdade e compromisso'
+  ],
+  sagittarius: [
+    'Mantenha a liberdade e aventura',
+    'Compartilhe experiências novas',
+    'Seja otimista e entusiasmado',
+    'Valorize a independência mútua',
+    'Crie memórias divertidas juntos'
+  ],
+  capricorn: [
+    'Demonstre compromisso e responsabilidade',
+    'Valorize a estabilidade e segurança',
+    'Seja leal e confiável',
+    'Planeje o futuro juntos',
+    'Mostre apoio nos objetivos do parceiro'
+  ],
+  aquarius: [
+    'Valorize a amizade no relacionamento',
+    'Seja original e autêntico',
+    'Respeite a independência mútua',
+    'Compartilhe ideias e sonhos',
+    'Mantenha a comunicação aberta'
+  ],
+  pisces: [
+    'Demonstre compaixão e empatia',
+    'Seja romântico e sonhador',
+    'Valorize a conexão espiritual',
+    'Crie momentos mágicos juntos',
+    'Expresse seus sentimentos com sensibilidade'
+  ]
+}
+
+const careerAdvices: Record<Sign, string[]> = {
+  aries: [
+    'Tome a iniciativa em projetos novos',
+    'Assuma posições de liderança',
+    'Seja proativo e determinado',
+    'Não tenha medo de competir',
+    'Demonstre sua capacidade de ação',
+    'Enfrente desafios com coragem',
+    'Seja o primeiro a propor soluções',
+    'Aproveite oportunidades de crescimento rápido',
+    'Mantenha energia alta em reuniões',
+    'Estabeleça metas ambiciosas',
+    'Tome decisões rápidas quando necessário',
+    'Seja direto na comunicação profissional',
+    'Busque projetos que exijam ação imediata',
+    'Demonstre independência no trabalho',
+    'Valorize resultados rápidos e eficazes',
+    'Seja pioneiro em novas tecnologias',
+    'Assuma riscos calculados',
+    'Mantenha foco em objetivos claros',
+    'Seja competitivo de forma saudável',
+    'Demonstre capacidade de liderar equipes',
+    'Aproveite momentos de alta energia',
+    'Seja assertivo em negociações',
+    'Valorize ambientes dinâmicos',
+    'Busque reconhecimento por resultados',
+    'Mantenha entusiasmo em projetos longos',
+    'Seja inovador em processos',
+    'Demonstre capacidade de resolver crises',
+    'Valorize feedback direto e honesto',
+    'Seja estratégico em competições',
+    'Mantenha disciplina mesmo com energia alta',
+    'Busque parcerias com pessoas proativas',
+    'Seja visionário em novos mercados',
+    'Demonstre resiliência em desafios',
+    'Valorize trabalho com propósito claro',
+    'Seja exemplo de determinação'
+  ],
+  taurus: [
+    'Foque em resultados duradouros',
+    'Seja paciente e persistente',
+    'Valorize a estabilidade financeira',
+    'Construa relacionamentos sólidos',
+    'Demonstre sua confiabilidade',
+    'Mantenha consistência no trabalho',
+    'Valorize qualidade sobre quantidade',
+    'Seja meticuloso em planejamentos',
+    'Construa uma base financeira sólida',
+    'Demonstre lealdade à empresa',
+    'Aprecie processos bem estabelecidos',
+    'Seja resistente a mudanças desnecessárias',
+    'Valorize segurança no trabalho',
+    'Mantenha rotinas produtivas',
+    'Seja cuidadoso com investimentos',
+    'Demonstre paciência em negociações',
+    'Valorize ambiente de trabalho estável',
+    'Seja confiável em prazos',
+    'Mantenha organização financeira',
+    'Demonstre capacidade de construir patrimônio',
+    'Valorize relacionamentos duradouros',
+    'Seja persistente em objetivos',
+    'Mantenha qualidade em entregas',
+    'Demonstre estabilidade emocional',
+    'Valorize reconhecimento por dedicação',
+    'Seja paciente com crescimento gradual',
+    'Mantenha foco em resultados concretos',
+    'Demonstre capacidade de manter equipes',
+    'Valorize processos comprovados',
+    'Seja resistente a pressões desnecessárias',
+    'Mantenha disciplina financeira',
+    'Demonstre capacidade de negociar bem',
+    'Valorize trabalho com propósito duradouro',
+    'Seja exemplo de consistência',
+    'Mantenha compromisso com qualidade'
+  ],
+  gemini: [
+    'Use sua comunicação como ferramenta',
+    'Aproveite oportunidades de networking',
+    'Seja versátil e adaptável',
+    'Compartilhe conhecimento',
+    'Explore múltiplas áreas de interesse',
+    'Mantenha-se atualizado com tendências',
+    'Use tecnologia para melhorar comunicação',
+    'Seja ágil em mudanças de contexto',
+    'Valorize aprendizado contínuo',
+    'Demonstre capacidade de multitarefa',
+    'Seja criativo em soluções',
+    'Mantenha curiosidade profissional',
+    'Use redes sociais profissionalmente',
+    'Seja eficiente em apresentações',
+    'Valorize feedback rápido',
+    'Demonstre capacidade de adaptação',
+    'Mantenha mente aberta a novas ideias',
+    'Seja colaborativo em equipes',
+    'Use escrita como ferramenta profissional',
+    'Demonstre capacidade de ensino',
+    'Valorize ambientes dinâmicos',
+    'Seja inovador em comunicação',
+    'Mantenha flexibilidade em projetos',
+    'Demonstre capacidade de networking',
+    'Valorize conhecimento diversificado',
+    'Seja eficiente em processos',
+    'Mantenha entusiasmo em novos projetos',
+    'Demonstre capacidade de mediação',
+    'Valorize trabalho com variedade',
+    'Seja exemplo de comunicação clara',
+    'Mantenha agilidade mental',
+    'Demonstre capacidade de inovação',
+    'Valorize parcerias estratégicas',
+    'Seja eficaz em negociações',
+    'Mantenha versatilidade profissional'
+  ],
+  cancer: [
+    'Use sua intuição nos negócios',
+    'Crie um ambiente de trabalho acolhedor',
+    'Valorize relacionamentos profissionais',
+    'Seja protetor com sua equipe',
+    'Use sua sensibilidade como vantagem',
+    'Mantenha cuidado com detalhes emocionais',
+    'Valorize segurança no ambiente de trabalho',
+    'Seja atencioso com necessidades da equipe',
+    'Demonstre capacidade de criar vínculos',
+    'Mantenha memória de relacionamentos',
+    'Seja protetor de informações confidenciais',
+    'Valorize tradições da empresa',
+    'Demonstre capacidade de cuidar de projetos',
+    'Mantenha sensibilidade em negociações',
+    'Seja estratégico em decisões emocionais',
+    'Valorize ambiente familiar no trabalho',
+    'Demonstre capacidade de criar confiança',
+    'Mantenha cuidado com mudanças bruscas',
+    'Seja protetor de valores da empresa',
+    'Valorize relacionamentos duradouros',
+    'Demonstre capacidade de criar harmonia',
+    'Mantenha intuição em negócios',
+    'Seja cuidadoso com investimentos',
+    'Valorize segurança financeira',
+    'Demonstre capacidade de criar ambiente seguro',
+    'Mantenha sensibilidade a necessidades',
+    'Seja protetor de informações importantes',
+    'Valorize trabalho com propósito emocional',
+    'Demonstre capacidade de criar conexões',
+    'Mantenha cuidado com detalhes',
+    'Seja estratégico em relacionamentos',
+    'Valorize ambiente acolhedor',
+    'Demonstre capacidade de criar vínculos duradouros',
+    'Mantenha intuição profissional',
+    'Seja exemplo de cuidado e atenção'
+  ],
+  leo: [
+    'Demonstre confiança e carisma',
+    'Use sua criatividade profissionalmente',
+    'Busque reconhecimento merecido',
+    'Seja generoso com colegas',
+    'Assuma papéis de destaque',
+    'Mantenha presença marcante em reuniões',
+    'Valorize oportunidades de liderança',
+    'Seja inspirador para a equipe',
+    'Demonstre capacidade de motivar outros',
+    'Mantenha entusiasmo em projetos',
+    'Seja generoso com conhecimento',
+    'Valorize reconhecimento público',
+    'Demonstre capacidade de criar impacto',
+    'Mantenha confiança em apresentações',
+    'Seja criativo em soluções',
+    'Valorize trabalho com visibilidade',
+    'Demonstre capacidade de liderar com paixão',
+    'Mantenha generosidade em sucessos',
+    'Seja estratégico em posicionamento',
+    'Valorize oportunidades de crescimento',
+    'Demonstre capacidade de criar legado',
+    'Mantenha carisma em negociações',
+    'Seja inspirador em momentos difíceis',
+    'Valorize trabalho com propósito grandioso',
+    'Demonstre capacidade de celebrar conquistas',
+    'Mantenha confiança em desafios',
+    'Seja generoso com oportunidades',
+    'Valorize reconhecimento por mérito',
+    'Demonstre capacidade de criar visão',
+    'Mantenha criatividade em processos',
+    'Seja exemplo de liderança positiva',
+    'Valorize trabalho com impacto',
+    'Demonstre capacidade de motivar equipes',
+    'Mantenha presença profissional',
+    'Seja inspirador em todos os momentos'
+  ],
+  virgo: [
+    'Foque em organização e eficiência',
+    'Demonstre atenção aos detalhes',
+    'Valorize a qualidade do trabalho',
+    'Seja útil e prestativo',
+    'Use sua análise crítica positivamente',
+    'Mantenha sistemas organizados',
+    'Valorize processos bem definidos',
+    'Seja meticuloso em planejamentos',
+    'Demonstre capacidade de melhorar processos',
+    'Mantenha foco em eficiência',
+    'Seja útil em resolução de problemas',
+    'Valorize trabalho bem feito',
+    'Demonstre capacidade de análise',
+    'Mantenha organização em projetos',
+    'Seja prestativo com a equipe',
+    'Valorize qualidade sobre velocidade',
+    'Demonstre capacidade de otimização',
+    'Mantenha atenção a detalhes importantes',
+    'Seja estratégico em melhorias',
+    'Valorize feedback construtivo',
+    'Demonstre capacidade de criar sistemas',
+    'Mantenha eficiência em processos',
+    'Seja útil em momentos de necessidade',
+    'Valorize trabalho com precisão',
+    'Demonstre capacidade de análise crítica',
+    'Mantenha organização financeira',
+    'Seja prestativo em projetos complexos',
+    'Valorize processos eficientes',
+    'Demonstre capacidade de melhorar continuamente',
+    'Mantenha foco em qualidade',
+    'Seja exemplo de organização',
+    'Valorize trabalho com propósito claro',
+    'Demonstre capacidade de criar eficiência',
+    'Mantenha atenção aos detalhes',
+    'Seja útil e prestativo sempre'
+  ],
+  libra: [
+    'Use sua diplomacia em negociações',
+    'Valorize parcerias profissionais',
+    'Busque harmonia no ambiente de trabalho',
+    'Use seu senso estético profissionalmente',
+    'Seja justo e equilibrado',
+    'Mantenha equilíbrio em decisões',
+    'Valorize relacionamentos profissionais',
+    'Seja diplomático em conflitos',
+    'Demonstre capacidade de criar consenso',
+    'Mantenha harmonia em equipes',
+    'Seja justo em avaliações',
+    'Valorize parcerias estratégicas',
+    'Demonstre capacidade de mediação',
+    'Mantenha equilíbrio em negociações',
+    'Seja estético em apresentações',
+    'Valorize ambiente harmonioso',
+    'Demonstre capacidade de criar acordos',
+    'Mantenha justiça em processos',
+    'Seja diplomático em relacionamentos',
+    'Valorize trabalho em equipe',
+    'Demonstre capacidade de balancear interesses',
+    'Mantenha harmonia em projetos',
+    'Seja justo em distribuição de trabalho',
+    'Valorize parcerias duradouras',
+    'Demonstre capacidade de criar equilíbrio',
+    'Mantenha diplomacia em negociações',
+    'Seja estético em comunicações',
+    'Valorize relacionamentos equilibrados',
+    'Demonstre capacidade de mediar conflitos',
+    'Mantenha justiça em decisões',
+    'Seja exemplo de equilíbrio',
+    'Valorize trabalho com harmonia',
+    'Demonstre capacidade de criar consensos',
+    'Mantenha diplomacia profissional',
+    'Seja justo e equilibrado sempre'
+  ],
+  scorpio: [
+    'Use sua intensidade estrategicamente',
+    'Mantenha discrição em assuntos sensíveis',
+    'Valorize transformações profissionais',
+    'Seja determinado em seus objetivos',
+    'Use sua intuição nos negócios',
+    'Mantenha profundidade em análises',
+    'Valorize projetos transformadores',
+    'Seja estratégico em movimentos',
+    'Demonstre capacidade de investigação',
+    'Mantenha discrição profissional',
+    'Seja determinado em objetivos',
+    'Valorize transformações positivas',
+    'Demonstre capacidade de regeneração',
+    'Mantenha intensidade focada',
+    'Seja estratégico em negociações',
+    'Valorize trabalho com profundidade',
+    'Demonstre capacidade de transformar',
+    'Mantenha discrição em informações',
+    'Seja determinado em desafios',
+    'Valorize projetos intensos',
+    'Demonstre capacidade de análise profunda',
+    'Mantenha estratégia em movimentos',
+    'Seja transformador em processos',
+    'Valorize trabalho com propósito profundo',
+    'Demonstre capacidade de regenerar projetos',
+    'Mantenha intensidade em objetivos',
+    'Seja estratégico em decisões',
+    'Valorize transformações profissionais',
+    'Demonstre capacidade de investigar',
+    'Mantenha discrição em assuntos importantes',
+    'Seja exemplo de determinação',
+    'Valorize trabalho com intensidade focada',
+    'Demonstre capacidade de transformar negativamente',
+    'Mantenha estratégia profissional',
+    'Seja determinado e estratégico sempre'
+  ],
+  sagittarius: [
+    'Explore oportunidades de expansão',
+    'Use sua visão de longo prazo',
+    'Valorize aprendizado contínuo',
+    'Busque liberdade profissional',
+    'Compartilhe sua filosofia de trabalho',
+    'Mantenha otimismo em projetos',
+    'Valorize oportunidades internacionais',
+    'Seja visionário em estratégias',
+    'Demonstre capacidade de expandir',
+    'Mantenha mente aberta a novas culturas',
+    'Seja filosófico em decisões',
+    'Valorize aprendizado constante',
+    'Demonstre capacidade de ensinar',
+    'Mantenha visão de futuro',
+    'Seja explorador de novas áreas',
+    'Valorize liberdade criativa',
+    'Demonstre capacidade de inspirar',
+    'Mantenha otimismo em desafios',
+    'Seja visionário em negócios',
+    'Valorize oportunidades de crescimento',
+    'Demonstre capacidade de expandir horizontes',
+    'Mantenha filosofia positiva',
+    'Seja explorador de possibilidades',
+    'Valorize aprendizado contínuo',
+    'Demonstre capacidade de criar visão',
+    'Mantenha liberdade em projetos',
+    'Seja otimista em resultados',
+    'Valorize oportunidades de expansão',
+    'Demonstre capacidade de inspirar outros',
+    'Mantenha visão de longo prazo',
+    'Seja exemplo de otimismo',
+    'Valorize trabalho com propósito amplo',
+    'Demonstre capacidade de expandir negócios',
+    'Mantenha filosofia profissional',
+    'Seja visionário e otimista sempre'
+  ],
+  capricorn: [
+    'Foque em objetivos de longo prazo',
+    'Demonstre disciplina e responsabilidade',
+    'Valorize estrutura e organização',
+    'Construa uma carreira sólida',
+    'Seja paciente com o progresso',
+    'Mantenha foco em resultados duradouros',
+    'Valorize hierarquia e estrutura',
+    'Seja estratégico em planejamentos',
+    'Demonstre capacidade de construir',
+    'Mantenha disciplina em processos',
+    'Seja responsável em compromissos',
+    'Valorize reconhecimento por mérito',
+    'Demonstre capacidade de liderar',
+    'Mantenha estrutura em projetos',
+    'Seja paciente em crescimento',
+    'Valorize trabalho com propósito sólido',
+    'Demonstre capacidade de construir legado',
+    'Mantenha disciplina financeira',
+    'Seja estratégico em investimentos',
+    'Valorize estrutura organizacional',
+    'Demonstre capacidade de criar sistemas',
+    'Mantenha foco em objetivos',
+    'Seja responsável em decisões',
+    'Valorize trabalho com disciplina',
+    'Demonstre capacidade de construir carreira',
+    'Mantenha estrutura em processos',
+    'Seja paciente com resultados',
+    'Valorize reconhecimento por dedicação',
+    'Demonstre capacidade de liderar',
+    'Mantenha disciplina profissional',
+    'Seja exemplo de responsabilidade',
+    'Valorize trabalho com propósito duradouro',
+    'Demonstre capacidade de construir futuro',
+    'Mantenha foco em objetivos claros',
+    'Seja disciplinado e responsável sempre'
+  ],
+  aquarius: [
+    'Use sua inovação profissionalmente',
+    'Valorize trabalho em equipe',
+    'Explore tecnologia e futuro',
+    'Seja original em suas ideias',
+    'Apoie causas que acredita',
+    'Mantenha mente aberta a inovações',
+    'Valorize trabalho colaborativo',
+    'Seja visionário em tecnologia',
+    'Demonstre capacidade de inovar',
+    'Mantenha originalidade em projetos',
+    'Seja humanitário em decisões',
+    'Valorize causas sociais',
+    'Demonstre capacidade de criar futuro',
+    'Mantenha inovação em processos',
+    'Seja original em soluções',
+    'Valorize trabalho em equipe diversa',
+    'Demonstre capacidade de revolucionar',
+    'Mantenha mente aberta a mudanças',
+    'Seja visionário em negócios',
+    'Valorize tecnologia e inovação',
+    'Demonstre capacidade de criar',
+    'Mantenha originalidade profissional',
+    'Seja humanitário em projetos',
+    'Valorize causas que acredita',
+    'Demonstre capacidade de inovar processos',
+    'Mantenha visão de futuro',
+    'Seja original em estratégias',
+    'Valorize trabalho colaborativo',
+    'Demonstre capacidade de revolucionar',
+    'Mantenha inovação constante',
+    'Seja exemplo de originalidade',
+    'Valorize trabalho com propósito social',
+    'Demonstre capacidade de criar futuro',
+    'Mantenha mente aberta sempre',
+    'Seja inovador e original sempre'
+  ],
+  pisces: [
+    'Use sua criatividade profissionalmente',
+    'Valorize trabalho com propósito',
+    'Seja compassivo com colegas',
+    'Use sua intuição nos negócios',
+    'Explore áreas artísticas ou de ajuda',
+    'Mantenha sensibilidade em projetos',
+    'Valorize trabalho com significado',
+    'Seja criativo em soluções',
+    'Demonstre capacidade de ajudar',
+    'Mantenha intuição profissional',
+    'Seja compassivo em relacionamentos',
+    'Valorize trabalho artístico',
+    'Demonstre capacidade de criar',
+    'Mantenha sensibilidade em decisões',
+    'Seja intuitivo em negócios',
+    'Valorize propósito sobre lucro',
+    'Demonstre capacidade de inspirar',
+    'Mantenha criatividade em processos',
+    'Seja compassivo com equipe',
+    'Valorize trabalho com significado',
+    'Demonstre capacidade de criar arte',
+    'Mantenha intuição em projetos',
+    'Seja sensível a necessidades',
+    'Valorize trabalho humanitário',
+    'Demonstre capacidade de ajudar outros',
+    'Mantenha criatividade profissional',
+    'Seja intuitivo em decisões',
+    'Valorize propósito em projetos',
+    'Demonstre capacidade de criar significado',
+    'Mantenha sensibilidade profissional',
+    'Seja exemplo de compaixão',
+    'Valorize trabalho com propósito profundo',
+    'Demonstre capacidade de inspirar através da arte',
+    'Mantenha intuição e criatividade',
+    'Seja compassivo e criativo sempre'
+  ]
+}
+
 // 6. Compatibilidade básica por elemento - signos específicos
 const compatibleSignsByElement: Record<'fogo' | 'terra' | 'ar' | 'água', Sign[]> = {
   fogo: ['aries', 'leo', 'sagittarius', 'gemini', 'libra', 'aquarius'], // Fogo e Ar
@@ -679,6 +1402,13 @@ export function generateDailyPredictionClient(context: GeneratorContext): {
   compatibleSigns: string
   numerologyMeaning: string
   impactPhrase: string
+  recommendedActivities: string
+  dailyAlert: string
+  energyLevel: number
+  crystal: string
+  mantra: string
+  loveAdvice: string
+  careerAdvice: string
 } {
   const seasonal = getSeasonalContext(context.isoWeek, context.isoYear)
   const moonPhase = getMoonPhase(seasonal.date)
@@ -827,6 +1557,34 @@ export function generateDailyPredictionClient(context: GeneratorContext): {
   const impactSeed = generateLuckyNumber(seed + 'impact')
   const impactPhrase = getRandomElement(impactPhrases, impactSeed)
   
+  // 9. Atividades recomendadas
+  const activitiesSeed = generateLuckyNumber(seed + 'activities')
+  const recommendedActivitiesText = getRandomElement(recommendedActivities[context.sign], activitiesSeed)
+  
+  // 10. Alerta do dia
+  const alertSeed = generateLuckyNumber(seed + 'alert')
+  const dailyAlert = getRandomElement(dailyAlerts[context.sign], alertSeed)
+  
+  // 11. Energia do dia (1-10)
+  const energySeed = generateLuckyNumber(seed + 'energy')
+  const energyLevel = 1 + (energySeed % 10) // 1-10
+  
+  // 12. Pedra/cristal do dia
+  const crystalSeed = generateLuckyNumber(seed + 'crystal')
+  const crystal = getRandomElement(crystals[context.sign], crystalSeed)
+  
+  // 13. Mantra ou afirmação
+  const mantraSeed = generateLuckyNumber(seed + 'mantra')
+  const mantra = getRandomElement(mantras, mantraSeed)
+  
+  // 14. Conselho amoroso específico
+  const loveSeed = generateLuckyNumber(seed + 'love')
+  const loveAdvice = getRandomElement(loveAdvices[context.sign], loveSeed)
+  
+  // 15. Conselho profissional
+  const careerSeed = generateLuckyNumber(seed + 'career')
+  const careerAdvice = getRandomElement(careerAdvices[context.sign], careerSeed)
+  
   return {
     text: textWithLuckyNumber,
     luckyNumber,
@@ -838,7 +1596,14 @@ export function generateDailyPredictionClient(context: GeneratorContext): {
     practicalAdvice,
     compatibleSigns,
     numerologyMeaning,
-    impactPhrase
+    impactPhrase,
+    recommendedActivities: recommendedActivitiesText,
+    dailyAlert,
+    energyLevel,
+    crystal,
+    mantra,
+    loveAdvice,
+    careerAdvice
   }
 }
 
