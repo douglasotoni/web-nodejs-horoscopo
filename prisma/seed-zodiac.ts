@@ -59,8 +59,23 @@ function generateVariation(baseTexts: string[], index: number): string {
 async function seedZodiacData() {
   console.log('🌱 Iniciando seed de dados astrológicos...')
 
+  // Verificar se as tabelas existem
+  try {
+    await prisma.$queryRaw`SELECT 1 FROM zodiac_signs LIMIT 1`
+  } catch (error: any) {
+    if (error.code === 'P2021' || error.message?.includes('does not exist')) {
+      console.error('❌ Erro: As tabelas do banco de dados não existem!')
+      console.error('📝 Execute as migrations primeiro:')
+      console.error('   docker exec -it web_reactjs_horoscopo npx prisma migrate deploy')
+      console.error('   ou')
+      console.error('   docker exec -it web_reactjs_horoscopo npx prisma migrate dev')
+      process.exit(1)
+    }
+    throw error
+  }
+
   // Criar signos
-  const createdSigns: Partial<Record<Sign, string>> = {}
+  const createdSigns: Partial<Record<Sign, number>> = {}
   for (const signData of signsData) {
     const sign = await prisma.zodiacSign.upsert({
       where: { name: signData.name },
@@ -246,20 +261,35 @@ async function seedZodiacData() {
     const signId = createdSigns[signName]
     if (!signId) continue
     // Usar as frases globais como base e criar variações por signo
-    const basePhrases = impactData || []
-    const expanded = expandToMinimum(basePhrases, 30, (base, i) => {
-      const signDisplay = signsData.find(s => s.name === signName)?.displayName || ''
-      return `${base} ${signDisplay}`
-    })
+    // Garantir que impactData é um array
+    let basePhrases: string[] = []
+    if (Array.isArray(impactData)) {
+      basePhrases = impactData
+    } else if (typeof impactData === 'string') {
+      // Se vier como string, tentar dividir por vírgula
+      basePhrases = impactData.split(',').map(s => s.trim()).filter(s => s.length > 0)
+    }
+    
+    const signDisplay = signsData.find(s => s.name === signName)?.displayName || ''
+    
+    // Processar cada frase individualmente
+    const processedPhrases: string[] = []
+    const targetCount = Math.max(30, basePhrases.length)
+    for (let i = 0; i < targetCount; i++) {
+      const phrase = basePhrases[i % basePhrases.length]
+      if (typeof phrase === 'string' && phrase.trim().length > 0) {
+        processedPhrases.push(`${phrase.trim()} ${signDisplay}`)
+      }
+    }
     
     await prisma.impactPhrase.deleteMany({ where: { signId } })
     
-    for (const text of expanded) {
+    for (const text of processedPhrases) {
       await prisma.impactPhrase.create({
         data: { signId, text }
       })
     }
-    console.log(`  ✅ ${expanded.length} frases de impacto para ${signName}`)
+    console.log(`  ✅ ${processedPhrases.length} frases de impacto para ${signName}`)
   }
 
   // Popular Mantra (expandir para 30+ por signo)
@@ -268,20 +298,35 @@ async function seedZodiacData() {
     const signId = createdSigns[signName]
     if (!signId) continue
     // Usar os mantras globais como base e criar variações por signo
-    const baseMantras = mantraData || []
-    const expanded = expandToMinimum(baseMantras, 30, (base, i) => {
-      const signDisplay = signsData.find(s => s.name === signName)?.displayName || ''
-      return `${base} ${signDisplay}`
-    })
+    // Garantir que mantraData é um array
+    let baseMantras: string[] = []
+    if (Array.isArray(mantraData)) {
+      baseMantras = mantraData
+    } else if (typeof mantraData === 'string') {
+      // Se vier como string, tentar dividir por vírgula
+      baseMantras = mantraData.split(',').map(s => s.trim()).filter(s => s.length > 0)
+    }
+    
+    const signDisplay = signsData.find(s => s.name === signName)?.displayName || ''
+    
+    // Processar cada mantra individualmente
+    const processedMantras: string[] = []
+    const targetCount = Math.max(30, baseMantras.length)
+    for (let i = 0; i < targetCount; i++) {
+      const mantra = baseMantras[i % baseMantras.length]
+      if (typeof mantra === 'string' && mantra.trim().length > 0) {
+        processedMantras.push(`${mantra.trim()} ${signDisplay}`)
+      }
+    }
     
     await prisma.mantra.deleteMany({ where: { signId } })
     
-    for (const text of expanded) {
+    for (const text of processedMantras) {
       await prisma.mantra.create({
         data: { signId, text }
       })
     }
-    console.log(`  ✅ ${expanded.length} mantras para ${signName}`)
+    console.log(`  ✅ ${processedMantras.length} mantras para ${signName}`)
   }
 
   console.log('✅ Seed de dados astrológicos concluído!')

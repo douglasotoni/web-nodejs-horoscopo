@@ -65,6 +65,16 @@ model User {
 
 model DailyPrediction {
   id                    Int                  @id @default(autoincrement())
+  careerAdviceId        Int?
+  loveAdviceId         Int?
+  crystalId            Int?
+  dailyAlertId         Int?
+  recommendedActivityId Int?
+  practicalAdviceId    Int?
+  luckyColorId         Int?
+  emotionId            Int?
+  impactPhraseId       Int?
+  mantraId             Int?
   sign                  Sign
   weekday               Weekday
   isoWeek               Int                  @map("iso_week")
@@ -91,25 +101,15 @@ model DailyPrediction {
   createdAt             DateTime             @default(now()) @map("created_at")
   updatedAt             DateTime             @updatedAt @map("updated_at")
   CareerAdvice          CareerAdvice?        @relation(fields: [careerAdviceId], references: [id])
-  careerAdviceId        Int?
   LoveAdvice            LoveAdvice?          @relation(fields: [loveAdviceId], references: [id])
-  loveAdviceId          Int?
   Crystal               Crystal?             @relation(fields: [crystalId], references: [id])
-  crystalId             Int?
   DailyAlert            DailyAlert?          @relation(fields: [dailyAlertId], references: [id])
-  dailyAlertId          Int?
   RecommendedActivity   RecommendedActivity? @relation(fields: [recommendedActivityId], references: [id])
-  recommendedActivityId Int?
   PracticalAdvice       PracticalAdvice?     @relation(fields: [practicalAdviceId], references: [id])
-  practicalAdviceId     Int?
   LuckyColor            LuckyColor?          @relation(fields: [luckyColorId], references: [id])
-  luckyColorId          Int?
   Emotion               Emotion?             @relation(fields: [emotionId], references: [id])
-  emotionId             Int?
   ImpactPhrase          ImpactPhrase?        @relation(fields: [impactPhraseId], references: [id])
-  impactPhraseId        Int?
   Mantra                Mantra?              @relation(fields: [mantraId], references: [id])
-  mantraId              Int?
 
   @@unique([sign, weekday, isoWeek, isoYear])
   @@index([sign, weekday, isoWeek, isoYear])
