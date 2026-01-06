@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: usr_master
       POSTGRES_PASSWORD: "P#ssTu@5532"
-      POSTGRES_DB: postgres
+      POSTGRES_DB: db-horoscopo
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
@@ -24,7 +24,7 @@ services:
       - /app/.next
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://usr_master:P%23ssTu%405532@postgres:5432/postgres?schema=public
+      - DATABASE_URL=postgresql://usr_master:P%23ssTu%405532@postgres:5432/db-horoscopo?schema=public
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=your-secret-key-change-this-in-production-min-32-chars
       - WATCHPACK_POLLING=true
