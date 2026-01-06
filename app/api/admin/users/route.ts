@@ -14,7 +14,7 @@ const createSchema = z.object({
 })
 
 const updateSchema = z.object({
-  id: z.string().uuid(),
+  id: z.coerce.number().int().positive(),
   name: z.string().min(2).optional(),
   email: z.string().email().optional(),
   password: z.string().min(6).optional(),

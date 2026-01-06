@@ -25,25 +25,35 @@ const WEEKDAY_NAMES: Record<string, string> = {
 type PredictionType = 'daily' | 'weekly'
 
 interface PredictionData {
-  id?: string
+  id?: number
   text: string
   luckyNumber: number
   element?: string
   quality?: string
   rulingPlanet?: string
   luckyColor?: string
+  luckyColorId?: number | null
   emotion?: string
+  emotionId?: number | null
   practicalAdvice?: string
+  practicalAdviceId?: number | null
   compatibleSigns?: string
   numerologyMeaning?: string
   impactPhrase?: string
+  impactPhraseId?: number | null
   recommendedActivities?: string
+  recommendedActivityId?: number | null
   dailyAlert?: string
+  dailyAlertId?: number | null
   energyLevel?: number
   crystal?: string
+  crystalId?: number | null
   mantra?: string
+  mantraId?: number | null
   loveAdvice?: string
+  loveAdviceId?: number | null
   careerAdvice?: string
+  careerAdviceId?: number | null
   status: 'draft' | 'published'
 }
 
@@ -127,6 +137,14 @@ export default function AdminPredictionsPage() {
           console.log('Array com', data.length, 'previsões')
           data.forEach((prediction: any) => {
             if (prediction && prediction.id && prediction.sign) {
+              console.log(`[DEBUG] ${prediction.sign} - IDs:`, {
+                recommendedActivityId: prediction.recommendedActivityId,
+                dailyAlertId: prediction.dailyAlertId,
+                crystalId: prediction.crystalId,
+                mantraId: prediction.mantraId,
+                loveAdviceId: prediction.loveAdviceId,
+                careerAdviceId: prediction.careerAdviceId
+              })
               newPredictions[prediction.sign] = {
                 id: prediction.id,
                 text: prediction.text || '',
@@ -135,18 +153,28 @@ export default function AdminPredictionsPage() {
                 quality: prediction.quality,
                 rulingPlanet: prediction.rulingPlanet,
                 luckyColor: prediction.luckyColor,
+                luckyColorId: prediction.luckyColorId,
                 emotion: prediction.emotion,
+                emotionId: prediction.emotionId,
                 practicalAdvice: prediction.practicalAdvice,
+                practicalAdviceId: prediction.practicalAdviceId,
                 compatibleSigns: prediction.compatibleSigns,
                 numerologyMeaning: prediction.numerologyMeaning,
                 impactPhrase: prediction.impactPhrase,
+                impactPhraseId: prediction.impactPhraseId,
                 recommendedActivities: prediction.recommendedActivities,
+                recommendedActivityId: prediction.recommendedActivityId,
                 dailyAlert: prediction.dailyAlert,
+                dailyAlertId: prediction.dailyAlertId,
                 energyLevel: prediction.energyLevel,
                 crystal: prediction.crystal,
+                crystalId: prediction.crystalId,
                 mantra: prediction.mantra,
+                mantraId: prediction.mantraId,
                 loveAdvice: prediction.loveAdvice,
+                loveAdviceId: prediction.loveAdviceId,
                 careerAdvice: prediction.careerAdvice,
+                careerAdviceId: prediction.careerAdviceId,
                 status: prediction.status || 'draft'
               }
             }
@@ -162,18 +190,28 @@ export default function AdminPredictionsPage() {
             quality: data.quality,
             rulingPlanet: data.rulingPlanet,
             luckyColor: data.luckyColor,
+            luckyColorId: data.luckyColorId,
             emotion: data.emotion,
+            emotionId: data.emotionId,
             practicalAdvice: data.practicalAdvice,
+            practicalAdviceId: data.practicalAdviceId,
             compatibleSigns: data.compatibleSigns,
             numerologyMeaning: data.numerologyMeaning,
             impactPhrase: data.impactPhrase,
+            impactPhraseId: data.impactPhraseId,
             recommendedActivities: data.recommendedActivities,
+            recommendedActivityId: data.recommendedActivityId,
             dailyAlert: data.dailyAlert,
+            dailyAlertId: data.dailyAlertId,
             energyLevel: data.energyLevel,
             crystal: data.crystal,
+            crystalId: data.crystalId,
             mantra: data.mantra,
+            mantraId: data.mantraId,
             loveAdvice: data.loveAdvice,
+            loveAdviceId: data.loveAdviceId,
             careerAdvice: data.careerAdvice,
+            careerAdviceId: data.careerAdviceId,
             status: data.status || 'draft'
           }
         } else {
@@ -217,64 +255,83 @@ export default function AdminPredictionsPage() {
     setSuccess('')
     
     try {
-      const { generateDailyPredictionClient, generateWeeklyPredictionClient } = await import('@/lib/generator-client')
       const newPredictions: Record<string, PredictionData> = {}
       
       console.log('Gerando previsões para', SIGNS.length, 'signos:', SIGNS)
       
+      // Gerar via API para obter IDs
       for (const sign of SIGNS) {
         try {
-          if (type === 'daily') {
-            const result = generateDailyPredictionClient({
-              sign: sign as any,
-              weekday: weekday as any,
-              isoWeek,
-              isoYear
-            })
-            
+          const url = type === 'daily'
+            ? '/api/admin/predictions/daily'
+            : '/api/admin/predictions/weekly'
+          
+          const body: any = {
+            sign,
+            isoWeek,
+            isoYear,
+            generate: true,
+            status: globalStatus
+          }
+      
+      if (type === 'daily') {
+            body.weekday = weekday
+          }
+          
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            credentials: 'include'
+          })
+          
+          if (res.ok) {
+            const result = await res.json()
             newPredictions[sign] = {
               ...predictions[sign],
+              id: result.id,
               text: result.text,
               luckyNumber: result.luckyNumber,
               element: result.element,
               quality: result.quality,
               rulingPlanet: result.rulingPlanet,
               luckyColor: result.luckyColor,
+              luckyColorId: result.luckyColorId,
               emotion: result.emotion,
+              emotionId: result.emotionId,
               practicalAdvice: result.practicalAdvice,
+              practicalAdviceId: result.practicalAdviceId,
               compatibleSigns: result.compatibleSigns,
               numerologyMeaning: result.numerologyMeaning,
               impactPhrase: result.impactPhrase,
+              impactPhraseId: result.impactPhraseId,
               recommendedActivities: result.recommendedActivities,
+              recommendedActivityId: result.recommendedActivityId,
               dailyAlert: result.dailyAlert,
+              dailyAlertId: result.dailyAlertId,
               energyLevel: result.energyLevel,
               crystal: result.crystal,
+              crystalId: result.crystalId,
               mantra: result.mantra,
+              mantraId: result.mantraId,
               loveAdvice: result.loveAdvice,
+              loveAdviceId: result.loveAdviceId,
               careerAdvice: result.careerAdvice,
-              status: globalStatus
+              careerAdviceId: result.careerAdviceId,
+              status: result.status || globalStatus
             }
-            
             console.log(`Previsão gerada para ${SIGN_NAMES[sign]}:`, result.text.substring(0, 50) + '...')
-          } else {
-            const result = generateWeeklyPredictionClient({
-              sign: sign as any,
-              isoWeek,
-              isoYear
-            })
-            
+      } else {
+            console.error(`Erro ao gerar previsão para ${sign}:`, res.status, res.statusText)
             newPredictions[sign] = {
               ...predictions[sign],
-              text: result.text,
-              luckyNumber: result.luckyNumber,
+              text: predictions[sign]?.text || '',
+              luckyNumber: predictions[sign]?.luckyNumber || 1,
               status: globalStatus
             }
-            
-            console.log(`Previsão gerada para ${SIGN_NAMES[sign]}:`, result.text.substring(0, 50) + '...')
           }
         } catch (err) {
           console.error(`Erro ao gerar previsão para ${sign}:`, err)
-          // Continua para o próximo signo mesmo se houver erro
           newPredictions[sign] = {
             ...predictions[sign],
             text: predictions[sign]?.text || '',
@@ -344,12 +401,22 @@ export default function AdminPredictionsPage() {
         if (pred.numerologyMeaning) body.numerologyMeaning = pred.numerologyMeaning
         if (pred.impactPhrase) body.impactPhrase = pred.impactPhrase
         if (pred.recommendedActivities) body.recommendedActivities = pred.recommendedActivities
+        if (pred.recommendedActivityId !== undefined) body.recommendedActivityId = pred.recommendedActivityId
         if (pred.dailyAlert) body.dailyAlert = pred.dailyAlert
+        if (pred.dailyAlertId !== undefined) body.dailyAlertId = pred.dailyAlertId
         if (pred.energyLevel !== undefined) body.energyLevel = pred.energyLevel
         if (pred.crystal) body.crystal = pred.crystal
+        if (pred.crystalId !== undefined) body.crystalId = pred.crystalId
         if (pred.mantra) body.mantra = pred.mantra
+        if (pred.mantraId !== undefined) body.mantraId = pred.mantraId
         if (pred.loveAdvice) body.loveAdvice = pred.loveAdvice
+        if (pred.loveAdviceId !== undefined) body.loveAdviceId = pred.loveAdviceId
         if (pred.careerAdvice) body.careerAdvice = pred.careerAdvice
+        if (pred.careerAdviceId !== undefined) body.careerAdviceId = pred.careerAdviceId
+        if (pred.luckyColorId !== undefined) body.luckyColorId = pred.luckyColorId
+        if (pred.emotionId !== undefined) body.emotionId = pred.emotionId
+        if (pred.practicalAdviceId !== undefined) body.practicalAdviceId = pred.practicalAdviceId
+        if (pred.impactPhraseId !== undefined) body.impactPhraseId = pred.impactPhraseId
         
         if (type === 'daily') {
           body.weekday = weekday
@@ -357,6 +424,9 @@ export default function AdminPredictionsPage() {
         
         if (pred.id) {
           body.id = pred.id
+          console.log(`[saveAllPredictions] Salvando ${SIGN_NAMES[sign]} com id:`, pred.id, 'tipo:', typeof pred.id)
+        } else {
+          console.log(`[saveAllPredictions] Salvando ${SIGN_NAMES[sign]} sem id (POST)`)
         }
         
         console.log(`Salvando ${SIGN_NAMES[sign]} com campos:`, Object.keys(body))
@@ -400,18 +470,28 @@ export default function AdminPredictionsPage() {
               quality: savedData.quality,
               rulingPlanet: savedData.rulingPlanet,
               luckyColor: savedData.luckyColor,
+              luckyColorId: savedData.luckyColorId,
               emotion: savedData.emotion,
+              emotionId: savedData.emotionId,
               practicalAdvice: savedData.practicalAdvice,
+              practicalAdviceId: savedData.practicalAdviceId,
               compatibleSigns: savedData.compatibleSigns,
               numerologyMeaning: savedData.numerologyMeaning,
               impactPhrase: savedData.impactPhrase,
+              impactPhraseId: savedData.impactPhraseId,
               recommendedActivities: savedData.recommendedActivities,
+              recommendedActivityId: savedData.recommendedActivityId,
               dailyAlert: savedData.dailyAlert,
+              dailyAlertId: savedData.dailyAlertId,
               energyLevel: savedData.energyLevel,
               crystal: savedData.crystal,
+              crystalId: savedData.crystalId,
               mantra: savedData.mantra,
+              mantraId: savedData.mantraId,
               loveAdvice: savedData.loveAdvice,
+              loveAdviceId: savedData.loveAdviceId,
               careerAdvice: savedData.careerAdvice,
+              careerAdviceId: savedData.careerAdviceId,
               status: savedData.status || globalStatus
             }
           }
@@ -461,6 +541,23 @@ export default function AdminPredictionsPage() {
       if (pred.compatibleSigns) body.compatibleSigns = pred.compatibleSigns
       if (pred.numerologyMeaning) body.numerologyMeaning = pred.numerologyMeaning
       if (pred.impactPhrase) body.impactPhrase = pred.impactPhrase
+      if (pred.impactPhraseId !== undefined) body.impactPhraseId = pred.impactPhraseId
+      if (pred.recommendedActivities) body.recommendedActivities = pred.recommendedActivities
+      if (pred.recommendedActivityId !== undefined) body.recommendedActivityId = pred.recommendedActivityId
+      if (pred.dailyAlert) body.dailyAlert = pred.dailyAlert
+      if (pred.dailyAlertId !== undefined) body.dailyAlertId = pred.dailyAlertId
+      if (pred.energyLevel !== undefined) body.energyLevel = pred.energyLevel
+      if (pred.crystal) body.crystal = pred.crystal
+      if (pred.crystalId !== undefined) body.crystalId = pred.crystalId
+      if (pred.mantra) body.mantra = pred.mantra
+      if (pred.mantraId !== undefined) body.mantraId = pred.mantraId
+      if (pred.loveAdvice) body.loveAdvice = pred.loveAdvice
+      if (pred.loveAdviceId !== undefined) body.loveAdviceId = pred.loveAdviceId
+      if (pred.careerAdvice) body.careerAdvice = pred.careerAdvice
+      if (pred.careerAdviceId !== undefined) body.careerAdviceId = pred.careerAdviceId
+      if (pred.luckyColorId !== undefined) body.luckyColorId = pred.luckyColorId
+      if (pred.emotionId !== undefined) body.emotionId = pred.emotionId
+      if (pred.practicalAdviceId !== undefined) body.practicalAdviceId = pred.practicalAdviceId
 
       if (type === 'daily') {
         body.weekday = weekday
@@ -468,6 +565,9 @@ export default function AdminPredictionsPage() {
 
       if (pred.id) {
         body.id = pred.id
+        console.log(`[saveSinglePrediction] Salvando ${SIGN_NAMES[sign]} com id:`, pred.id)
+      } else {
+        console.log(`[saveSinglePrediction] Salvando ${SIGN_NAMES[sign]} sem id (POST)`)
       }
       
       console.log(`Salvando ${SIGN_NAMES[sign]} com campos:`, Object.keys(body))
@@ -498,6 +598,20 @@ export default function AdminPredictionsPage() {
             compatibleSigns: savedData.compatibleSigns,
             numerologyMeaning: savedData.numerologyMeaning,
             impactPhrase: savedData.impactPhrase,
+            impactPhraseId: savedData.impactPhraseId,
+            recommendedActivities: savedData.recommendedActivities,
+            recommendedActivityId: savedData.recommendedActivityId,
+            dailyAlert: savedData.dailyAlert,
+            dailyAlertId: savedData.dailyAlertId,
+            energyLevel: savedData.energyLevel,
+            crystal: savedData.crystal,
+            crystalId: savedData.crystalId,
+            mantra: savedData.mantra,
+            mantraId: savedData.mantraId,
+            loveAdvice: savedData.loveAdvice,
+            loveAdviceId: savedData.loveAdviceId,
+            careerAdvice: savedData.careerAdvice,
+            careerAdviceId: savedData.careerAdviceId,
             status: savedData.status || globalStatus
           }
         }))
@@ -563,14 +677,14 @@ export default function AdminPredictionsPage() {
             <div className="form-group" style={{ display: 'none' }}>
               {/* Status oculto - sempre será 'published' */}
               <label className="form-label">Status (para todos)</label>
-              <select
-                className="form-select"
+                <select
+                  className="form-select"
                 value={globalStatus}
                 onChange={(e) => {}}
-              >
+                >
                 <option value="published">Publicado</option>
-              </select>
-            </div>
+                </select>
+              </div>
 
             <div className="form-group">
               <label className="form-label">Estilo da Previsão</label>
@@ -746,7 +860,14 @@ export default function AdminPredictionsPage() {
                     }}>
                       {predictions[sign]?.luckyColor && (
                         <div>
-                          <strong style={{ color: '#666', fontSize: '0.9rem' }}>Cor da Sorte:</strong>
+                          <strong style={{ color: '#666', fontSize: '0.9rem' }}>
+                            Cor da Sorte:
+                            {typeof predictions[sign].luckyColorId === 'number' && (
+                              <span style={{ fontSize: '0.8rem', color: '#999', marginLeft: '0.5rem', fontWeight: 'normal' }}>
+                                (ID: {predictions[sign].luckyColorId})
+                              </span>
+                            )}
+                          </strong>
                           <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
                             {predictions[sign].luckyColor}
                           </div>
@@ -755,7 +876,14 @@ export default function AdminPredictionsPage() {
                       
                       {predictions[sign]?.emotion && (
                         <div>
-                          <strong style={{ color: '#666', fontSize: '0.9rem' }}>Emoção:</strong>
+                          <strong style={{ color: '#666', fontSize: '0.9rem' }}>
+                            Emoção:
+                            {typeof predictions[sign].emotionId === 'number' && (
+                              <span style={{ fontSize: '0.8rem', color: '#999', marginLeft: '0.5rem', fontWeight: 'normal' }}>
+                                (ID: {predictions[sign].emotionId})
+                              </span>
+                            )}
+                          </strong>
                           <div style={{ marginTop: '0.25rem', textTransform: 'capitalize' }}>
                             {predictions[sign].emotion}
                           </div>
@@ -765,7 +893,14 @@ export default function AdminPredictionsPage() {
                     
                     {predictions[sign]?.practicalAdvice && (
                       <div>
-                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>Conselho Prático:</strong>
+                        <strong style={{ color: '#666', fontSize: '0.9rem' }}>
+                          Conselho Prático:
+                          {typeof predictions[sign].practicalAdviceId === 'number' && (
+                            <span style={{ fontSize: '0.8rem', color: '#999', marginLeft: '0.5rem', fontWeight: 'normal' }}>
+                              (ID: {predictions[sign].practicalAdviceId})
+                            </span>
+                          )}
+                        </strong>
                         <div style={{ marginTop: '0.25rem' }}>
                           {predictions[sign].practicalAdvice}
                         </div>
@@ -804,14 +939,54 @@ export default function AdminPredictionsPage() {
                       </div>
                     )}
                     
-                    {predictions[sign]?.impactPhrase && (
-                      <div style={{ marginTop: '0.5rem', padding: '0.75rem', backgroundColor: '#fff', borderRadius: '4px', borderLeft: '3px solid #0070f3' }}>
-                        <strong style={{ color: '#0070f3', fontSize: '0.9rem' }}>Frase de Impacto:</strong>
-                        <div style={{ marginTop: '0.25rem', fontStyle: 'italic', color: '#333' }}>
-                          "{predictions[sign].impactPhrase}"
+                    {predictions[sign]?.impactPhrase && (() => {
+                      // Limpar e formatar a frase de impacto - pegar apenas a primeira frase
+                      let cleanPhrase = predictions[sign].impactPhrase
+                        .trim()
+                        .replace(/\n+/g, ' ') // Substituir quebras de linha por espaços
+                        .replace(/\s+/g, ' ') // Remover espaços múltiplos
+                        .replace(/^["']|["']$/g, '') // Remover aspas no início/fim se existirem
+                        .trim()
+                      
+                      // Pegar apenas a primeira frase (até o primeiro ponto, exclamação ou interrogação)
+                      const firstSentenceMatch = cleanPhrase.match(/^[^.!?]+[.!?]/)
+                      if (firstSentenceMatch) {
+                        cleanPhrase = firstSentenceMatch[0].trim()
+                      } else {
+                        // Se não encontrar pontuação, pegar até 100 caracteres ou até o primeiro espaço após 80 caracteres
+                        if (cleanPhrase.length > 100) {
+                          const spaceIndex = cleanPhrase.substring(80, 100).indexOf(' ')
+                          if (spaceIndex !== -1) {
+                            cleanPhrase = cleanPhrase.substring(0, 80 + spaceIndex).trim() + '.'
+                          } else {
+                            cleanPhrase = cleanPhrase.substring(0, 100).trim() + '...'
+                          }
+                        }
+                      }
+                      
+                      return (
+                        <div style={{ marginTop: '0.5rem', padding: '0.75rem', backgroundColor: '#fff', borderRadius: '4px', borderLeft: '3px solid #0070f3' }}>
+                          <strong style={{ color: '#0070f3', fontSize: '0.9rem' }}>
+                            Frase de Impacto:
+                            {typeof predictions[sign].impactPhraseId === 'number' && (
+                              <span style={{ fontSize: '0.8rem', color: '#999', marginLeft: '0.5rem', fontWeight: 'normal' }}>
+                                (ID: {predictions[sign].impactPhraseId})
+                              </span>
+                            )}
+                          </strong>
+                          <div style={{ 
+                            marginTop: '0.25rem', 
+                            fontStyle: 'italic', 
+                            color: '#333',
+                            lineHeight: '1.5',
+                            whiteSpace: 'normal',
+                            wordWrap: 'break-word'
+                          }}>
+                            "{cleanPhrase}"
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )
+                    })()}
                   </div>
                 </div>
               )}
@@ -838,6 +1013,11 @@ export default function AdminPredictionsPage() {
                       <div>
                         <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
                           ✨ Atividades Recomendadas:
+                          {typeof predictions[sign].recommendedActivityId === 'number' && (
+                            <span style={{ fontSize: '0.8rem', color: '#666', marginLeft: '0.5rem', fontWeight: 'normal' }}>
+                              (ID: {predictions[sign].recommendedActivityId})
+                            </span>
+                          )}
                         </strong>
                         <div style={{ 
                           padding: '0.75rem', 
@@ -855,6 +1035,11 @@ export default function AdminPredictionsPage() {
                       <div>
                         <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
                           ⚠️ Alerta do Dia:
+                          {typeof predictions[sign].dailyAlertId === 'number' && (
+                            <span style={{ fontSize: '0.8rem', color: '#666', marginLeft: '0.5rem', fontWeight: 'normal' }}>
+                              (ID: {predictions[sign].dailyAlertId})
+                            </span>
+                          )}
                         </strong>
                         <div style={{ 
                           padding: '0.75rem', 
@@ -905,6 +1090,11 @@ export default function AdminPredictionsPage() {
                       <div>
                         <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
                           💎 Pedra/Cristal do Dia:
+                          {typeof predictions[sign].crystalId === 'number' && (
+                            <span style={{ fontSize: '0.8rem', color: '#666', marginLeft: '0.5rem', fontWeight: 'normal' }}>
+                              (ID: {predictions[sign].crystalId})
+                            </span>
+                          )}
                         </strong>
                         <div style={{ 
                           padding: '0.75rem', 
@@ -919,31 +1109,54 @@ export default function AdminPredictionsPage() {
                       </div>
                     )}
 
-                    {predictions[sign]?.mantra && (
-                      <div>
-                        <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
-                          🧘 Mantra ou Afirmação:
-                        </strong>
-                        <div style={{ 
-                          padding: '1rem', 
-                          backgroundColor: '#fff', 
-                          borderRadius: '4px',
-                          border: '1px solid #ffc107',
-                          borderLeft: '4px solid #9c27b0',
-                          color: '#333',
-                          fontStyle: 'italic',
-                          textAlign: 'center',
-                          fontSize: '1.05rem'
-                        }}>
-                          "{predictions[sign].mantra}"
+                    {predictions[sign]?.mantra && (() => {
+                      // Limpar e formatar o mantra
+                      const cleanMantra = predictions[sign].mantra
+                        .trim()
+                        .replace(/\n+/g, ' ') // Substituir quebras de linha por espaços
+                        .replace(/\s+/g, ' ') // Remover espaços múltiplos
+                        .replace(/^["']|["']$/g, '') // Remover aspas no início/fim se existirem
+                        .trim()
+                      
+                      return (
+                        <div>
+                          <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
+                            🧘 Mantra ou Afirmação:
+                            {typeof predictions[sign].mantraId === 'number' && (
+                              <span style={{ fontSize: '0.8rem', color: '#666', marginLeft: '0.5rem', fontWeight: 'normal' }}>
+                                (ID: {predictions[sign].mantraId})
+                              </span>
+                            )}
+                          </strong>
+                          <div style={{ 
+                            padding: '1rem', 
+                            backgroundColor: '#fff', 
+                            borderRadius: '4px',
+                            border: '1px solid #ffc107',
+                            borderLeft: '4px solid #9c27b0',
+                            color: '#333',
+                            fontStyle: 'italic',
+                            textAlign: 'center',
+                            fontSize: '1.05rem',
+                            lineHeight: '1.5',
+                            whiteSpace: 'normal',
+                            wordWrap: 'break-word'
+                          }}>
+                            "{cleanMantra}"
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )
+                    })()}
 
                     {predictions[sign]?.loveAdvice && (
                       <div>
                         <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
                           💕 Conselho Amoroso:
+                          {typeof predictions[sign].loveAdviceId === 'number' && (
+                            <span style={{ fontSize: '0.8rem', color: '#666', marginLeft: '0.5rem', fontWeight: 'normal' }}>
+                              (ID: {predictions[sign].loveAdviceId})
+                            </span>
+                          )}
                         </strong>
                         <div style={{ 
                           padding: '0.75rem', 
@@ -962,6 +1175,11 @@ export default function AdminPredictionsPage() {
                       <div>
                         <strong style={{ color: '#856404', fontSize: '0.95rem', display: 'block', marginBottom: '0.5rem' }}>
                           💼 Conselho Profissional:
+                          {typeof predictions[sign].careerAdviceId === 'number' && (
+                            <span style={{ fontSize: '0.8rem', color: '#666', marginLeft: '0.5rem', fontWeight: 'normal' }}>
+                              (ID: {predictions[sign].careerAdviceId})
+                            </span>
+                          )}
                         </strong>
                         <div style={{ 
                           padding: '0.75rem', 
@@ -974,8 +1192,8 @@ export default function AdminPredictionsPage() {
                           {predictions[sign].careerAdvice}
                         </div>
                       </div>
-                    )}
-                  </div>
+            )}
+          </div>
                 </div>
             )}
           </div>

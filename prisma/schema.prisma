@@ -50,46 +50,66 @@ enum PredictionStatus {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  name          String
-  email         String   @unique
-  passwordHash  String   @map("password_hash")
-  role          UserRole @default(viewer)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(viewer)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  auditLogs     AuditLog[]
+  auditLogs AuditLog[]
 
   @@map("users")
 }
 
 model DailyPrediction {
-  id                String           @id @default(uuid())
-  sign              Sign
-  weekday           Weekday
-  isoWeek           Int              @map("iso_week")
-  isoYear           Int              @map("iso_year")
-  text              String           @db.Text
-  luckyNumber       Int              @map("lucky_number")
-  element           String?          // fogo, terra, ar, água
-  quality           String?          // cardinal, fixo, mutável
-  rulingPlanet      String?          // planeta regente
-  luckyColor        String?          // cor da sorte
-  emotion           String?          // emoção específica
-  practicalAdvice   String?          @map("practical_advice") // conselho prático
-  compatibleSigns   String?          @map("compatible_signs") // signos compatíveis
-  numerologyMeaning String?          @map("numerology_meaning") // significado numerológico
-  impactPhrase      String?          @map("impact_phrase") // frase de impacto
-  recommendedActivities String?      @map("recommended_activities") // atividades recomendadas
-  dailyAlert        String?          @map("daily_alert") // alerta do dia
-  energyLevel       Int?             @map("energy_level") // energia do dia (1-10)
-  crystal           String?          // pedra/cristal do dia
-  mantra            String?          // mantra ou afirmação
-  loveAdvice        String?          @map("love_advice") // conselho amoroso específico
-  careerAdvice      String?          @map("career_advice") // conselho profissional
-  status            PredictionStatus @default(draft)
-  createdAt         DateTime         @default(now()) @map("created_at")
-  updatedAt         DateTime         @updatedAt @map("updated_at")
+  id                    Int                  @id @default(autoincrement())
+  sign                  Sign
+  weekday               Weekday
+  isoWeek               Int                  @map("iso_week")
+  isoYear               Int                  @map("iso_year")
+  text                  String               @db.Text
+  luckyNumber           Int                  @map("lucky_number")
+  element               String? // fogo, terra, ar, água
+  quality               String? // cardinal, fixo, mutável
+  rulingPlanet          String? // planeta regente
+  luckyColor            String?              @map("lucky_color") // cor da sorte
+  emotion               String? // emoção específica
+  practicalAdvice       String?              @map("practical_advice") // conselho prático
+  compatibleSigns       String?              @map("compatible_signs") // signos compatíveis
+  numerologyMeaning     String?              @map("numerology_meaning") // significado numerológico
+  impactPhrase          String?              @map("impact_phrase") // frase de impacto
+  recommendedActivities String?              @map("recommended_activities") // atividades recomendadas
+  dailyAlert            String?              @map("daily_alert") // alerta do dia
+  energyLevel           Int?                 @map("energy_level") // energia do dia (1-10)
+  crystal               String? // pedra/cristal do dia
+  mantra                String? // mantra ou afirmação
+  loveAdvice            String?              @map("love_advice") // conselho amoroso específico
+  careerAdvice          String?              @map("career_advice") // conselho profissional
+  status                PredictionStatus     @default(draft)
+  createdAt             DateTime             @default(now()) @map("created_at")
+  updatedAt             DateTime             @updatedAt @map("updated_at")
+  CareerAdvice          CareerAdvice?        @relation(fields: [careerAdviceId], references: [id])
+  careerAdviceId        Int?
+  LoveAdvice            LoveAdvice?          @relation(fields: [loveAdviceId], references: [id])
+  loveAdviceId          Int?
+  Crystal               Crystal?             @relation(fields: [crystalId], references: [id])
+  crystalId             Int?
+  DailyAlert            DailyAlert?          @relation(fields: [dailyAlertId], references: [id])
+  dailyAlertId          Int?
+  RecommendedActivity   RecommendedActivity? @relation(fields: [recommendedActivityId], references: [id])
+  recommendedActivityId Int?
+  PracticalAdvice       PracticalAdvice?     @relation(fields: [practicalAdviceId], references: [id])
+  practicalAdviceId     Int?
+  LuckyColor            LuckyColor?          @relation(fields: [luckyColorId], references: [id])
+  luckyColorId          Int?
+  Emotion               Emotion?             @relation(fields: [emotionId], references: [id])
+  emotionId             Int?
+  ImpactPhrase          ImpactPhrase?        @relation(fields: [impactPhraseId], references: [id])
+  impactPhraseId        Int?
+  Mantra                Mantra?              @relation(fields: [mantraId], references: [id])
+  mantraId              Int?
 
   @@unique([sign, weekday, isoWeek, isoYear])
   @@index([sign, weekday, isoWeek, isoYear])
@@ -97,7 +117,7 @@ model DailyPrediction {
 }
 
 model WeeklyPrediction {
-  id          String           @id @default(uuid())
+  id          Int              @id @default(autoincrement())
   sign        Sign
   isoWeek     Int              @map("iso_week")
   isoYear     Int              @map("iso_year")
@@ -113,11 +133,11 @@ model WeeklyPrediction {
 }
 
 model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String?  @map("user_id")
+  id        Int      @id @default(autoincrement())
+  userId    Int?     @map("user_id")
   action    String
   entity    String
-  entityId  String?  @map("entity_id")
+  entityId  Int?     @map("entity_id")
   metadata  Json?    @db.Json
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -129,14 +149,14 @@ model AuditLog {
 
 // Tabela de referência dos signos com informações imutáveis
 model ZodiacSign {
-  id          String   @id @default(uuid())
-  name        Sign     @unique // aries, taurus, etc
-  displayName String   @map("display_name") // Áries, Touro, etc
-  element     String   // fogo, terra, ar, água
-  quality     String   // cardinal, fixo, mutável
-  rulingPlanet String  @map("ruling_planet") // Marte, Vênus, etc
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id           Int      @id @default(autoincrement())
+  name         Sign     @unique // aries, taurus, etc
+  displayName  String   @map("display_name") // Áries, Touro, etc
+  element      String // fogo, terra, ar, água
+  quality      String // cardinal, fixo, mutável
+  rulingPlanet String   @map("ruling_planet") // Marte, Vênus, etc
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   careerAdvices         CareerAdvice[]
   loveAdvices           LoveAdvice[]
@@ -154,14 +174,15 @@ model ZodiacSign {
 
 // Variações de conselhos profissionais
 model CareerAdvice {
-  id        String   @id @default(uuid())
-  signId    String   @map("sign_id")
+  id        Int      @id @default(autoincrement())
+  signId    Int      @map("sign_id")
   text      String   @db.Text
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+  sign             ZodiacSign        @relation(fields: [signId], references: [id], onDelete: Cascade)
+  dailyPredictions DailyPrediction[]
 
   @@index([signId, isActive])
   @@map("career_advices")
@@ -169,14 +190,15 @@ model CareerAdvice {
 
 // Variações de conselhos amorosos
 model LoveAdvice {
-  id        String   @id @default(uuid())
-  signId    String   @map("sign_id")
+  id        Int      @id @default(autoincrement())
+  signId    Int      @map("sign_id")
   text      String   @db.Text
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+  sign             ZodiacSign        @relation(fields: [signId], references: [id], onDelete: Cascade)
+  dailyPredictions DailyPrediction[]
 
   @@index([signId, isActive])
   @@map("love_advices")
@@ -184,14 +206,15 @@ model LoveAdvice {
 
 // Variações de cristais/pedras
 model Crystal {
-  id        String   @id @default(uuid())
-  signId    String   @map("sign_id")
+  id        Int      @id @default(autoincrement())
+  signId    Int      @map("sign_id")
   text      String   @db.Text
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+  sign             ZodiacSign        @relation(fields: [signId], references: [id], onDelete: Cascade)
+  dailyPredictions DailyPrediction[]
 
   @@index([signId, isActive])
   @@map("crystals")
@@ -199,14 +222,15 @@ model Crystal {
 
 // Variações de alertas do dia
 model DailyAlert {
-  id        String   @id @default(uuid())
-  signId    String   @map("sign_id")
+  id        Int      @id @default(autoincrement())
+  signId    Int      @map("sign_id")
   text      String   @db.Text
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+  sign             ZodiacSign        @relation(fields: [signId], references: [id], onDelete: Cascade)
+  dailyPredictions DailyPrediction[]
 
   @@index([signId, isActive])
   @@map("daily_alerts")
@@ -214,14 +238,15 @@ model DailyAlert {
 
 // Variações de atividades recomendadas
 model RecommendedActivity {
-  id        String   @id @default(uuid())
-  signId    String   @map("sign_id")
+  id        Int      @id @default(autoincrement())
+  signId    Int      @map("sign_id")
   text      String   @db.Text
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+  sign             ZodiacSign        @relation(fields: [signId], references: [id], onDelete: Cascade)
+  dailyPredictions DailyPrediction[]
 
   @@index([signId, isActive])
   @@map("recommended_activities")
@@ -229,14 +254,15 @@ model RecommendedActivity {
 
 // Variações de conselhos práticos
 model PracticalAdvice {
-  id        String   @id @default(uuid())
-  signId    String   @map("sign_id")
+  id        Int      @id @default(autoincrement())
+  signId    Int      @map("sign_id")
   text      String   @db.Text
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+  sign             ZodiacSign        @relation(fields: [signId], references: [id], onDelete: Cascade)
+  dailyPredictions DailyPrediction[]
 
   @@index([signId, isActive])
   @@map("practical_advices")
@@ -244,14 +270,15 @@ model PracticalAdvice {
 
 // Variações de cores da sorte
 model LuckyColor {
-  id        String   @id @default(uuid())
-  signId    String   @map("sign_id")
+  id        Int      @id @default(autoincrement())
+  signId    Int      @map("sign_id")
   text      String   @db.Text
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+  sign             ZodiacSign        @relation(fields: [signId], references: [id], onDelete: Cascade)
+  dailyPredictions DailyPrediction[]
 
   @@index([signId, isActive])
   @@map("lucky_colors")
@@ -259,14 +286,15 @@ model LuckyColor {
 
 // Variações de emoções
 model Emotion {
-  id        String   @id @default(uuid())
-  signId    String   @map("sign_id")
+  id        Int      @id @default(autoincrement())
+  signId    Int      @map("sign_id")
   text      String   @db.Text
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+  sign             ZodiacSign        @relation(fields: [signId], references: [id], onDelete: Cascade)
+  dailyPredictions DailyPrediction[]
 
   @@index([signId, isActive])
   @@map("emotions")
@@ -274,14 +302,15 @@ model Emotion {
 
 // Variações de frases de impacto (por signo)
 model ImpactPhrase {
-  id        String   @id @default(uuid())
-  signId    String   @map("sign_id")
+  id        Int      @id @default(autoincrement())
+  signId    Int      @map("sign_id")
   text      String   @db.Text
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+  sign             ZodiacSign        @relation(fields: [signId], references: [id], onDelete: Cascade)
+  dailyPredictions DailyPrediction[]
 
   @@index([signId, isActive])
   @@map("impact_phrases")
@@ -289,16 +318,16 @@ model ImpactPhrase {
 
 // Variações de mantras (por signo)
 model Mantra {
-  id        String   @id @default(uuid())
-  signId    String   @map("sign_id")
+  id        Int      @id @default(autoincrement())
+  signId    Int      @map("sign_id")
   text      String   @db.Text
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+  sign             ZodiacSign        @relation(fields: [signId], references: [id], onDelete: Cascade)
+  dailyPredictions DailyPrediction[]
 
   @@index([signId, isActive])
   @@map("mantras")
 }
-

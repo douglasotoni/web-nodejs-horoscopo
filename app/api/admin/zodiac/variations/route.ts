@@ -22,18 +22,18 @@ const variationTypes = [
 type VariationType = typeof variationTypes[number]
 
 const createSchema = z.object({
-  signId: z.string().uuid(),
+  signId: z.coerce.number().int().positive(),
   type: z.enum(variationTypes),
   text: z.string().min(1),
   isActive: z.boolean().optional().default(true)
 })
 
 const updateSchema = createSchema.partial().extend({
-  id: z.string().uuid()
+  id: z.coerce.number().int().positive()
 })
 
 const querySchema = z.object({
-  signId: z.string().uuid().optional(),
+  signId: z.coerce.number().int().positive().optional(),
   type: z.enum(variationTypes).optional(),
   isActive: z.coerce.boolean().optional()
 })
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
 
     const searchParams = req.nextUrl.searchParams
     const params = {
-      signId: searchParams.get('signId') || undefined,
+      signId: searchParams.get('signId') ? Number(searchParams.get('signId')) : undefined,
       type: searchParams.get('type') || undefined,
       isActive: searchParams.get('isActive') || undefined
     }
@@ -286,12 +286,20 @@ export async function DELETE(req: NextRequest) {
     }
 
     const { searchParams } = req.nextUrl
-    const id = searchParams.get('id')
+    const idParam = searchParams.get('id')
     const type = searchParams.get('type') as VariationType | null
 
-    if (!id || !type) {
+    if (!idParam || !type) {
       return NextResponse.json(
         { error: 'ID e tipo são obrigatórios' },
+        { status: 400 }
+      )
+    }
+
+    const id = Number(idParam)
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { error: 'ID inválido' },
         { status: 400 }
       )
     }

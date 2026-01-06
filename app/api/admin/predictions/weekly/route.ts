@@ -17,7 +17,7 @@ const createSchema = z.object({
 })
 
 const updateSchema = createSchema.partial().extend({
-  id: z.string().uuid()
+  id: z.coerce.number().int().positive()
 })
 
 const querySchema = z.object({

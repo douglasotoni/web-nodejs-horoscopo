@@ -222,7 +222,7 @@ async function seedZodiacData() {
     return variations[index % variations.length]
   }
 
-  const createdSigns: Partial<Record<Sign, string>> = {}
+  const createdSigns: Partial<Record<Sign, number>> = {}
   for (const signData of signsData) {
     const sign = await prisma.zodiacSign.upsert({
       where: { name: signData.name },

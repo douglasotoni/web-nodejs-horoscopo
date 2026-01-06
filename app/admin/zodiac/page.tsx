@@ -28,11 +28,11 @@ const VARIATION_TYPES = [
 type VariationType = typeof VARIATION_TYPES[number]['value']
 
 interface Variation {
-  id: string
+  id: number
   text: string
   isActive: boolean
   sign: {
-    id: string
+    id: number
     name: Sign
     displayName: string
   }
@@ -41,7 +41,7 @@ interface Variation {
 }
 
 interface ZodiacSign {
-  id: string
+  id: number
   name: Sign
   displayName: string
   element: string
@@ -55,14 +55,14 @@ export default function AdminZodiacPage() {
   
   const [signs, setSigns] = useState<ZodiacSign[]>([])
   const [selectedType, setSelectedType] = useState<VariationType>('careerAdvice')
-  const [selectedSignId, setSelectedSignId] = useState<string>('')
+  const [selectedSignId, setSelectedSignId] = useState<number | null>(null)
   const [variations, setVariations] = useState<Variation[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   
   // Formulário
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [formText, setFormText] = useState('')
   const [formIsActive, setFormIsActive] = useState(true)
 
@@ -173,7 +173,7 @@ export default function AdminZodiacPage() {
     setFormIsActive(variation.isActive)
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('Tem certeza que deseja deletar esta variação?')) return
 
     setLoading(true)
@@ -241,8 +241,8 @@ export default function AdminZodiacPage() {
               <label className="form-label">Signo</label>
               <select
                 className="form-select"
-                value={selectedSignId}
-                onChange={(e) => setSelectedSignId(e.target.value)}
+                value={selectedSignId || ''}
+                onChange={(e) => setSelectedSignId(e.target.value ? Number(e.target.value) : null)}
               >
                 {signs.map(sign => (
                   <option key={sign.id} value={sign.id}>

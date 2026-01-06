@@ -55,74 +55,120 @@ class ZodiacCache {
 
 export const zodiacCache = new ZodiacCache()
 
-// Função para buscar variações do banco com cache
+// Tipo para variação com ID e texto
+export type VariationWithId = {
+  id: number
+  text: string
+}
+
+// Função para buscar variações do banco com cache (retorna strings para compatibilidade)
 export async function getZodiacVariations(
   type: 'careerAdvice' | 'loveAdvice' | 'crystal' | 'dailyAlert' | 'recommendedActivity' | 'practicalAdvice' | 'luckyColor' | 'emotion' | 'impactPhrase' | 'mantra',
   sign: Sign
 ): Promise<string[]> {
-  const cached = zodiacCache.get<string[]>(type, sign)
+  const variations = await getZodiacVariationsWithIds(type, sign)
+  return variations.map(v => v.text)
+}
+
+// Função para buscar variações com IDs
+export async function getZodiacVariationsWithIds(
+  type: 'careerAdvice' | 'loveAdvice' | 'crystal' | 'dailyAlert' | 'recommendedActivity' | 'practicalAdvice' | 'luckyColor' | 'emotion' | 'impactPhrase' | 'mantra',
+  sign: Sign
+): Promise<VariationWithId[]> {
+  const cacheKey = `${type}WithIds`
+  const cached = zodiacCache.get<VariationWithId[]>(cacheKey, sign)
   
   if (cached) {
     return cached
   }
 
-  const signRecord = await prisma.zodiacSign.findUnique({
-    where: { name: sign },
-    include: {
-      careerAdvices: type === 'careerAdvice' ? { where: { isActive: true } } : false,
-      loveAdvices: type === 'loveAdvice' ? { where: { isActive: true } } : false,
-      crystals: type === 'crystal' ? { where: { isActive: true } } : false,
-      dailyAlerts: type === 'dailyAlert' ? { where: { isActive: true } } : false,
-      recommendedActivities: type === 'recommendedActivity' ? { where: { isActive: true } } : false,
-      practicalAdvices: type === 'practicalAdvice' ? { where: { isActive: true } } : false,
-      luckyColors: type === 'luckyColor' ? { where: { isActive: true } } : false,
-      emotions: type === 'emotion' ? { where: { isActive: true } } : false,
-      impactPhrases: type === 'impactPhrase' ? { where: { isActive: true } } : false,
-      mantras: type === 'mantra' ? { where: { isActive: true } } : false
-    }
+  // Buscar o signo primeiro
+  const zodiacSign = await prisma.zodiacSign.findUnique({
+    where: { name: sign }
   })
 
-  if (!signRecord) {
+  if (!zodiacSign) {
     return []
   }
 
-  let texts: string[] = []
+  // Buscar variações diretamente das tabelas usando o signId
+  let variations: VariationWithId[] = []
   
   switch (type) {
     case 'careerAdvice':
-      texts = signRecord.careerAdvices.map(a => a.text)
+      const careerAdvices = await prisma.careerAdvice.findMany({
+        where: { signId: zodiacSign.id, isActive: true },
+        select: { id: true, text: true }
+      })
+      variations = careerAdvices.map(a => ({ id: a.id, text: a.text }))
       break
     case 'loveAdvice':
-      texts = signRecord.loveAdvices.map(a => a.text)
+      const loveAdvices = await prisma.loveAdvice.findMany({
+        where: { signId: zodiacSign.id, isActive: true },
+        select: { id: true, text: true }
+      })
+      variations = loveAdvices.map(a => ({ id: a.id, text: a.text }))
       break
     case 'crystal':
-      texts = signRecord.crystals.map(c => c.text)
+      const crystals = await prisma.crystal.findMany({
+        where: { signId: zodiacSign.id, isActive: true },
+        select: { id: true, text: true }
+      })
+      variations = crystals.map(c => ({ id: c.id, text: c.text }))
       break
     case 'dailyAlert':
-      texts = signRecord.dailyAlerts.map(a => a.text)
+      const dailyAlerts = await prisma.dailyAlert.findMany({
+        where: { signId: zodiacSign.id, isActive: true },
+        select: { id: true, text: true }
+      })
+      variations = dailyAlerts.map(a => ({ id: a.id, text: a.text }))
       break
     case 'recommendedActivity':
-      texts = signRecord.recommendedActivities.map(a => a.text)
+      const recommendedActivities = await prisma.recommendedActivity.findMany({
+        where: { signId: zodiacSign.id, isActive: true },
+        select: { id: true, text: true }
+      })
+      variations = recommendedActivities.map(a => ({ id: a.id, text: a.text }))
       break
     case 'practicalAdvice':
-      texts = signRecord.practicalAdvices.map(a => a.text)
+      const practicalAdvices = await prisma.practicalAdvice.findMany({
+        where: { signId: zodiacSign.id, isActive: true },
+        select: { id: true, text: true }
+      })
+      variations = practicalAdvices.map(a => ({ id: a.id, text: a.text }))
       break
     case 'luckyColor':
-      texts = signRecord.luckyColors.map(c => c.text)
+      const luckyColors = await prisma.luckyColor.findMany({
+        where: { signId: zodiacSign.id, isActive: true },
+        select: { id: true, text: true }
+      })
+      variations = luckyColors.map(c => ({ id: c.id, text: c.text }))
       break
     case 'emotion':
-      texts = signRecord.emotions.map(e => e.text)
+      const emotions = await prisma.emotion.findMany({
+        where: { signId: zodiacSign.id, isActive: true },
+        select: { id: true, text: true }
+      })
+      variations = emotions.map(e => ({ id: e.id, text: e.text }))
       break
     case 'impactPhrase':
-      texts = signRecord.impactPhrases.map(p => p.text)
+      const impactPhrases = await prisma.impactPhrase.findMany({
+        where: { signId: zodiacSign.id, isActive: true },
+        select: { id: true, text: true }
+      })
+      variations = impactPhrases.map(p => ({ id: p.id, text: p.text }))
       break
     case 'mantra':
-      texts = signRecord.mantras.map(m => m.text)
+      const mantras = await prisma.mantra.findMany({
+        where: { signId: zodiacSign.id, isActive: true },
+        select: { id: true, text: true }
+      })
+      variations = mantras.map(m => ({ id: m.id, text: m.text }))
       break
   }
 
-  zodiacCache.set(type, texts, sign)
-  return texts
+  zodiacCache.set(cacheKey, variations, sign)
+  return variations
 }
 
 // Função para buscar informações imutáveis do signo

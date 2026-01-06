@@ -1,5 +1,5 @@
 import { Sign, Weekday } from '@prisma/client'
-import { getZodiacVariations, getZodiacSignInfo } from './zodiac-cache'
+import { getZodiacVariations, getZodiacVariationsWithIds, getZodiacSignInfo, type VariationWithId } from './zodiac-cache'
 
 interface GeneratorContext {
   sign: Sign
@@ -1399,18 +1399,28 @@ export async function generateDailyPrediction(context: GeneratorContext): Promis
   quality: string
   rulingPlanet: string
   luckyColor: string
+  luckyColorId: number | null
   emotion: string
+  emotionId: number | null
   practicalAdvice: string
+  practicalAdviceId: number | null
   compatibleSigns: string
   numerologyMeaning: string
   impactPhrase: string
+  impactPhraseId: number | null
   recommendedActivities: string
+  recommendedActivityId: number | null
   dailyAlert: string
+  dailyAlertId: number | null
   energyLevel: number
   crystal: string
+  crystalId: number | null
   mantra: string
+  mantraId: number | null
   loveAdvice: string
+  loveAdviceId: number | null
   careerAdvice: string
+  careerAdviceId: number | null
 }> {
   const seasonal = getSeasonalContext(context.isoWeek, context.isoYear)
   const moonPhase = getMoonPhase(seasonal.date)
@@ -1426,33 +1436,53 @@ export async function generateDailyPrediction(context: GeneratorContext): Promis
   const quality = signInfo?.quality || signQualities[context.sign]
   const rulingPlanet = signInfo?.rulingPlanet || rulingPlanets[context.sign]
   
-  // Buscar variações do banco
-  const [careerAdvicesList, loveAdvicesList, crystalsList, dailyAlertsList, 
-         recommendedActivitiesList, practicalAdvicesList, luckyColorsList, 
-         emotionsList, impactPhrasesList, mantrasList] = await Promise.all([
-    getZodiacVariations('careerAdvice', context.sign),
-    getZodiacVariations('loveAdvice', context.sign),
-    getZodiacVariations('crystal', context.sign),
-    getZodiacVariations('dailyAlert', context.sign),
-    getZodiacVariations('recommendedActivity', context.sign),
-    getZodiacVariations('practicalAdvice', context.sign),
-    getZodiacVariations('luckyColor', context.sign),
-    getZodiacVariations('emotion', context.sign),
-    getZodiacVariations('impactPhrase', context.sign),
-    getZodiacVariations('mantra', context.sign)
+  // Buscar variações do banco com IDs
+  const [careerAdvicesWithIds, loveAdvicesWithIds, crystalsWithIds, dailyAlertsWithIds, 
+         recommendedActivitiesWithIds, practicalAdvicesWithIds, luckyColorsWithIds, 
+         emotionsWithIds, impactPhrasesWithIds, mantrasWithIds] = await Promise.all([
+    getZodiacVariationsWithIds('careerAdvice', context.sign),
+    getZodiacVariationsWithIds('loveAdvice', context.sign),
+    getZodiacVariationsWithIds('crystal', context.sign),
+    getZodiacVariationsWithIds('dailyAlert', context.sign),
+    getZodiacVariationsWithIds('recommendedActivity', context.sign),
+    getZodiacVariationsWithIds('practicalAdvice', context.sign),
+    getZodiacVariationsWithIds('luckyColor', context.sign),
+    getZodiacVariationsWithIds('emotion', context.sign),
+    getZodiacVariationsWithIds('impactPhrase', context.sign),
+    getZodiacVariationsWithIds('mantra', context.sign)
   ])
   
   // Fallback para dados hardcoded se o banco estiver vazio
-  const careerAdvicesData = careerAdvicesList.length > 0 ? careerAdvicesList : careerAdvices[context.sign]
-  const loveAdvicesData = loveAdvicesList.length > 0 ? loveAdvicesList : loveAdvices[context.sign]
-  const crystalsData = crystalsList.length > 0 ? crystalsList : crystals[context.sign]
-  const dailyAlertsData = dailyAlertsList.length > 0 ? dailyAlertsList : dailyAlerts[context.sign]
-  const recommendedActivitiesData = recommendedActivitiesList.length > 0 ? recommendedActivitiesList : recommendedActivities[context.sign]
-  const practicalAdvicesData = practicalAdvicesList.length > 0 ? practicalAdvicesList : practicalAdvices[context.sign]
-  const luckyColorsData = luckyColorsList.length > 0 ? luckyColorsList : luckyColors[context.sign]
-  const emotionsData = emotionsList.length > 0 ? emotionsList : emotions[context.sign]
-  const impactPhrasesData = impactPhrasesList.length > 0 ? impactPhrasesList : impactPhrases
-  const mantrasData = mantrasList.length > 0 ? mantrasList : mantras
+  const careerAdvicesData: VariationWithId[] = careerAdvicesWithIds.length > 0 
+    ? careerAdvicesWithIds 
+    : careerAdvices[context.sign].map((text, idx) => ({ id: -1, text }))
+  const loveAdvicesData: VariationWithId[] = loveAdvicesWithIds.length > 0 
+    ? loveAdvicesWithIds 
+    : loveAdvices[context.sign].map((text, idx) => ({ id: -1, text }))
+  const crystalsData: VariationWithId[] = crystalsWithIds.length > 0 
+    ? crystalsWithIds 
+    : crystals[context.sign].map((text, idx) => ({ id: -1, text }))
+  const dailyAlertsData: VariationWithId[] = dailyAlertsWithIds.length > 0 
+    ? dailyAlertsWithIds 
+    : dailyAlerts[context.sign].map((text, idx) => ({ id: -1, text }))
+  const recommendedActivitiesData: VariationWithId[] = recommendedActivitiesWithIds.length > 0 
+    ? recommendedActivitiesWithIds 
+    : recommendedActivities[context.sign].map((text, idx) => ({ id: -1, text }))
+  const practicalAdvicesData: VariationWithId[] = practicalAdvicesWithIds.length > 0 
+    ? practicalAdvicesWithIds 
+    : practicalAdvices[context.sign].map((text, idx) => ({ id: -1, text }))
+  const luckyColorsData: VariationWithId[] = luckyColorsWithIds.length > 0 
+    ? luckyColorsWithIds 
+    : luckyColors[context.sign].map((text, idx) => ({ id: -1, text }))
+  const emotionsData: VariationWithId[] = emotionsWithIds.length > 0 
+    ? emotionsWithIds 
+    : emotions[context.sign].map((text, idx) => ({ id: -1, text }))
+  const impactPhrasesData: VariationWithId[] = impactPhrasesWithIds.length > 0 
+    ? impactPhrasesWithIds 
+    : impactPhrases.map((text, idx) => ({ id: -1, text }))
+  const mantrasData: VariationWithId[] = mantrasWithIds.length > 0 
+    ? mantrasWithIds 
+    : mantras.map((text, idx) => ({ id: -1, text }))
   
   const signTheme = getRandomElement(signThemes[context.sign], seedNums[0])
   const weekdayTheme = getRandomElement(weekdayThemes[context.weekday], seedNums[1])
@@ -1466,16 +1496,16 @@ export async function generateDailyPrediction(context: GeneratorContext): Promis
   // Tenta gerar até obter uma previsão de qualidade
   while (attempts < maxAttempts) {
     sentences.length = 0
-    
-    // Primeira frase - positiva com tema do signo
+  
+  // Primeira frase - positiva com tema do signo
     const positiveTemplate = getRandomElement(templates.positive, seedNums[3])
-    sentences.push(positiveTemplate
-      .replace('{action}', `explorar ${signTheme}`)
-      .replace('{focus}', signTheme)
-      .replace('{area}', signTheme)
-    )
-    
-    // Segunda frase - tema do dia da semana
+  sentences.push(positiveTemplate
+    .replace('{action}', `explorar ${signTheme}`)
+    .replace('{focus}', signTheme)
+    .replace('{area}', signTheme)
+  )
+  
+  // Segunda frase - tema do dia da semana
     const weekdayAction = getRandomElement(weekdayThemes[context.weekday], seedNums[4])
     const weekPosition = context.weekday === 'monday' ? 'início' : 
                         context.weekday === 'friday' ? 'fim' : 
@@ -1500,19 +1530,19 @@ export async function generateDailyPrediction(context: GeneratorContext): Promis
       // Menção mais sutil à fase da lua
       sentences.push(`A energia da ${moonPhase.name.toLowerCase()} favorece ${moonTheme}.`)
     }
-    
-    // Terceira frase - conselho ou advertência
+  
+  // Terceira frase - conselho ou advertência
     if (seedNums[6] % 3 === 0) {
       const advice = getRandomElement(templates.advice, seedNums[7])
-      sentences.push(advice
-        .replace('{investment}', signTheme)
-        .replace('{dedication}', weekdayTheme)
-        .replace('{priority}', signTheme)
-        .replace('{enjoy}', weekdayTheme)
-        .replace('{focus}', signTheme)
+    sentences.push(advice
+      .replace('{investment}', signTheme)
+      .replace('{dedication}', weekdayTheme)
+      .replace('{priority}', signTheme)
+      .replace('{enjoy}', weekdayTheme)
+      .replace('{focus}', signTheme)
         .replace('{area}', signTheme)
-      )
-    } else {
+    )
+  } else {
       sentences.push(getRandomElement(templates.caution, seedNums[8]))
     }
     
@@ -1549,15 +1579,21 @@ export async function generateDailyPrediction(context: GeneratorContext): Promis
   
   // 3. Cor da sorte (selecionada baseada na seed)
   const colorSeed = generateLuckyNumber(seed + 'color')
-  const luckyColor = getRandomElement(luckyColorsData, colorSeed)
+  const luckyColorVariation = getRandomElement(luckyColorsData, colorSeed)
+  const luckyColorId = luckyColorVariation.id && luckyColorVariation.id > 0 ? luckyColorVariation.id : null
+  const luckyColor = luckyColorVariation.text
   
   // 4. Emoção específica
   const emotionSeed = generateLuckyNumber(seed + 'emotion')
-  const emotion = getRandomElement(emotionsData, emotionSeed)
+  const emotionVariation = getRandomElement(emotionsData, emotionSeed)
+  const emotionId = (emotionVariation.id && emotionVariation.id > 0) ? emotionVariation.id : null
+  const emotion = emotionVariation.text
   
   // 5. Conselho prático
   const adviceSeed = generateLuckyNumber(seed + 'advice')
-  const practicalAdvice = getRandomElement(practicalAdvicesData, adviceSeed)
+  const practicalAdviceVariation = getRandomElement(practicalAdvicesData, adviceSeed)
+  const practicalAdviceId = (practicalAdviceVariation.id && practicalAdviceVariation.id > 0) ? practicalAdviceVariation.id : null
+  const practicalAdvice = practicalAdviceVariation.text
   
   // 6. Compatibilidade - seleciona 2-3 signos compatíveis aleatoriamente
   const compatibleSignsList = compatibleSignsByElement[element]
@@ -1584,15 +1620,21 @@ export async function generateDailyPrediction(context: GeneratorContext): Promis
   
   // 8. Frase de impacto
   const impactSeed = generateLuckyNumber(seed + 'impact')
-  const impactPhrase = getRandomElement(impactPhrasesData, impactSeed)
+  const impactPhraseVariation = getRandomElement(impactPhrasesData, impactSeed)
+  const impactPhraseId = (impactPhraseVariation.id && impactPhraseVariation.id > 0) ? impactPhraseVariation.id : null
+  const impactPhrase = impactPhraseVariation.text
   
   // 9. Atividades recomendadas
   const activitiesSeed = generateLuckyNumber(seed + 'activities')
-  const recommendedActivitiesText = getRandomElement(recommendedActivitiesData, activitiesSeed)
+  const recommendedActivityVariation = getRandomElement(recommendedActivitiesData, activitiesSeed)
+  const recommendedActivityId = (recommendedActivityVariation.id && recommendedActivityVariation.id > 0) ? recommendedActivityVariation.id : null
+  const recommendedActivitiesText = recommendedActivityVariation.text
   
   // 10. Alerta do dia
   const alertSeed = generateLuckyNumber(seed + 'alert')
-  const dailyAlert = getRandomElement(dailyAlertsData, alertSeed)
+  const dailyAlertVariation = getRandomElement(dailyAlertsData, alertSeed)
+  const dailyAlertId = (dailyAlertVariation.id && dailyAlertVariation.id > 0) ? dailyAlertVariation.id : null
+  const dailyAlert = dailyAlertVariation.text
   
   // 11. Energia do dia (1-10)
   const energySeed = generateLuckyNumber(seed + 'energy')
@@ -1600,19 +1642,27 @@ export async function generateDailyPrediction(context: GeneratorContext): Promis
   
   // 12. Pedra/cristal do dia
   const crystalSeed = generateLuckyNumber(seed + 'crystal')
-  const crystal = getRandomElement(crystalsData, crystalSeed)
+  const crystalVariation = getRandomElement(crystalsData, crystalSeed)
+  const crystalId = (crystalVariation.id && crystalVariation.id > 0) ? crystalVariation.id : null
+  const crystal = crystalVariation.text
   
   // 13. Mantra ou afirmação
   const mantraSeed = generateLuckyNumber(seed + 'mantra')
-  const mantra = getRandomElement(mantrasData, mantraSeed)
+  const mantraVariation = getRandomElement(mantrasData, mantraSeed)
+  const mantraId = (mantraVariation.id && mantraVariation.id > 0) ? mantraVariation.id : null
+  const mantra = mantraVariation.text
   
   // 14. Conselho amoroso específico
   const loveSeed = generateLuckyNumber(seed + 'love')
-  const loveAdvice = getRandomElement(loveAdvicesData, loveSeed)
+  const loveAdviceVariation = getRandomElement(loveAdvicesData, loveSeed)
+  const loveAdviceId = (loveAdviceVariation.id && loveAdviceVariation.id > 0) ? loveAdviceVariation.id : null
+  const loveAdvice = loveAdviceVariation.text
   
   // 15. Conselho profissional
   const careerSeed = generateLuckyNumber(seed + 'career')
-  const careerAdvice = getRandomElement(careerAdvicesData, careerSeed)
+  const careerAdviceVariation = getRandomElement(careerAdvicesData, careerSeed)
+  const careerAdviceId = (careerAdviceVariation.id && careerAdviceVariation.id > 0) ? careerAdviceVariation.id : null
+  const careerAdvice = careerAdviceVariation.text
   
   return {
     text: textWithLuckyNumber,
@@ -1621,18 +1671,28 @@ export async function generateDailyPrediction(context: GeneratorContext): Promis
     quality,
     rulingPlanet,
     luckyColor,
+    luckyColorId,
     emotion,
+    emotionId,
     practicalAdvice,
+    practicalAdviceId,
     compatibleSigns,
     numerologyMeaning,
     impactPhrase,
+    impactPhraseId,
     recommendedActivities: recommendedActivitiesText,
+    recommendedActivityId,
     dailyAlert,
+    dailyAlertId,
     energyLevel,
     crystal,
+    crystalId,
     mantra,
+    mantraId,
     loveAdvice,
-    careerAdvice
+    loveAdviceId,
+    careerAdvice,
+    careerAdviceId
   }
 }
 
@@ -1658,8 +1718,8 @@ export function generateWeeklyPrediction(context: Omit<GeneratorContext, 'weekda
   
   while (attempts < maxAttempts) {
     sentences.length = 0
-    
-    // Abertura da semana
+  
+  // Abertura da semana
     const openingVariations = [
       `Esta semana será marcada por ${signTheme} para ${context.sign}.`,
       `Os astros indicam um período de ${signTheme} para ${context.sign}.`,
@@ -1676,8 +1736,8 @@ export function generateWeeklyPrediction(context: Omit<GeneratorContext, 'weekda
     // Fase da lua (sempre incluída em previsões semanais)
     const moonMessage = getRandomElement(moonPhaseMessages[moonPhase.phase], seedNums[4])
     sentences.push(moonMessage)
-    
-    // Áreas de foco
+  
+  // Áreas de foco
     const areas = ['trabalho', 'amor', 'finanças', 'saúde', 'família', 'criatividade', 'aprendizado']
     const focusArea1 = getRandomElement(areas, seedNums[4])
     let focusArea2 = getRandomElement(areas, seedNums[5])
@@ -1685,21 +1745,21 @@ export function generateWeeklyPrediction(context: Omit<GeneratorContext, 'weekda
     while (focusArea2 === focusArea1) {
       focusArea2 = getRandomElement(areas, seedNums[5] + 1)
     }
-    
-    sentences.push(`As áreas de ${focusArea1} e ${focusArea2} merecem atenção especial.`)
-    
-    // Conselho principal
+  
+  sentences.push(`As áreas de ${focusArea1} e ${focusArea2} merecem atenção especial.`)
+  
+  // Conselho principal
     const advice = getRandomElement(templates.advice, seedNums[6])
-    sentences.push(advice
-      .replace('{investment}', signTheme)
-      .replace('{dedication}', 'seus projetos pessoais')
-      .replace('{priority}', 'equilíbrio')
-      .replace('{enjoy}', 'as oportunidades que surgirem')
-      .replace('{focus}', signTheme)
+  sentences.push(advice
+    .replace('{investment}', signTheme)
+    .replace('{dedication}', 'seus projetos pessoais')
+    .replace('{priority}', 'equilíbrio')
+    .replace('{enjoy}', 'as oportunidades que surgirem')
+    .replace('{focus}', signTheme)
       .replace('{area}', signTheme)
-    )
-    
-    // Advertência
+  )
+  
+  // Advertência
     sentences.push(getRandomElement(templates.caution, seedNums[7]))
     
     // Área específica
@@ -1717,8 +1777,8 @@ export function generateWeeklyPrediction(context: Omit<GeneratorContext, 'weekda
       const signMoonCombination = `${signTheme} em harmonia com a ${moonPhase.name.toLowerCase()}`
       sentences.push(`A energia de ${context.sign} está alinhada com ${signMoonCombination}, potencializando ${moonTheme}.`)
     }
-    
-    // Mensagem final
+  
+  // Mensagem final
     const finalMessages = [
       'Mantenha-se atento aos sinais e confie em sua intuição.',
       'Esteja aberto às oportunidades que o universo oferece.',
