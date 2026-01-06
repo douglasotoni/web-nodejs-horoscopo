@@ -1,4 +1,5 @@
 import { Sign, Weekday } from '@prisma/client'
+import { getZodiacVariations, getZodiacSignInfo } from './zodiac-cache'
 
 interface GeneratorContext {
   sign: Sign
@@ -453,7 +454,7 @@ const rulingPlanets: Record<Sign, string> = {
 }
 
 // 3. Cores da sorte por signo
-const luckyColors: Record<Sign, string[]> = {
+export const luckyColors: Record<Sign, string[]> = {
   aries: ['vermelho', 'laranja', 'coral', 'escarlate'],
   taurus: ['verde', 'rosa', 'azul claro', 'marrom'],
   gemini: ['amarelo', 'azul', 'prata', 'branco'],
@@ -469,7 +470,7 @@ const luckyColors: Record<Sign, string[]> = {
 }
 
 // 4. Emoções específicas por signo
-const emotions: Record<Sign, string[]> = {
+export const emotions: Record<Sign, string[]> = {
   aries: ['coragem', 'entusiasmo', 'determinação', 'confiança', 'impulsividade'],
   taurus: ['tranquilidade', 'prazer', 'satisfação', 'estabilidade', 'sensualidade'],
   gemini: ['curiosidade', 'alegria', 'versatilidade', 'inquietação', 'entusiasmo'],
@@ -485,7 +486,7 @@ const emotions: Record<Sign, string[]> = {
 }
 
 // 5. Conselhos práticos por signo
-const practicalAdvices: Record<Sign, string[]> = {
+export const practicalAdvices: Record<Sign, string[]> = {
   aries: [
     'Inicie um novo projeto hoje',
     'Tome uma decisão importante',
@@ -573,7 +574,7 @@ const practicalAdvices: Record<Sign, string[]> = {
 }
 
 // Novos campos: Atividades recomendadas, Alertas, Cristais, Mantras, Conselhos
-const recommendedActivities: Record<Sign, string[]> = {
+export const recommendedActivities: Record<Sign, string[]> = {
   aries: [
     'Exercícios físicos intensos', 'Iniciar novos projetos', 'Tomar decisões importantes',
     'Competições esportivas', 'Liderar equipes', 'Aventuras ao ar livre',
@@ -636,7 +637,7 @@ const recommendedActivities: Record<Sign, string[]> = {
   ]
 }
 
-const dailyAlerts: Record<Sign, string[]> = {
+export const dailyAlerts: Record<Sign, string[]> = {
   aries: [
     'Evite impulsividade em decisões importantes',
     'Cuidado com confrontos desnecessários',
@@ -723,7 +724,7 @@ const dailyAlerts: Record<Sign, string[]> = {
   ]
 }
 
-const crystals: Record<Sign, string[]> = {
+export const crystals: Record<Sign, string[]> = {
   aries: ['Rubi', 'Ágata de fogo', 'Jaspe vermelho', 'Coral', 'Granada'],
   taurus: ['Esmeralda', 'Quartzo rosa', 'Ágata musgo', 'Lápis-lazúli', 'Jade'],
   gemini: ['Ágata', 'Citrino', 'Topázio amarelo', 'Ámbar', 'Calcita'],
@@ -738,7 +739,7 @@ const crystals: Record<Sign, string[]> = {
   pisces: ['Água-marinha', 'Ametista', 'Quartzo rosa', 'Opala', 'Pérola']
 }
 
-const mantras: string[] = [
+export const mantras: string[] = [
   'Sou capaz de superar qualquer desafio',
   'A abundância flui naturalmente para mim',
   'Estou em harmonia com o universo',
@@ -761,7 +762,7 @@ const mantras: string[] = [
   'Minha jornada é única e especial'
 ]
 
-const loveAdvices: Record<Sign, string[]> = {
+export const loveAdvices: Record<Sign, string[]> = {
   aries: [
     'Seja direto e honesto sobre seus sentimentos',
     'Mostre interesse ativo no seu parceiro',
@@ -848,7 +849,7 @@ const loveAdvices: Record<Sign, string[]> = {
   ]
 }
 
-const careerAdvices: Record<Sign, string[]> = {
+export const careerAdvices: Record<Sign, string[]> = {
   aries: [
     'Tome a iniciativa em projetos novos',
     'Assuma posições de liderança',
@@ -1344,7 +1345,7 @@ const numerologyMeanings: string[] = [
 ]
 
 // 8. Frases de impacto
-const impactPhrases: string[] = [
+export const impactPhrases: string[] = [
   'O universo conspira a seu favor',
   'Sua intuição é sua melhor guia',
   'As estrelas estão alinhadas para você',
@@ -1391,7 +1392,7 @@ function validatePredictionQuality(sentences: string[], seedNums: number[]): boo
   return true
 }
 
-export function generateDailyPrediction(context: GeneratorContext): {
+export async function generateDailyPrediction(context: GeneratorContext): Promise<{
   text: string
   luckyNumber: number
   element: string
@@ -1410,7 +1411,7 @@ export function generateDailyPrediction(context: GeneratorContext): {
   mantra: string
   loveAdvice: string
   careerAdvice: string
-} {
+}> {
   const seasonal = getSeasonalContext(context.isoWeek, context.isoYear)
   const moonPhase = getMoonPhase(seasonal.date)
   
@@ -1418,6 +1419,40 @@ export function generateDailyPrediction(context: GeneratorContext): {
   const seed = `${context.sign}-${context.weekday}-${context.isoWeek}-${context.isoYear}-${moonPhase.phase}`
   const seedNum = generateLuckyNumber(seed)
   const seedNums = generateSeedNumbers(seed, 12)
+  
+  // Buscar informações do signo do banco
+  const signInfo = await getZodiacSignInfo(context.sign)
+  const element = signInfo?.element || signElements[context.sign]
+  const quality = signInfo?.quality || signQualities[context.sign]
+  const rulingPlanet = signInfo?.rulingPlanet || rulingPlanets[context.sign]
+  
+  // Buscar variações do banco
+  const [careerAdvicesList, loveAdvicesList, crystalsList, dailyAlertsList, 
+         recommendedActivitiesList, practicalAdvicesList, luckyColorsList, 
+         emotionsList, impactPhrasesList, mantrasList] = await Promise.all([
+    getZodiacVariations('careerAdvice', context.sign),
+    getZodiacVariations('loveAdvice', context.sign),
+    getZodiacVariations('crystal', context.sign),
+    getZodiacVariations('dailyAlert', context.sign),
+    getZodiacVariations('recommendedActivity', context.sign),
+    getZodiacVariations('practicalAdvice', context.sign),
+    getZodiacVariations('luckyColor', context.sign),
+    getZodiacVariations('emotion', context.sign),
+    getZodiacVariations('impactPhrase', context.sign),
+    getZodiacVariations('mantra', context.sign)
+  ])
+  
+  // Fallback para dados hardcoded se o banco estiver vazio
+  const careerAdvicesData = careerAdvicesList.length > 0 ? careerAdvicesList : careerAdvices[context.sign]
+  const loveAdvicesData = loveAdvicesList.length > 0 ? loveAdvicesList : loveAdvices[context.sign]
+  const crystalsData = crystalsList.length > 0 ? crystalsList : crystals[context.sign]
+  const dailyAlertsData = dailyAlertsList.length > 0 ? dailyAlertsList : dailyAlerts[context.sign]
+  const recommendedActivitiesData = recommendedActivitiesList.length > 0 ? recommendedActivitiesList : recommendedActivities[context.sign]
+  const practicalAdvicesData = practicalAdvicesList.length > 0 ? practicalAdvicesList : practicalAdvices[context.sign]
+  const luckyColorsData = luckyColorsList.length > 0 ? luckyColorsList : luckyColors[context.sign]
+  const emotionsData = emotionsList.length > 0 ? emotionsList : emotions[context.sign]
+  const impactPhrasesData = impactPhrasesList.length > 0 ? impactPhrasesList : impactPhrases
+  const mantrasData = mantrasList.length > 0 ? mantrasList : mantras
   
   const signTheme = getRandomElement(signThemes[context.sign], seedNums[0])
   const weekdayTheme = getRandomElement(weekdayThemes[context.weekday], seedNums[1])
@@ -1512,24 +1547,17 @@ export function generateDailyPrediction(context: GeneratorContext): {
   // Adicionar número da sorte no texto (sempre no final)
   const textWithLuckyNumber = text + ` Seu número da sorte é ${luckyNumber}.`
   
-  // 1. Elemento e qualidade
-  const element = signElements[context.sign]
-  const quality = signQualities[context.sign]
-  
-  // 2. Planeta regente
-  const rulingPlanet = rulingPlanets[context.sign]
-  
   // 3. Cor da sorte (selecionada baseada na seed)
   const colorSeed = generateLuckyNumber(seed + 'color')
-  const luckyColor = getRandomElement(luckyColors[context.sign], colorSeed)
+  const luckyColor = getRandomElement(luckyColorsData, colorSeed)
   
   // 4. Emoção específica
   const emotionSeed = generateLuckyNumber(seed + 'emotion')
-  const emotion = getRandomElement(emotions[context.sign], emotionSeed)
+  const emotion = getRandomElement(emotionsData, emotionSeed)
   
   // 5. Conselho prático
   const adviceSeed = generateLuckyNumber(seed + 'advice')
-  const practicalAdvice = getRandomElement(practicalAdvices[context.sign], adviceSeed)
+  const practicalAdvice = getRandomElement(practicalAdvicesData, adviceSeed)
   
   // 6. Compatibilidade - seleciona 2-3 signos compatíveis aleatoriamente
   const compatibleSignsList = compatibleSignsByElement[element]
@@ -1556,15 +1584,15 @@ export function generateDailyPrediction(context: GeneratorContext): {
   
   // 8. Frase de impacto
   const impactSeed = generateLuckyNumber(seed + 'impact')
-  const impactPhrase = getRandomElement(impactPhrases, impactSeed)
+  const impactPhrase = getRandomElement(impactPhrasesData, impactSeed)
   
   // 9. Atividades recomendadas
   const activitiesSeed = generateLuckyNumber(seed + 'activities')
-  const recommendedActivitiesText = getRandomElement(recommendedActivities[context.sign], activitiesSeed)
+  const recommendedActivitiesText = getRandomElement(recommendedActivitiesData, activitiesSeed)
   
   // 10. Alerta do dia
   const alertSeed = generateLuckyNumber(seed + 'alert')
-  const dailyAlert = getRandomElement(dailyAlerts[context.sign], alertSeed)
+  const dailyAlert = getRandomElement(dailyAlertsData, alertSeed)
   
   // 11. Energia do dia (1-10)
   const energySeed = generateLuckyNumber(seed + 'energy')
@@ -1572,19 +1600,19 @@ export function generateDailyPrediction(context: GeneratorContext): {
   
   // 12. Pedra/cristal do dia
   const crystalSeed = generateLuckyNumber(seed + 'crystal')
-  const crystal = getRandomElement(crystals[context.sign], crystalSeed)
+  const crystal = getRandomElement(crystalsData, crystalSeed)
   
   // 13. Mantra ou afirmação
   const mantraSeed = generateLuckyNumber(seed + 'mantra')
-  const mantra = getRandomElement(mantras, mantraSeed)
+  const mantra = getRandomElement(mantrasData, mantraSeed)
   
   // 14. Conselho amoroso específico
   const loveSeed = generateLuckyNumber(seed + 'love')
-  const loveAdvice = getRandomElement(loveAdvices[context.sign], loveSeed)
+  const loveAdvice = getRandomElement(loveAdvicesData, loveSeed)
   
   // 15. Conselho profissional
   const careerSeed = generateLuckyNumber(seed + 'career')
-  const careerAdvice = getRandomElement(careerAdvices[context.sign], careerSeed)
+  const careerAdvice = getRandomElement(careerAdvicesData, careerSeed)
   
   return {
     text: textWithLuckyNumber,

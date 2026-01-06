@@ -159,7 +159,7 @@ export async function POST(req: NextRequest) {
     let careerAdvice = data.careerAdvice
 
     if (data.generate && !text) {
-      const generated = generateDailyPrediction({
+      const generated = await generateDailyPrediction({
         sign: data.sign,
         weekday: data.weekday,
         isoWeek: data.isoWeek,

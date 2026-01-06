@@ -127,3 +127,178 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+// Tabela de referência dos signos com informações imutáveis
+model ZodiacSign {
+  id          String   @id @default(uuid())
+  name        Sign     @unique // aries, taurus, etc
+  displayName String   @map("display_name") // Áries, Touro, etc
+  element     String   // fogo, terra, ar, água
+  quality     String   // cardinal, fixo, mutável
+  rulingPlanet String  @map("ruling_planet") // Marte, Vênus, etc
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  careerAdvices         CareerAdvice[]
+  loveAdvices           LoveAdvice[]
+  crystals              Crystal[]
+  dailyAlerts           DailyAlert[]
+  recommendedActivities RecommendedActivity[]
+  practicalAdvices      PracticalAdvice[]
+  luckyColors           LuckyColor[]
+  emotions              Emotion[]
+  impactPhrases         ImpactPhrase[]
+  mantras               Mantra[]
+
+  @@map("zodiac_signs")
+}
+
+// Variações de conselhos profissionais
+model CareerAdvice {
+  id        String   @id @default(uuid())
+  signId    String   @map("sign_id")
+  text      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+
+  @@index([signId, isActive])
+  @@map("career_advices")
+}
+
+// Variações de conselhos amorosos
+model LoveAdvice {
+  id        String   @id @default(uuid())
+  signId    String   @map("sign_id")
+  text      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+
+  @@index([signId, isActive])
+  @@map("love_advices")
+}
+
+// Variações de cristais/pedras
+model Crystal {
+  id        String   @id @default(uuid())
+  signId    String   @map("sign_id")
+  text      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+
+  @@index([signId, isActive])
+  @@map("crystals")
+}
+
+// Variações de alertas do dia
+model DailyAlert {
+  id        String   @id @default(uuid())
+  signId    String   @map("sign_id")
+  text      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+
+  @@index([signId, isActive])
+  @@map("daily_alerts")
+}
+
+// Variações de atividades recomendadas
+model RecommendedActivity {
+  id        String   @id @default(uuid())
+  signId    String   @map("sign_id")
+  text      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+
+  @@index([signId, isActive])
+  @@map("recommended_activities")
+}
+
+// Variações de conselhos práticos
+model PracticalAdvice {
+  id        String   @id @default(uuid())
+  signId    String   @map("sign_id")
+  text      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+
+  @@index([signId, isActive])
+  @@map("practical_advices")
+}
+
+// Variações de cores da sorte
+model LuckyColor {
+  id        String   @id @default(uuid())
+  signId    String   @map("sign_id")
+  text      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+
+  @@index([signId, isActive])
+  @@map("lucky_colors")
+}
+
+// Variações de emoções
+model Emotion {
+  id        String   @id @default(uuid())
+  signId    String   @map("sign_id")
+  text      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+
+  @@index([signId, isActive])
+  @@map("emotions")
+}
+
+// Variações de frases de impacto (por signo)
+model ImpactPhrase {
+  id        String   @id @default(uuid())
+  signId    String   @map("sign_id")
+  text      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+
+  @@index([signId, isActive])
+  @@map("impact_phrases")
+}
+
+// Variações de mantras (por signo)
+model Mantra {
+  id        String   @id @default(uuid())
+  signId    String   @map("sign_id")
+  text      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sign ZodiacSign @relation(fields: [signId], references: [id], onDelete: Cascade)
+
+  @@index([signId, isActive])
+  @@map("mantras")
+}
+
