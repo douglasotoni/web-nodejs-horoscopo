@@ -24,7 +24,7 @@ Isso inicia:
 # Aplicar migrations (criar tabelas)
 docker exec -it web_reactjs_horoscopo npx prisma migrate deploy
 
-# Popular banco com dados iniciais
+# Popular banco com dados iniciais (usuários + dados astrológicos)
 docker exec -it web_reactjs_horoscopo npx tsx prisma/seed-zodiac.ts
 ```
 

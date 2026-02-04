@@ -1,4 +1,5 @@
-import { PrismaClient, Sign } from '@prisma/client'
+import { PrismaClient, Sign, UserRole } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -56,8 +57,59 @@ function generateVariation(baseTexts: string[], index: number): string {
   return variations[index % variations.length]
 }
 
+async function createDefaultUsers() {
+  console.log('👤 Criando usuários padrão...')
+
+  // Criar usuário admin padrão
+  const adminPassword = await bcrypt.hash('admin123', 10)
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@horoscopo.com' },
+    update: {},
+    create: {
+      name: 'Administrador',
+      email: 'admin@horoscopo.com',
+      passwordHash: adminPassword,
+      role: UserRole.admin
+    }
+  })
+  console.log('✅ Usuário admin criado:', admin.email)
+
+  // Criar usuário editor
+  const editorPassword = await bcrypt.hash('editor123', 10)
+  const editor = await prisma.user.upsert({
+    where: { email: 'editor@horoscopo.com' },
+    update: {},
+    create: {
+      name: 'Editor',
+      email: 'editor@horoscopo.com',
+      passwordHash: editorPassword,
+      role: UserRole.editor
+    }
+  })
+  console.log('✅ Usuário editor criado:', editor.email)
+
+  // Criar usuário viewer
+  const viewerPassword = await bcrypt.hash('viewer123', 10)
+  const viewer = await prisma.user.upsert({
+    where: { email: 'viewer@horoscopo.com' },
+    update: {},
+    create: {
+      name: 'Visualizador',
+      email: 'viewer@horoscopo.com',
+      passwordHash: viewerPassword,
+      role: UserRole.viewer
+    }
+  })
+  console.log('✅ Usuário viewer criado:', viewer.email)
+
+  console.log('\n📝 Credenciais de acesso:')
+  console.log('Admin: admin@horoscopo.com / admin123')
+  console.log('Editor: editor@horoscopo.com / editor123')
+  console.log('Viewer: viewer@horoscopo.com / viewer123')
+}
+
 async function seedZodiacData() {
-  console.log('🌱 Iniciando seed de dados astrológicos...')
+  console.log('\n🌱 Iniciando seed de dados astrológicos...')
 
   // Verificar se as tabelas existem
   try {
@@ -332,7 +384,17 @@ async function seedZodiacData() {
   console.log('✅ Seed de dados astrológicos concluído!')
 }
 
-seedZodiacData()
+async function main() {
+  // Criar usuários padrão primeiro
+  await createDefaultUsers()
+  
+  // Depois popular dados astrológicos
+  await seedZodiacData()
+  
+  console.log('\n🎉 Seed completo concluído!')
+}
+
+main()
   .catch((e) => {
     console.error('❌ Erro no seed:', e)
     process.exit(1)
