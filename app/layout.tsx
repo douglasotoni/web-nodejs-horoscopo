@@ -1,13 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-import { SessionProvider } from '@/components/SessionProvider'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Horóscopo por Signo Solar',
-  description: 'Sistema de previsões astrológicas'
+  title: 'API Horóscopo',
+  description: 'API de previsões diárias por signo'
 }
 
 export default function RootLayout({
@@ -17,12 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className={inter.className}>
-        <SessionProvider>
-          {children}
-        </SessionProvider>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
-
