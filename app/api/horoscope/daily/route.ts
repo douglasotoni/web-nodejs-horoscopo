@@ -9,10 +9,13 @@ import type { Sign, Weekday } from '@prisma/client'
 
 const SIGNS: Sign[] = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
 
+const TONE_VALUES = ['bem_humorada', 'vibe_sertaneja', 'resumida'] as const
+
 const querySchema = z.object({
   sign: z.enum(['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']).optional(),
   date: z.string().optional(), // YYYY-MM-DD; se omitido = hoje
-  regenerate: z.enum(['1', 'true']).optional() // força regenerar (e passar pelo OpenRouter se a key existir)
+  regenerate: z.enum(['1', 'true']).optional(), // força regenerar (e passar pelo OpenRouter se a key existir)
+  tone: z.enum(TONE_VALUES).optional() // tom da melhoria pela IA: bem_humorada | vibe_sertaneja | resumida
 })
 
 function toId(id: number | null): number | null {
@@ -25,7 +28,8 @@ async function getOrCreateDailyPrediction(
   isoWeek: number,
   isoYear: number,
   dateStr: string,
-  forceRegenerate: boolean
+  forceRegenerate: boolean,
+  tone?: string | null
 ) {
   const existing = await prisma.dailyPrediction.findUnique({
     where: {
@@ -39,7 +43,7 @@ async function getOrCreateDailyPrediction(
   }
 
   const generated = await generateDailyPrediction({ sign, weekday, isoWeek, isoYear })
-  const improvedText = await improveHoroscopeText(generated.text, sign, dateStr)
+  const improvedText = await improveHoroscopeText(generated.text, sign, dateStr, tone)
   const finalText = (improvedText && improvedText.trim() !== '') ? improvedText.trim() : generated.text
   if (process.env.NODE_ENV === 'development' && improvedText) {
     console.log('[OpenRouter] Texto melhorado usado para', sign, dateStr)
@@ -106,9 +110,11 @@ export async function GET(req: NextRequest) {
     const validated = querySchema.parse({
       sign: searchParams.get('sign') || undefined,
       date: searchParams.get('date') || undefined,
-      regenerate: searchParams.get('regenerate') || undefined
+      regenerate: searchParams.get('regenerate') || undefined,
+      tone: searchParams.get('tone') || undefined
     })
     const forceRegenerate = validated.regenerate === '1' || validated.regenerate === 'true'
+    const tone = validated.tone ?? null
 
     const { date, weekday, isoWeek, isoYear } = parseDateToContext(validated.date ?? null)
     const dateStr = format(date, 'yyyy-MM-dd')
@@ -120,14 +126,15 @@ export async function GET(req: NextRequest) {
         isoWeek,
         isoYear,
         dateStr,
-        forceRegenerate
+        forceRegenerate,
+        tone
       )
       return NextResponse.json(prediction)
     }
 
     const predictions = await Promise.all(
       SIGNS.map(sign =>
-        getOrCreateDailyPrediction(sign, weekday, isoWeek, isoYear, dateStr, forceRegenerate)
+        getOrCreateDailyPrediction(sign, weekday, isoWeek, isoYear, dateStr, forceRegenerate, tone)
       )
     )
 

@@ -2,11 +2,19 @@
 
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 const SwaggerUI = dynamic(() => import('swagger-ui-react'), { ssr: false })
 import 'swagger-ui-react/swagger-ui.css'
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   return (
     <>
       <div style={{
@@ -35,7 +43,13 @@ export default function Home() {
         <span style={{ color: '#a78bfa' }}>Documentação da API</span>
       </div>
       <main style={{ height: '100vh', paddingTop: '48px' }}>
-        <SwaggerUI url="/api/docs" />
+        {mounted && (
+          <ErrorBoundary>
+            <div key="swagger-container" style={{ height: '100%' }}>
+              <SwaggerUI url="/api/docs" />
+            </div>
+          </ErrorBoundary>
+        )}
       </main>
     </>
   )

@@ -3,30 +3,50 @@ import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { parseDateToContext } from '@/lib/utils'
 import { generateWeeklyPrediction } from '@/lib/generator'
+import { improveHoroscopeText } from '@/lib/openrouter'
 import type { Sign } from '@prisma/client'
 
 const SIGNS: Sign[] = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
 
+const TONE_VALUES = ['bem_humorada', 'vibe_sertaneja', 'resumida'] as const
+
 const querySchema = z.object({
   sign: z.enum(['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']).optional(),
-  date: z.string().optional() // YYYY-MM-DD; se omitido = dia corrente (semana da data)
+  date: z.string().optional(), // YYYY-MM-DD; se omitido = dia corrente (semana da data)
+  regenerate: z.enum(['1', 'true']).optional(),
+  tone: z.enum(TONE_VALUES).optional()
 })
 
-async function getOrCreateWeeklyPrediction(sign: Sign, isoWeek: number, isoYear: number) {
+async function getOrCreateWeeklyPrediction(
+  sign: Sign,
+  isoWeek: number,
+  isoYear: number,
+  weekLabel: string,
+  forceRegenerate: boolean,
+  tone: string | null
+) {
   const existing = await prisma.weeklyPrediction.findUnique({
     where: {
       sign_isoWeek_isoYear: { sign, isoWeek, isoYear }
     }
   })
 
-  if (existing && existing.status === 'published') {
+  if (!forceRegenerate && existing && existing.status === 'published') {
     return existing
   }
 
   const generated = generateWeeklyPrediction({ sign, isoWeek, isoYear })
+  const improvedText = await improveHoroscopeText(
+    generated.text,
+    sign,
+    weekLabel,
+    tone,
+    'weekly'
+  )
+  const finalText = (improvedText && improvedText.trim() !== '') ? improvedText.trim() : generated.text
 
   const data = {
-    text: generated.text,
+    text: finalText,
     luckyNumber: generated.luckyNumber,
     status: 'published' as const
   }
@@ -58,22 +78,32 @@ export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams
     const validated = querySchema.parse({
       sign: searchParams.get('sign') || undefined,
-      date: searchParams.get('date') || undefined
+      date: searchParams.get('date') || undefined,
+      regenerate: searchParams.get('regenerate') || undefined,
+      tone: searchParams.get('tone') || undefined
     })
 
+    const forceRegenerate = validated.regenerate === '1' || validated.regenerate === 'true'
+    const tone = validated.tone ?? null
     const { isoWeek, isoYear } = parseDateToContext(validated.date ?? null)
+    const weekLabel = `semana ${isoWeek}/${isoYear}`
 
     if (validated.sign) {
       const prediction = await getOrCreateWeeklyPrediction(
         validated.sign,
         isoWeek,
-        isoYear
+        isoYear,
+        weekLabel,
+        forceRegenerate,
+        tone
       )
       return NextResponse.json(prediction)
     }
 
     const predictions = await Promise.all(
-      SIGNS.map(sign => getOrCreateWeeklyPrediction(sign, isoWeek, isoYear))
+      SIGNS.map(sign =>
+        getOrCreateWeeklyPrediction(sign, isoWeek, isoYear, weekLabel, forceRegenerate, tone)
+      )
     )
 
     return NextResponse.json(predictions)

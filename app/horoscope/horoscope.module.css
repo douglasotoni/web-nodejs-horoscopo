@@ -276,6 +276,22 @@
   font-size: 0.95rem;
 }
 
+.toneSelect {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  background: rgba(20, 18, 35, 0.8);
+  color: #e8e4f0;
+  font-size: 0.95rem;
+  cursor: pointer;
+  min-width: 10rem;
+}
+
+.toneSelect:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.6);
+}
+
 .signs {
   display: flex;
   flex-wrap: wrap;
@@ -344,6 +360,35 @@
 
 .submit:disabled {
   opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.resetBtn {
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.resetBtn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.7);
+}
+
+.resetBtn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 

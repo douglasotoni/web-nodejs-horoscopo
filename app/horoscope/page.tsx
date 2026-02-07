@@ -127,6 +127,8 @@ export default function HoroscopePage() {
     moonAgeDays: number
     phase: { id: string; name: string; nameShort: string; emoji: string; description: string; mystical: string; advice: string; keywords: string[] }
   } | null>(null)
+  const [resetLoading, setResetLoading] = useState(false)
+  const [tone, setTone] = useState<'' | 'bem_humorada' | 'vibe_sertaneja' | 'resumida'>('')
 
   const stars = useStarPositions(85)
 
@@ -136,6 +138,7 @@ export default function HoroscopePage() {
     const params = new URLSearchParams()
     if (date) params.set('date', date)
     if (selectedSign !== 'all') params.set('sign', selectedSign)
+    if (tone) params.set('tone', tone)
     const dateParam = date || new Date().toISOString().slice(0, 10)
 
     try {
@@ -172,7 +175,24 @@ export default function HoroscopePage() {
     } finally {
       setLoading(false)
     }
-  }, [date, selectedSign])
+  }, [date, selectedSign, tone])
+
+  const handleResetDay = useCallback(async () => {
+    const dateParam = date || todayISO()
+    setError(null)
+    setResetLoading(true)
+    try {
+      const res = await fetch(`/api/horoscope/reset?date=${dateParam}`, { method: 'DELETE' })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error ?? 'Falha ao resetar')
+      // Refetch sem limpar antes: evita desmontar toda a lista de uma vez (removeChild em massa)
+      await fetchData()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao resetar previsões')
+    } finally {
+      setResetLoading(false)
+    }
+  }, [date, fetchData])
 
   const combinedList: CombinedItem[] = useMemo(() => {
     if (dailyData == null || weeklyData == null) return []
@@ -242,6 +262,21 @@ export default function HoroscopePage() {
                 />
               </div>
               <div className={styles.field}>
+                <label htmlFor="horoscope-tone" className={styles.fieldLabel}>Tom da previsão (IA)</label>
+                <select
+                  id="horoscope-tone"
+                  className={styles.toneSelect}
+                  value={tone}
+                  onChange={(e) => setTone(e.target.value as '' | 'bem_humorada' | 'vibe_sertaneja' | 'resumida')}
+                  title="Define o tom usado pela IA ao melhorar o texto da previsão do dia"
+                >
+                  <option value="">Padrão</option>
+                  <option value="bem_humorada">Bem humorada</option>
+                  <option value="vibe_sertaneja">Vibe sertaneja</option>
+                  <option value="resumida">Resumida</option>
+                </select>
+              </div>
+              <div className={styles.field}>
                 <span className={styles.fieldLabel}>Signo</span>
                 <div className={styles.signs}>
                   <button
@@ -265,14 +300,25 @@ export default function HoroscopePage() {
                   ))}
                 </div>
               </div>
-              <button
-                type="button"
-                className={styles.submit}
-                onClick={fetchData}
-                disabled={loading}
-              >
-                {loading ? 'Carregando…' : 'Ver previsão'}
-              </button>
+              <div className={styles.actionsRow}>
+                <button
+                  type="button"
+                  className={styles.submit}
+                  onClick={fetchData}
+                  disabled={loading}
+                >
+                  {loading ? 'Carregando…' : 'Ver previsão'}
+                </button>
+                <button
+                  type="button"
+                  className={styles.resetBtn}
+                  onClick={handleResetDay}
+                  disabled={resetLoading || loading}
+                  title="Apagar da base todas as previsões do dia e da semana da data selecionada"
+                >
+                  {resetLoading ? 'Resetando…' : 'Resetar dia'}
+                </button>
+              </div>
             </div>
           </section>
 
