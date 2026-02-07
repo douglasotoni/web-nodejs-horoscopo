@@ -22,7 +22,19 @@ export async function GET(request: NextRequest) {
     mesNome = hoje.toLocaleDateString('pt-BR', { month: 'long' })
   }
 
-  const aniversariantes = CANTORES_SERTANEJOS.filter((c) => c.mes === mesCorrente)
+  /** Exclui registros que são só o nome da dupla (ex.: "Praião & Prainha"); mantém só nomes de pessoas (ex.: "Praião (Praião & Prainha)"). */
+  const soNomeDeDupla = (nome: string) =>
+    !nome.includes('(') && (nome.includes(' & ') || nome.includes(' e '))
+
+  const diaMesValido = (c: { dia: number; mes: number }) =>
+    c.mes >= 1 && c.mes <= 12 && c.dia >= 1 && c.dia <= 31
+
+  const aniversariantes = CANTORES_SERTANEJOS.filter(
+    (c) =>
+      diaMesValido(c) &&
+      c.mes === mesCorrente &&
+      !soNomeDeDupla(c.nome)
+  )
     .sort((a, b) => a.dia - b.dia)
     .map((c) => ({
       nome: c.nome,
