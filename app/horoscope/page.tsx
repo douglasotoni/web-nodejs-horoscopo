@@ -120,6 +120,7 @@ export default function HoroscopePage() {
   const [error, setError] = useState<string | null>(null)
   const [dailyData, setDailyData] = useState<DailyPrediction | DailyPrediction[] | null>(null)
   const [weeklyData, setWeeklyData] = useState<WeeklyPrediction | WeeklyPrediction[] | null>(null)
+  const [aniversariantes, setAniversariantes] = useState<{ mesNome: string; aniversariantes: { nome: string; dia: number; dataFormatada: string }[] } | null>(null)
 
   const stars = useStarPositions(85)
 
@@ -131,9 +132,10 @@ export default function HoroscopePage() {
     if (selectedSign !== 'all') params.set('sign', selectedSign)
 
     try {
-      const [dailyRes, weeklyRes] = await Promise.all([
+      const [dailyRes, weeklyRes, anivRes] = await Promise.all([
         fetch(`/api/horoscope/daily?${params}`),
-        fetch(`/api/horoscope/weekly?${params}`)
+        fetch(`/api/horoscope/weekly?${params}`),
+        fetch(`/api/sertanejo/aniversariantes?date=${date || new Date().toISOString().slice(0, 10)}`)
       ])
       if (!dailyRes.ok) throw new Error(await dailyRes.text())
       if (!weeklyRes.ok) throw new Error(await weeklyRes.text())
@@ -141,10 +143,17 @@ export default function HoroscopePage() {
       const weekly = await weeklyRes.json()
       setDailyData(daily)
       setWeeklyData(weekly)
+      if (anivRes.ok) {
+        const aniv = await anivRes.json()
+        setAniversariantes({ mesNome: aniv.mesNome, aniversariantes: aniv.aniversariantes })
+      } else {
+        setAniversariantes(null)
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro ao carregar previsões')
       setDailyData(null)
       setWeeklyData(null)
+      setAniversariantes(null)
     } finally {
       setLoading(false)
     }
@@ -430,6 +439,30 @@ export default function HoroscopePage() {
                   )
                 })}
               </div>
+
+              {aniversariantes && (
+                <div className={styles.aniversariantesBox}>
+                  <h3 className={styles.aniversariantesTitle}>
+                    Aniversariantes do mês — {aniversariantes.mesNome}
+                  </h3>
+                  <p className={styles.aniversariantesSubtitle}>
+                    Cantores sertanejos famosos que fazem aniversário em {aniversariantes.mesNome} ({aniversariantes.aniversariantes.length})
+                  </p>
+                  <ul className={styles.aniversariantesList}>
+                    {aniversariantes.aniversariantes.slice(0, 50).map((a, i) => (
+                      <li key={i} className={styles.aniversariantesItem}>
+                        <span className={styles.aniversariantesData}>{a.dataFormatada}</span>
+                        <span className={styles.aniversariantesNome}>{a.nome}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {aniversariantes.aniversariantes.length > 50 && (
+                    <p className={styles.aniversariantesMore}>
+                      + {aniversariantes.aniversariantes.length - 50} aniversariantes no mês
+                    </p>
+                  )}
+                </div>
+              )}
             </section>
           )}
 

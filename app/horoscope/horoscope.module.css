@@ -718,3 +718,64 @@
   font-size: 0.95rem;
   padding: 3rem 1rem;
 }
+
+/* Quadro aniversariantes do mês (final da busca) */
+.aniversariantesBox {
+  margin-top: 2.5rem;
+  padding: 1.5rem 1.75rem;
+  background: linear-gradient(180deg, rgba(38, 35, 62, 0.85) 0%, rgba(28, 25, 48, 0.9) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  border-radius: 16px;
+}
+
+.aniversariantesTitle {
+  font-size: 1.15rem;
+  color: #e8e4f0;
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+}
+
+.aniversariantesSubtitle {
+  font-size: 0.85rem;
+  color: #a78bfa;
+  margin: 0 0 1rem;
+}
+
+.aniversariantesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.5rem 1.25rem;
+}
+
+.aniversariantesItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+}
+
+.aniversariantesItem:last-child {
+  border-bottom: none;
+}
+
+.aniversariantesData {
+  flex-shrink: 0;
+  color: #a78bfa;
+  font-variant-numeric: tabular-nums;
+  min-width: 4.5ch;
+}
+
+.aniversariantesNome {
+  color: #d8d4e5;
+}
+
+.aniversariantesMore {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: #7c7a8a;
+}
