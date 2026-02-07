@@ -124,3 +124,98 @@ export async function improveHoroscopeText(
     return null
   }
 }
+
+/**
+ * Melhora os textos "Energia e simbolismo" (mystical) e "Conselho" (advice) da fase da lua.
+ * Retorna { mystical, advice } melhorados ou null em caso de erro (use os originais).
+ * A resposta do modelo deve conter exatamente as linhas ENERGIA: e CONSELHO: para parsing.
+ */
+export async function improveMoonPhaseTexts(
+  phaseName: string,
+  mystical: string,
+  advice: string
+): Promise<{ mystical: string; advice: string } | null> {
+  const apiKey = getApiKey()
+  if (!apiKey || (!mystical.trim() && !advice.trim())) {
+    return null
+  }
+
+  const systemPrompt = `Você é um revisor de textos sobre fases da lua e astrologia. Sua tarefa é melhorar dois textos curtos: um sobre "Energia e simbolismo" da fase lunar e outro com "Conselho" para o período. Mantenha o significado, deixe mais fluido e envolvente, em português do Brasil. Não invente dados novos.
+Responda EXATAMENTE no formato abaixo, sem outros textos antes ou depois:
+ENERGIA:
+(um único parágrafo com o texto melhorado da energia/simbolismo)
+CONSELHO:
+(um único parágrafo com o texto melhorado do conselho)`
+
+  const userPrompt = `Fase: ${phaseName}
+
+Texto atual de Energia e simbolismo:
+${mystical}
+
+Texto atual de Conselho:
+${advice}
+
+Melhore ambos e responda no formato ENERGIA: / CONSELHO: pedido.`
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
+  try {
+    const res = await fetch(OPENROUTER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: process.env.OPENROUTER_MODEL ?? DEFAULT_MODEL,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 600,
+        temperature: 0.5
+      }),
+      signal: controller.signal
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => '')
+      console.warn('[OpenRouter] Moon phase texts:', res.status, body.slice(0, 200))
+      return null
+    }
+
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string } }>
+      error?: { message?: string }
+    }
+
+    if (data.error?.message) {
+      console.warn('[OpenRouter]', data.error.message)
+      return null
+    }
+
+    const content = data.choices?.[0]?.message?.content?.trim()
+    if (!content) return null
+
+    const energyMatch = content.match(/ENERGIA:\s*([\s\S]*?)(?=CONSELHO:|$)/i)
+    const adviceMatch = content.match(/CONSELHO:\s*([\s\S]*?)$/im)
+    const improvedMystical = energyMatch?.[1]?.trim()
+    const improvedAdvice = adviceMatch?.[1]?.trim()
+
+    if (!improvedMystical && !improvedAdvice) return null
+
+    return {
+      mystical: improvedMystical && improvedMystical.length > 0 ? improvedMystical : mystical,
+      advice: improvedAdvice && improvedAdvice.length > 0 ? improvedAdvice : advice
+    }
+  } catch (err) {
+    clearTimeout(timeoutId)
+    if (err instanceof Error) {
+      console.warn('[OpenRouter]', err.message)
+    }
+    return null
+  }
+}

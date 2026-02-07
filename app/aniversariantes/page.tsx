@@ -1,23 +1,23 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import Link from 'next/link'
+import { PageHeader } from '@/app/components/PageHeader'
 import { getSignFromDayMonth } from '@/lib/zodiac-date'
 import styles from './aniversariantes.module.css'
 
 const MESES = [
-  { value: 1, label: 'Janeiro' },
-  { value: 2, label: 'Fevereiro' },
-  { value: 3, label: 'Março' },
-  { value: 4, label: 'Abril' },
-  { value: 5, label: 'Maio' },
-  { value: 6, label: 'Junho' },
-  { value: 7, label: 'Julho' },
-  { value: 8, label: 'Agosto' },
-  { value: 9, label: 'Setembro' },
-  { value: 10, label: 'Outubro' },
-  { value: 11, label: 'Novembro' },
-  { value: 12, label: 'Dezembro' }
+  { value: 1, label: 'Janeiro', short: 'Jan' },
+  { value: 2, label: 'Fevereiro', short: 'Fev' },
+  { value: 3, label: 'Março', short: 'Mar' },
+  { value: 4, label: 'Abril', short: 'Abr' },
+  { value: 5, label: 'Maio', short: 'Mai' },
+  { value: 6, label: 'Junho', short: 'Jun' },
+  { value: 7, label: 'Julho', short: 'Jul' },
+  { value: 8, label: 'Agosto', short: 'Ago' },
+  { value: 9, label: 'Setembro', short: 'Set' },
+  { value: 10, label: 'Outubro', short: 'Out' },
+  { value: 11, label: 'Novembro', short: 'Nov' },
+  { value: 12, label: 'Dezembro', short: 'Dez' }
 ]
 
 interface Aniversariante {
@@ -63,60 +63,90 @@ export default function AniversariantesPage() {
     fetchAniversariantes()
   }, [fetchAniversariantes])
 
+  const monthShort = (m: number) => MESES.find(x => x.value === m)?.short ?? ''
+
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Aniversariantes do mês</h1>
-        <nav className={styles.headerLinks}>
-          <Link href="/" className={styles.headerLink}>
-            API / Docs
-          </Link>
-          <Link href="/horoscope" className={styles.headerLink}>
-            Horóscopo
-          </Link>
-        </nav>
-      </header>
+      <div className={styles.bg} aria-hidden />
+      <div className={styles.bgPattern} aria-hidden />
+
+      <PageHeader
+        title="Aniversariantes do mês"
+        subtitle="Cantores e artistas que fazem aniversário — com signo"
+        links={[
+          { href: '/horoscope', label: 'Horóscopo' },
+          { href: '/', label: 'Documentação da API' }
+        ]}
+      />
 
       <main className={styles.main}>
-        <div className={styles.monthWrap}>
-          <label htmlFor="mes" className={styles.monthLabel}>
-            Selecione o mês
-          </label>
-          <select
-            id="mes"
-            className={styles.monthSelect}
-            value={mes}
-            onChange={(e) => setMes(Number(e.target.value))}
-          >
-            {MESES.map((m) => (
-              <option key={m.value} value={m.value}>
-                {m.label}
-              </option>
-            ))}
-          </select>
+        <div className={styles.controlsCard}>
+          <div className={styles.monthWrap}>
+            <label htmlFor="mes" className={styles.monthLabel}>
+              Escolha o mês
+            </label>
+            <select
+              id="mes"
+              className={styles.monthSelect}
+              value={mes}
+              onChange={(e) => setMes(Number(e.target.value))}
+            >
+              {MESES.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {error && <div className={styles.error}>{error}</div>}
 
-        {loading && <p className={styles.loading}>Carregando…</p>}
+        {loading && (
+          <div className={styles.loading}>
+            <div className={styles.loadingDots}>
+              <span />
+              <span />
+              <span />
+            </div>
+            <p>Carregando aniversariantes…</p>
+          </div>
+        )}
 
         {!loading && data && (
           <>
-            <p className={styles.resume}>
-              <strong>{data.mesNome}</strong> — {data.total} artista{data.total !== 1 ? 's' : ''} aniversariante{data.total !== 1 ? 's' : ''} no mês.
-            </p>
+            <div className={styles.resume}>
+              <span className={styles.resumeEmoji} aria-hidden>🎂</span>
+              <p className={styles.resumeText}>
+                <strong>{data.mesNome}</strong>
+                {' — '}
+                {data.total} artista{data.total !== 1 ? 's' : ''} aniversariante{data.total !== 1 ? 's' : ''} no mês
+              </p>
+              <span className={styles.resumeCount}>{data.total}</span>
+            </div>
             {data.aniversariantes.length === 0 ? (
-              <p className={styles.empty}>Nenhum aniversariante encontrado para este mês.</p>
+              <div className={styles.empty}>
+                <span className={styles.emptyEmoji} aria-hidden>📅</span>
+                Nenhum aniversariante encontrado para este mês.
+              </div>
             ) : (
               <ul className={styles.list}>
                 {data.aniversariantes.map((a) => {
                   const sign = getSignFromDayMonth(a.dia, a.mes)
                   return (
                     <li key={`${a.nome}-${a.dia}-${a.mes}`} className={styles.card}>
-                      <span className={styles.cardDate}>{a.dataFormatada}</span>
-                      <span className={styles.cardName}>{a.nome}</span>
+                      <div className={styles.cardDate}>
+                        <span className={styles.cardDateInner}>
+                          <span className={styles.cardDateDay}>{a.dia}</span>
+                          <span className={styles.cardDateMonth}>{monthShort(a.mes)}</span>
+                        </span>
+                      </div>
+                      <div className={styles.cardBody}>
+                        <span className={styles.cardName}>{a.nome}</span>
+                      </div>
                       <span className={styles.cardSign} title={sign.name}>
-                        {sign.symbol} {sign.name}
+                        <span className={styles.cardSignSymbol}>{sign.symbol}</span>
+                        {sign.name}
                       </span>
                     </li>
                   )

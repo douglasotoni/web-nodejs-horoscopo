@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo } from 'react'
+import { PageHeader } from '@/app/components/PageHeader'
 import styles from './horoscope.module.css'
 
 const SIGNS = [
@@ -239,14 +240,14 @@ export default function HoroscopePage() {
       </div>
 
       <div className={styles.pageContent}>
-        <header className={styles.header}>
-          <div className={styles.headerInner}>
-            <h1 className={styles.title}>Horóscopo</h1>
-            <p className={styles.subtitle}>Previsão do dia e da semana sob as estrelas</p>
-            <a href="/aniversariantes" className={styles.apiLink}>Aniversariantes</a>
-            <a href="/" className={styles.apiLink}>Documentação da API</a>
-          </div>
-        </header>
+        <PageHeader
+          title="Horóscopo"
+          subtitle="Previsão do dia e da semana sob as estrelas"
+          links={[
+            { href: '/aniversariantes', label: 'Aniversariantes' },
+            { href: '/', label: 'Documentação da API' }
+          ]}
+        />
 
         <main className={styles.main}>
           <section className={styles.controls}>
@@ -534,7 +535,7 @@ export default function HoroscopePage() {
                     Aniversariantes do mês — {aniversariantes.mesNome}
                   </h3>
                   <p className={styles.aniversariantesSubtitle}>
-                    Cantores sertanejos famosos que fazem aniversário em {aniversariantes.mesNome} ({aniversariantes.aniversariantes.length})
+                    Cantores famosos que fazem aniversário em {aniversariantes.mesNome} ({aniversariantes.aniversariantes.length})
                   </p>
                   <ul className={styles.aniversariantesList}>
                     {aniversariantes.aniversariantes.slice(0, 50).map((a, i) => (
