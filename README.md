@@ -1,88 +1,109 @@
 # Horóscopo por Signo Solar
 
-Sistema web de previsões astrológicas desenvolvido com Next.js, TypeScript, PostgreSQL e Prisma.
+Sistema web de previsões astrológicas (diária e semanal), fases da lua e aniversariantes, desenvolvido com Next.js, TypeScript, PostgreSQL e Prisma.
 
-## 🚀 Tecnologias
+## Tecnologias
 
-- Next.js 14, TypeScript, PostgreSQL, Prisma, NextAuth
+- **Next.js 14** (App Router), **TypeScript**, **PostgreSQL**, **Prisma**
 
-## 📦 Instalação e Execução com Docker
+## Instalação e execução com Docker
 
-### 1. Subir os containers
+### Subir a aplicação
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-Isso inicia:
-- PostgreSQL na porta `5432`
-- Aplicação Next.js na porta `3000`
+Na primeira subida o container da aplicação:
 
-### 2. Executar migrations e seed
+- Instala dependências (`npm install`)
+- Gera o cliente Prisma e aplica o schema no banco (`prisma generate` + `prisma db push`)
+- Popula dados iniciais (`prisma db seed`: usuários e dados astrológicos)
+- Inicia o servidor de desenvolvimento na porta **3000**
+
+O PostgreSQL sobe na porta **5432** e só é considerado pronto após o healthcheck; em seguida o serviço `web` inicia.
+
+**Aguarde 1–2 minutos** após o `up -d` antes de acessar (instalação e seed podem demorar).
+
+### Acessar
+
+Abra no navegador: **http://localhost:3000**
+
+### Se o seed falhar na subida
+
+Se no log aparecer que o seed falhou, rode manualmente:
 
 ```bash
-# Aplicar migrations (criar tabelas)
-docker exec -it web_reactjs_horoscopo npx prisma migrate deploy
-
-# Popular banco com dados iniciais (usuários + dados astrológicos)
-docker exec -it web_reactjs_horoscopo npx tsx prisma/seed-zodiac.ts
+docker compose exec web npx prisma db seed
 ```
 
-### 3. Acessar a aplicação
-
-Abra no navegador: `http://localhost:3000`
-
-## 🔐 Credenciais Padrão
-
-- **Admin**: `admin@horoscopo.com` / `admin123`
-- **Editor**: `editor@horoscopo.com` / `editor123`
-- **Viewer**: `viewer@horoscopo.com` / `viewer123`
-
-## 🛠️ Comandos Úteis
+## Comandos úteis
 
 ```bash
-# Parar containers
-docker-compose down
+# Parar os containers
+docker compose down
 
-# Ver logs
-docker-compose logs -f web
+# Parar e remover volumes (apaga dados do banco)
+docker compose down -v
 
-# Resetar banco e migrations
-docker exec -it web_reactjs_horoscopo npx prisma migrate reset
+# Ver logs do serviço web
+docker compose logs -f web
+
+# Rodar o seed manualmente
+docker compose exec web npx prisma db seed
 
 # Abrir Prisma Studio
-docker exec -it web_reactjs_horoscopo npx prisma studio
+docker compose exec web npx prisma studio
 ```
 
-## 📁 Estrutura Principal
+## Resetar banco e subir de novo
+
+**No host** (derruba os containers, apaga o volume do banco e sobe tudo de novo):
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+Aguarde a aplicação subir; `db push` e `db seed` rodam de novo automaticamente.
+
+**Dentro do container** (containers continuam rodando; só recria o banco e o seed):
+
+```bash
+docker compose exec web npx prisma db push --force-reset
+docker compose exec web npx prisma db seed
+```
+
+## Estrutura principal do projeto
 
 ```
 app/
-├── api/              # APIs (auth, predictions, admin)
-├── admin/            # Páginas administrativas
-├── dashboard/        # Dashboard
-└── predictions/      # Consulta de previsões
+├── api/                    # Rotas de API
+│   ├── horoscope/          # Previsão diária e semanal
+│   ├── moon/               # Fase da lua
+│   ├── famosos/            # Aniversariantes
+│   └── docs/               # Documentação da API
+├── horoscope/              # Página de horóscopo (dia e semana)
+├── aniversariantes/        # Página de aniversariantes do mês
+├── docs/                   # Página de documentação
+├── components/
 prisma/
-├── schema.prisma     # Schema do banco
-├── seed.ts          # Seed principal
-└── seed-zodiac.ts   # Seed de dados astrológicos
+├── schema.prisma
+├── seed.ts                 # Seed principal (usuários + dados astrológicos)
+├── seed-zodiac.ts          # Script alternativo de dados astrológicos
+└── migrations/
 ```
 
-## 🔄 Resetar Tudo
+## Execução local (sem Docker)
 
-Para recriar o banco do zero:
+Com Node.js e PostgreSQL instalados e `DATABASE_URL` no `.env`:
 
 ```bash
-# 1. Parar containers
-docker-compose down
-
-# 2. Remover volume do banco (opcional - apaga dados)
-docker volume rm web-reactjs-horoscopo_pgdata
-
-# 3. Subir novamente
-docker-compose up -d
-
-# 4. Aplicar migrations e seed
-docker exec -it web_reactjs_horoscopo npx prisma migrate deploy
-docker exec -it web_reactjs_horoscopo npx tsx prisma/seed-zodiac.ts
+npm install
+npx prisma generate
+npx prisma db push
+npx prisma db seed
+npm run dev
 ```
+
+Acesse **http://localhost:3000**.
