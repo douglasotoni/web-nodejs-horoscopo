@@ -28,6 +28,10 @@ export default function Home() {
           ✦ Ver previsões (Horóscopo)
         </Link>
         <span style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>
+        <Link href="/aniversariantes" style={{ color: '#c4b5fd', textDecoration: 'none', fontWeight: 500 }}>
+          Aniversariantes
+        </Link>
+        <span style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>
         <span style={{ color: '#a78bfa' }}>Documentação da API</span>
       </div>
       <main style={{ height: '100vh', paddingTop: '48px' }}>

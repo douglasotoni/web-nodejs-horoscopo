@@ -223,6 +223,7 @@ export default function HoroscopePage() {
           <div className={styles.headerInner}>
             <h1 className={styles.title}>Horóscopo</h1>
             <p className={styles.subtitle}>Previsão do dia e da semana sob as estrelas</p>
+            <a href="/aniversariantes" className={styles.apiLink}>Aniversariantes</a>
             <a href="/" className={styles.apiLink}>Documentação da API</a>
           </div>
         </header>
