@@ -250,7 +250,7 @@ export default function HoroscopePage() {
 
               <div className={styles.cards}>
                 {combinedList.map(({ sign, daily, weekly }) => {
-                  const hasDailyExtras = !!(daily.loveAdvice || daily.careerAdvice || daily.practicalAdvice || daily.crystal || daily.mantra || daily.impactPhrase || daily.energyLevel != null || daily.luckyColor)
+                  const hasDailyExtras = !!(daily.loveAdvice || daily.careerAdvice || daily.practicalAdvice || daily.crystal || daily.compatibleSigns || daily.mantra || daily.impactPhrase || daily.energyLevel != null || daily.luckyColor)
                   const energyLevel = daily.energyLevel != null ? Math.min(10, Math.max(1, daily.energyLevel)) : 0
                   const colorMap: Record<string, string> = {
                     vermelho: '#dc2626', laranja: '#ea580c', amarelo: '#ca8a04', verde: '#16a34a',
@@ -285,16 +285,6 @@ export default function HoroscopePage() {
                                 )}
                               </div>
                             ) : null}
-                            <div className={styles.cardLuckyRow}>
-                              <span className={styles.cardLuckyPill}>
-                                <span className={styles.cardLuckyPillLabel}>Dia</span>
-                                <span>{daily.luckyNumber}</span>
-                              </span>
-                              <span className={styles.cardLuckyPill}>
-                                <span className={styles.cardLuckyPillLabel}>Semana</span>
-                                <span>{weekly.luckyNumber}</span>
-                              </span>
-                            </div>
                           </div>
                         </div>
                       </header>
@@ -366,6 +356,18 @@ export default function HoroscopePage() {
                                   Conselho prático
                                 </div>
                                 <p className={styles.cardBlockText}>{daily.practicalAdvice}</p>
+                              </div>
+                            )}
+
+                            {daily.compatibleSigns && (
+                              <div className={styles.cardBlock}>
+                                <div className={styles.cardBlockLabel}>
+                                  <span className={styles.cardBlockLabelIcon}>♡</span>
+                                  Signos compatíveis
+                                </div>
+                                <p className={styles.cardBlockText}>
+                                  {daily.compatibleSigns.replace(/^Signos compatíveis:\s*/i, '')}
+                                </p>
                               </div>
                             )}
 

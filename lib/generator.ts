@@ -1613,7 +1613,7 @@ export async function generateDailyPrediction(context: GeneratorContext): Promis
   
   // Formata como string com nomes em português
   const compatibleSignsNames = selectedCompatible.map(s => signNames[s]).join(', ')
-  const compatibleSigns = `Signos compatíveis: ${compatibleSignsNames}`
+  const compatibleSigns = `${compatibleSignsNames}`
   
   // 7. Significado numerológico
   const numerologyMeaning = numerologyMeanings[(luckyNumber - 1) % numerologyMeanings.length]
