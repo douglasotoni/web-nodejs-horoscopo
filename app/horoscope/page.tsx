@@ -199,49 +199,136 @@ export default function HoroscopePage() {
             </p>
 
             <div className={styles.cards}>
-              {list.map((item: DailyPrediction | WeeklyPrediction) => (
-                <article
-                  key={`${item.sign}-${(item as DailyPrediction).weekday ?? (item as WeeklyPrediction).isoWeek}`}
-                  className={styles.card}
-                >
-                  <div className={styles.cardHeader}>
-                    <span className={styles.cardSymbol}>
-                      {SIGNS.find(s => s.id === item.sign)?.symbol ?? '☆'}
-                    </span>
-                    <h2 className={styles.cardTitle}>{signName(item.sign)}</h2>
-                    <span className={styles.cardLucky}>Nº da sorte: {item.luckyNumber}</span>
-                  </div>
-                  <div className={styles.cardBody}>
-                    <p className={styles.cardText}>{item.text}</p>
-                    {'loveAdvice' in item && (item as DailyPrediction).loveAdvice && (
-                      <p className={styles.cardExtra}>
-                        <strong className={styles.cardExtraStrong}>Amor:</strong>{(item as DailyPrediction).loveAdvice}
-                      </p>
-                    )}
-                    {'careerAdvice' in item && (item as DailyPrediction).careerAdvice && (
-                      <p className={styles.cardExtra}>
-                        <strong className={styles.cardExtraStrong}>Carreira:</strong>{(item as DailyPrediction).careerAdvice}
-                      </p>
-                    )}
-                    {'practicalAdvice' in item && (item as DailyPrediction).practicalAdvice && (
-                      <p className={styles.cardExtra}>
-                        <strong className={styles.cardExtraStrong}>Conselho prático:</strong>{(item as DailyPrediction).practicalAdvice}
-                      </p>
-                    )}
-                    {'crystal' in item && (item as DailyPrediction).crystal && (
-                      <p className={styles.cardExtra}>
-                        <strong className={styles.cardExtraStrong}>Cristal:</strong>{(item as DailyPrediction).crystal}
-                      </p>
-                    )}
-                    {'mantra' in item && (item as DailyPrediction).mantra && (
-                      <p className={styles.cardMantra}>{(item as DailyPrediction).mantra}</p>
-                    )}
-                    {'impactPhrase' in item && (item as DailyPrediction).impactPhrase && (
-                      <p className={styles.cardImpact}>{(item as DailyPrediction).impactPhrase}</p>
-                    )}
-                  </div>
-                </article>
-              ))}
+              {list.map((item: DailyPrediction | WeeklyPrediction) => {
+                const daily = mode === 'daily' ? (item as DailyPrediction) : null
+                const hasDailyExtras = daily && (daily.loveAdvice || daily.careerAdvice || daily.practicalAdvice || daily.crystal || daily.mantra || daily.impactPhrase || daily.energyLevel != null || daily.luckyColor)
+                const energyLevel = daily?.energyLevel != null ? Math.min(10, Math.max(1, daily.energyLevel)) : 0
+                const colorMap: Record<string, string> = {
+                  vermelho: '#dc2626', laranja: '#ea580c', amarelo: '#ca8a04', verde: '#16a34a',
+                  azul: '#2563eb', roxo: '#7c3aed', rosa: '#db2777', preto: '#1f2937',
+                  branco: '#f5f5f5', dourado: '#d97706', prata: '#9ca3af', coral: '#f97316'
+                }
+                const luckyColorHex = daily?.luckyColor
+                  ? (colorMap[daily.luckyColor.toLowerCase().trim()] ?? '#8b5cf6')
+                  : null
+
+                return (
+                  <article
+                    key={`${item.sign}-${(item as DailyPrediction).weekday ?? (item as WeeklyPrediction).isoWeek}`}
+                    className={styles.card}
+                  >
+                    <header className={styles.cardHeader}>
+                      <div className={styles.cardHeaderTop}>
+                        <div className={styles.cardSymbolWrap}>
+                          <span className={styles.cardSymbol}>
+                            {SIGNS.find(s => s.id === item.sign)?.symbol ?? '☆'}
+                          </span>
+                        </div>
+                        <div className={styles.cardTitleWrap}>
+                          <h2 className={styles.cardTitle}>{signName(item.sign)}</h2>
+                          {daily?.element != null || daily?.rulingPlanet != null ? (
+                            <div className={styles.cardMeta}>
+                              {daily.element != null && daily.element !== '' && (
+                                <span className={styles.cardMetaPill}>{daily.element}</span>
+                              )}
+                              {daily.rulingPlanet != null && daily.rulingPlanet !== '' && (
+                                <span className={styles.cardMetaPill}>{daily.rulingPlanet}</span>
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div className={styles.cardLuckyWrap} title="Número da sorte">
+                        {item.luckyNumber}
+                      </div>
+                    </header>
+
+                    <div className={styles.cardBody}>
+                      <p className={styles.cardLead}>{item.text}</p>
+
+                      {hasDailyExtras && (
+                        <>
+                          <div className={styles.cardDivider} aria-hidden />
+
+                          {(energyLevel > 0 || daily?.luckyColor || daily?.crystal) && (
+                            <div className={styles.cardQuickRow}>
+                              {energyLevel > 0 && (
+                                <div className={styles.cardQuickItem}>
+                                  <span className={styles.cardQuickLabel}>Energia</span>
+                                  <div className={styles.cardEnergyBar}>
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                                      <span
+                                        key={n}
+                                        className={`${styles.cardEnergyDot} ${n <= energyLevel ? styles.cardEnergyDotFilled : ''}`}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {daily?.luckyColor && (
+                                <div className={styles.cardQuickItem}>
+                                  <span
+                                    className={styles.cardColorSwatch}
+                                    style={{ backgroundColor: luckyColorHex ?? undefined }}
+                                    title={daily.luckyColor}
+                                  />
+                                  <span>{daily.luckyColor}</span>
+                                </div>
+                              )}
+                              {daily?.crystal && (
+                                <div className={styles.cardQuickItem}>
+                                  <span className={styles.cardQuickLabel}>Cristal</span>
+                                  <span>{(daily as DailyPrediction).crystal}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {daily?.loveAdvice && (
+                            <div className={styles.cardBlock}>
+                              <div className={styles.cardBlockLabel}>
+                                <span className={styles.cardBlockLabelIcon}>♥</span>
+                                Amor
+                              </div>
+                              <p className={styles.cardBlockText}>{daily.loveAdvice}</p>
+                            </div>
+                          )}
+                          {daily?.careerAdvice && (
+                            <div className={styles.cardBlock}>
+                              <div className={styles.cardBlockLabel}>
+                                <span className={styles.cardBlockLabelIcon}>◆</span>
+                                Carreira
+                              </div>
+                              <p className={styles.cardBlockText}>{daily.careerAdvice}</p>
+                            </div>
+                          )}
+                          {daily?.practicalAdvice && (
+                            <div className={styles.cardBlock}>
+                              <div className={styles.cardBlockLabel}>
+                                <span className={styles.cardBlockLabelIcon}>✦</span>
+                                Conselho prático
+                              </div>
+                              <p className={styles.cardBlockText}>{daily.practicalAdvice}</p>
+                            </div>
+                          )}
+
+                          {daily?.mantra && (
+                            <div className={styles.cardMantraWrap}>
+                              <p className={styles.cardMantra}>{daily.mantra}</p>
+                            </div>
+                          )}
+
+                          {daily?.impactPhrase && (
+                            <div className={styles.cardImpactWrap}>
+                              <p className={styles.cardImpact}>{daily.impactPhrase}</p>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </article>
+                )
+              })}
             </div>
           </section>
         )}
