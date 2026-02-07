@@ -1577,11 +1577,10 @@ export async function generateDailyPrediction(context: GeneratorContext): Promis
   // Adicionar número da sorte no texto (sempre no final)
   const textWithLuckyNumber = text + ` Seu número da sorte é ${luckyNumber}.`
   
-  // 3. Cor da sorte (selecionada baseada na seed)
-  const colorSeed = generateLuckyNumber(seed + 'color')
-  const luckyColorVariation = getRandomElement(luckyColorsData, colorSeed)
-  const luckyColorId = luckyColorVariation.id && luckyColorVariation.id > 0 ? luckyColorVariation.id : null
-  const luckyColor = luckyColorVariation.text
+  // 3. Cor da sorte (uma cor fixa por signo: sempre a primeira da lista)
+  const luckyColorVariation = luckyColorsData[0]
+  const luckyColorId = luckyColorVariation?.id && luckyColorVariation.id > 0 ? luckyColorVariation.id : null
+  const luckyColor = luckyColorVariation?.text ?? luckyColors[context.sign][0]
   
   // 4. Emoção específica
   const emotionSeed = generateLuckyNumber(seed + 'emotion')

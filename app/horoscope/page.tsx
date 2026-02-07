@@ -22,6 +22,22 @@ const SIGN_IDS = SIGNS.map(s => s.id)
 
 type SignId = (typeof SIGNS)[number]['id']
 
+/** Cor representativa de cada signo (primeira cor da sorte do signo) → hex */
+const SIGN_COLOR_HEX: Record<SignId, string> = {
+  aries: '#dc2626',
+  taurus: '#16a34a',
+  gemini: '#ca8a04',
+  cancer: '#9ca3af',
+  leo: '#d97706',
+  virgo: '#78350f',
+  libra: '#db2777',
+  scorpio: '#7f1d1d',
+  sagittarius: '#7c3aed',
+  capricorn: '#1f2937',
+  aquarius: '#2563eb',
+  pisces: '#06b6d4'
+}
+
 interface DailyPrediction {
   id: number
   sign: string
@@ -316,8 +332,8 @@ export default function HoroscopePage() {
                                   <div className={styles.cardQuickItem}>
                                     <span
                                       className={styles.cardColorSwatch}
-                                      style={{ backgroundColor: luckyColorHex ?? undefined }}
-                                      title={daily.luckyColor}
+                                      style={{ backgroundColor: SIGN_COLOR_HEX[sign as SignId] ?? luckyColorHex ?? '#8b5cf6' }}
+                                      aria-hidden
                                     />
                                     <span>{daily.luckyColor}</span>
                                   </div>
@@ -359,17 +375,29 @@ export default function HoroscopePage() {
                               </div>
                             )}
 
-                            {daily.compatibleSigns && (
-                              <div className={styles.cardBlock}>
-                                <div className={styles.cardBlockLabel}>
-                                  <span className={styles.cardBlockLabelIcon}>♡</span>
-                                  Signos compatíveis
+                            {daily.compatibleSigns && (() => {
+                              const names = daily.compatibleSigns.replace(/^Signos compatíveis:\s*/i, '').split(',').map(s => s.trim()).filter(Boolean)
+                              return (
+                                <div className={styles.cardBlock}>
+                                  <div className={styles.cardBlockLabel}>
+                                    <span className={styles.cardBlockLabelIcon}>♡</span>
+                                    Signos compatíveis
+                                  </div>
+                                  <div className={styles.compatibleSignsList}>
+                                    {names.map((signNameStr) => {
+                                      const signInfo = SIGNS.find(s => s.name === signNameStr)
+                                      const hex = signInfo ? SIGN_COLOR_HEX[signInfo.id] : '#8b5cf6'
+                                      return (
+                                        <span key={signNameStr} className={styles.compatibleSignItem} title={signNameStr}>
+                                          <span className={styles.compatibleSignSwatch} style={{ backgroundColor: hex }} />
+                                          <span>{signNameStr}</span>
+                                        </span>
+                                      )
+                                    })}
+                                  </div>
                                 </div>
-                                <p className={styles.cardBlockText}>
-                                  {daily.compatibleSigns.replace(/^Signos compatíveis:\s*/i, '')}
-                                </p>
-                              </div>
-                            )}
+                              )
+                            })()}
 
                             {daily.mantra && (
                               <div className={styles.cardMantraWrap}>
