@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     openapi: '3.0.3',
     info: {
       title: 'API Horóscopo',
-      description: 'API que retorna a previsão do dia para um ou todos os signos.',
+      description: 'API que retorna previsão do dia e da semana para um ou todos os signos.',
       version: '1.0.0'
     },
     servers: [{ url: baseUrl, description: 'Servidor atual' }],
@@ -81,6 +81,68 @@ export async function GET(req: NextRequest) {
             }
           }
         }
+      },
+      '/api/horoscope/weekly': {
+        get: {
+          summary: 'Previsão da semana',
+          description: 'Retorna a previsão da semana. **sign**: se omitido, retorna todos os signos; se informado, retorna só aquele signo. **date**: formato YYYY-MM-DD; se omitido, usa o dia corrente (semana da data atual). Se não existir previsão para a semana, ela é gerada e salva antes de ser retornada.',
+          operationId: 'getWeeklyPrediction',
+          tags: ['Horóscopo'],
+          parameters: [
+            {
+              name: 'sign',
+              in: 'query',
+              required: false,
+              description: 'Signo do zodíaco. Se omitido, retorna a previsão semanal de todos os signos.',
+              schema: { type: 'string', enum: [...signEnum] }
+            },
+            {
+              name: 'date',
+              in: 'query',
+              required: false,
+              description: 'Data no formato YYYY-MM-DD. Se omitido, usa o dia corrente (semana da data atual).',
+              schema: { type: 'string', format: 'date', example: '2025-02-07' }
+            }
+          ],
+          responses: {
+            '200': {
+              description: 'Previsão(ões) semanal(is) encontrada(s)',
+              content: {
+                'application/json': {
+                  schema: {
+                    oneOf: [
+                      {
+                        description: 'Um objeto quando `sign` é informado',
+                        $ref: '#/components/schemas/WeeklyPrediction'
+                      },
+                      {
+                        description: 'Array quando `sign` não é informado',
+                        type: 'array',
+                        items: { $ref: '#/components/schemas/WeeklyPrediction' }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            '400': {
+              description: 'Parâmetros inválidos',
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/Error' }
+                }
+              }
+            },
+            '500': {
+              description: 'Erro interno',
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/Error' }
+                }
+              }
+            }
+          }
+        }
       }
     },
     components: {
@@ -111,6 +173,17 @@ export async function GET(req: NextRequest) {
             mantra: { type: 'string', nullable: true },
             loveAdvice: { type: 'string', nullable: true },
             careerAdvice: { type: 'string', nullable: true }
+          }
+        },
+        WeeklyPrediction: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', example: 1 },
+            sign: { type: 'string', enum: [...signEnum] },
+            isoWeek: { type: 'integer', description: 'Semana ISO do ano' },
+            isoYear: { type: 'integer', description: 'Ano ISO' },
+            text: { type: 'string', description: 'Texto da previsão semanal' },
+            luckyNumber: { type: 'integer' }
           }
         },
         Error: {
