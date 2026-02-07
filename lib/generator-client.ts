@@ -1720,7 +1720,7 @@ export function generateWeeklyPredictionClient(context: Omit<GeneratorContext, '
   const luckyNumber = generateLuckyNumber(seed)
   
   // Adicionar número da sorte no texto (sempre no final)
-  const textWithLuckyNumber = text + ` Seu número da sorte é ${luckyNumber}.`
+  const textWithLuckyNumber = text + ` Esta semana é regida pelo número ${luckyNumber}.`
   
   return { text: textWithLuckyNumber, luckyNumber }
 }
