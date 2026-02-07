@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { CANTORES_SERTANEJOS } from '../cantores-data'
 
 /**
- * GET /api/sertanejo/aniversariantes
- * Retorna a lista de cantores sertanejos famosos que fazem aniversário no mês.
+ * GET /api/famosos/aniversariantes
+ * Retorna a lista de artistas famosos que fazem aniversário no mês.
  * Query: date (opcional) YYYY-MM-DD — usa o mês dessa data; sem date = mês corrente.
  */
 export async function GET(request: NextRequest) {

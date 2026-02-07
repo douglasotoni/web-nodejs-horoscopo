@@ -1,5 +1,5 @@
 /**
- * 200 cantores sertanejos mais famosos da atualidade (nomes reais).
+ * 200 cantores e artistas famosos da atualidade (nomes reais).
  * Datas: bloco inicial com datas reais (Wikipédia/fontes oficiais); demais distribuídas no ano.
  */
 export const CANTORES_SERTANEJOS: { nome: string; dia: number; mes: number }[] = [

@@ -47,7 +47,7 @@ export default function AniversariantesPage() {
     setError(null)
     const dateStr = `${ano}-${String(mes).padStart(2, '0')}-01`
     try {
-      const res = await fetch(`/api/sertanejo/aniversariantes?date=${dateStr}`)
+      const res = await fetch(`/api/famosos/aniversariantes?date=${dateStr}`)
       if (!res.ok) throw new Error('Falha ao carregar aniversariantes')
       const json: ApiResponse = await res.json()
       setData(json)
@@ -75,7 +75,7 @@ export default function AniversariantesPage() {
         subtitle="Cantores e artistas que fazem aniversário — com signo"
         links={[
           { href: '/horoscope', label: 'Horóscopo' },
-          { href: '/', label: 'Documentação da API' }
+          { href: '/api', label: 'Documentação da API' }
         ]}
       />
 

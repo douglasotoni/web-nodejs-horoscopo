@@ -15,15 +15,20 @@ export async function GET(req: NextRequest) {
     openapi: '3.0.3',
     info: {
       title: 'API Horóscopo',
-      description: 'API que retorna previsão do dia e da semana para um ou todos os signos.',
+      description: 'API com endpoints de **Horóscopo** (previsão do dia e da semana por signo, reset), **Lua** (fase da lua e textos místicos) e **Famosos** (aniversariantes do mês).',
       version: '1.0.0'
     },
     servers: [{ url: baseUrl, description: 'Servidor atual' }],
+    tags: [
+      { name: 'Horóscopo', description: 'Previsão do dia, da semana e reset' },
+      { name: 'Lua', description: 'Fase da lua e informações místicas' },
+      { name: 'Famosos', description: 'Aniversariantes do mês' }
+    ],
     paths: {
       '/api/horoscope/daily': {
         get: {
           summary: 'Previsão do dia',
-          description: 'Retorna a previsão do dia. **sign**: se omitido, retorna todos os signos; se informado, retorna só aquele signo. **date**: formato YYYY-MM-DD; se omitido, usa o dia atual. Se não existir previsão para a data, ela é gerada e salva antes de ser retornada.',
+          description: 'Retorna a previsão do dia. **sign**: se omitido, retorna todos os signos. **date**: YYYY-MM-DD; omitido = hoje. **regenerate**: 1 ou true força regenerar (e passar pela IA se configurada). **tone**: tom da melhoria pela IA (bem_humorada, vibe_sertaneja, resumida). Se não existir previsão, ela é gerada e salva.',
           operationId: 'getDailyPrediction',
           tags: ['Horóscopo'],
           parameters: [
@@ -38,8 +43,22 @@ export async function GET(req: NextRequest) {
               name: 'date',
               in: 'query',
               required: false,
-              description: 'Data no formato YYYY-MM-DD. Se omitido, usa a data de hoje (previsão do dia).',
+              description: 'Data no formato YYYY-MM-DD. Se omitido, usa a data de hoje.',
               schema: { type: 'string', format: 'date', example: '2025-02-07' }
+            },
+            {
+              name: 'regenerate',
+              in: 'query',
+              required: false,
+              description: 'Força regenerar previsão (e passar pela IA). Valores: 1 ou true.',
+              schema: { type: 'string', enum: ['1', 'true'] }
+            },
+            {
+              name: 'tone',
+              in: 'query',
+              required: false,
+              description: 'Tom da melhoria pela IA: bem_humorada, vibe_sertaneja ou resumida.',
+              schema: { type: 'string', enum: ['bem_humorada', 'vibe_sertaneja', 'resumida'] }
             }
           ],
           responses: {
@@ -85,7 +104,7 @@ export async function GET(req: NextRequest) {
       '/api/horoscope/weekly': {
         get: {
           summary: 'Previsão da semana',
-          description: 'Retorna a previsão da semana. **sign**: se omitido, retorna todos os signos; se informado, retorna só aquele signo. **date**: formato YYYY-MM-DD; se omitido, usa o dia corrente (semana da data atual). Se não existir previsão para a semana, ela é gerada e salva antes de ser retornada.',
+          description: 'Retorna a previsão da semana. **sign**: se omitido, retorna todos os signos. **date**: YYYY-MM-DD; omitido = semana atual. **regenerate** e **tone** funcionam como no daily. Se não existir previsão, ela é gerada e salva.',
           operationId: 'getWeeklyPrediction',
           tags: ['Horóscopo'],
           parameters: [
@@ -100,8 +119,22 @@ export async function GET(req: NextRequest) {
               name: 'date',
               in: 'query',
               required: false,
-              description: 'Data no formato YYYY-MM-DD. Se omitido, usa o dia corrente (semana da data atual).',
+              description: 'Data no formato YYYY-MM-DD. Se omitido, usa a semana da data atual.',
               schema: { type: 'string', format: 'date', example: '2025-02-07' }
+            },
+            {
+              name: 'regenerate',
+              in: 'query',
+              required: false,
+              description: 'Força regenerar previsão semanal (e passar pela IA). Valores: 1 ou true.',
+              schema: { type: 'string', enum: ['1', 'true'] }
+            },
+            {
+              name: 'tone',
+              in: 'query',
+              required: false,
+              description: 'Tom da melhoria pela IA: bem_humorada, vibe_sertaneja ou resumida.',
+              schema: { type: 'string', enum: ['bem_humorada', 'vibe_sertaneja', 'resumida'] }
             }
           ],
           responses: {
@@ -165,6 +198,108 @@ export async function GET(req: NextRequest) {
               content: {
                 'application/json': {
                   schema: { $ref: '#/components/schemas/MoonPhaseResponse' }
+                }
+              }
+            },
+            '500': {
+              description: 'Erro interno',
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/Error' }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/horoscope/reset': {
+        delete: {
+          summary: 'Resetar previsões do dia e da semana',
+          description: 'Remove da base todas as previsões do dia e da semana para a data informada. Útil para forçar nova geração (com ou sem IA).',
+          operationId: 'resetPredictions',
+          tags: ['Horóscopo'],
+          parameters: [
+            {
+              name: 'date',
+              in: 'query',
+              required: false,
+              description: 'Data no formato YYYY-MM-DD. Se omitido, usa a data de hoje.',
+              schema: { type: 'string', format: 'date', example: '2025-02-07' }
+            }
+          ],
+          responses: {
+            '200': {
+              description: 'Previsões removidas',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      ok: { type: 'boolean', example: true },
+                      date: { type: 'string', format: 'date' },
+                      deleted: {
+                        type: 'object',
+                        properties: {
+                          daily: { type: 'integer', description: 'Quantidade de previsões diárias removidas' },
+                          weekly: { type: 'integer', description: 'Quantidade de previsões semanais removidas' }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            '500': {
+              description: 'Erro interno',
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/Error' }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/famosos/aniversariantes': {
+        get: {
+          summary: 'Aniversariantes do mês',
+          description: 'Retorna a lista de cantores/artistas famosos que fazem aniversário no mês da data informada. Exclui nomes que são apenas de duplas (ex.: "Praião & Prainha"); mantém nomes de pessoas.',
+          operationId: 'getAniversariantes',
+          tags: ['Famosos'],
+          parameters: [
+            {
+              name: 'date',
+              in: 'query',
+              required: false,
+              description: 'Data no formato YYYY-MM-DD (usa o mês). Se omitido, usa o mês atual.',
+              schema: { type: 'string', format: 'date', example: '2025-02-07' }
+            }
+          ],
+          responses: {
+            '200': {
+              description: 'Lista de aniversariantes do mês',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      mes: { type: 'integer', description: 'Número do mês (1-12)' },
+                      mesNome: { type: 'string', description: 'Nome do mês em português (ex.: fevereiro)' },
+                      total: { type: 'integer', description: 'Quantidade de aniversariantes' },
+                      aniversariantes: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            nome: { type: 'string' },
+                            dia: { type: 'integer' },
+                            mes: { type: 'integer' },
+                            dataFormatada: { type: 'string', description: 'Ex.: 07/02' }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             },

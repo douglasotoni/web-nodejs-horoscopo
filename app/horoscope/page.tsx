@@ -146,7 +146,7 @@ export default function HoroscopePage() {
       const [dailyRes, weeklyRes, anivRes, moonRes] = await Promise.all([
         fetch(`/api/horoscope/daily?${params}`),
         fetch(`/api/horoscope/weekly?${params}`),
-        fetch(`/api/sertanejo/aniversariantes?date=${dateParam}`),
+        fetch(`/api/famosos/aniversariantes?date=${dateParam}`),
         fetch(`/api/moon/phase?date=${dateParam}`)
       ])
       if (!dailyRes.ok) throw new Error(await dailyRes.text())
@@ -245,7 +245,7 @@ export default function HoroscopePage() {
           subtitle="Previsão do dia e da semana sob as estrelas"
           links={[
             { href: '/aniversariantes', label: 'Aniversariantes' },
-            { href: '/', label: 'Documentação da API' }
+            { href: '/api', label: 'Documentação da API' }
           ]}
         />
 
