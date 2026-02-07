@@ -4,6 +4,7 @@
   color: #e8e4f0;
   position: relative;
   isolation: isolate;
+  font-family: var(--font-nunito), 'Nunito', sans-serif;
 }
 
 .spaceBg {
@@ -207,9 +208,9 @@
 }
 
 .title {
-  font-family: 'Georgia', 'Times New Roman', serif;
+  font-family: var(--font-nunito), 'Nunito', sans-serif;
   font-size: clamp(1.75rem, 4vw, 2.25rem);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.02em;
   margin-bottom: 0.35rem;
   background: linear-gradient(120deg, #c4b5fd, #e9d5ff);
@@ -425,9 +426,9 @@
 }
 
 .cardTitle {
-  font-family: 'Georgia', serif;
+  font-family: var(--font-nunito), 'Nunito', sans-serif;
   font-size: 1.35rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #f3e8ff;
   letter-spacing: 0.01em;
   margin: 0;
