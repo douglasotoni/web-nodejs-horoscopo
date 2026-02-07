@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { format } from 'date-fns'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { parseDateToContext } from '@/lib/utils'
 import { generateDailyPrediction } from '@/lib/generator'
+import { improveHoroscopeText } from '@/lib/openrouter'
 import type { Sign, Weekday } from '@prisma/client'
 
 const SIGNS: Sign[] = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
 
 const querySchema = z.object({
   sign: z.enum(['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']).optional(),
-  date: z.string().optional() // YYYY-MM-DD; se omitido = hoje
+  date: z.string().optional(), // YYYY-MM-DD; se omitido = hoje
+  regenerate: z.enum(['1', 'true']).optional() // força regenerar (e passar pelo OpenRouter se a key existir)
 })
 
 function toId(id: number | null): number | null {
@@ -20,7 +23,9 @@ async function getOrCreateDailyPrediction(
   sign: Sign,
   weekday: Weekday,
   isoWeek: number,
-  isoYear: number
+  isoYear: number,
+  dateStr: string,
+  forceRegenerate: boolean
 ) {
   const existing = await prisma.dailyPrediction.findUnique({
     where: {
@@ -28,14 +33,20 @@ async function getOrCreateDailyPrediction(
     }
   })
 
-  if (existing && existing.status === 'published') {
+  // Só gera (e chama OpenRouter para melhorar) quando não existe previsão publicada ou quando ?regenerate=1
+  if (!forceRegenerate && existing && existing.status === 'published') {
     return existing
   }
 
   const generated = await generateDailyPrediction({ sign, weekday, isoWeek, isoYear })
+  const improvedText = await improveHoroscopeText(generated.text, sign, dateStr)
+  const finalText = (improvedText && improvedText.trim() !== '') ? improvedText.trim() : generated.text
+  if (process.env.NODE_ENV === 'development' && improvedText) {
+    console.log('[OpenRouter] Texto melhorado usado para', sign, dateStr)
+  }
 
   const data = {
-    text: generated.text,
+    text: finalText,
     luckyNumber: generated.luckyNumber,
     element: generated.element,
     quality: generated.quality,
@@ -94,24 +105,29 @@ export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams
     const validated = querySchema.parse({
       sign: searchParams.get('sign') || undefined,
-      date: searchParams.get('date') || undefined
+      date: searchParams.get('date') || undefined,
+      regenerate: searchParams.get('regenerate') || undefined
     })
+    const forceRegenerate = validated.regenerate === '1' || validated.regenerate === 'true'
 
-    const { weekday, isoWeek, isoYear } = parseDateToContext(validated.date ?? null)
+    const { date, weekday, isoWeek, isoYear } = parseDateToContext(validated.date ?? null)
+    const dateStr = format(date, 'yyyy-MM-dd')
 
     if (validated.sign) {
       const prediction = await getOrCreateDailyPrediction(
         validated.sign,
         weekday,
         isoWeek,
-        isoYear
+        isoYear,
+        dateStr,
+        forceRegenerate
       )
       return NextResponse.json(prediction)
     }
 
     const predictions = await Promise.all(
       SIGNS.map(sign =>
-        getOrCreateDailyPrediction(sign, weekday, isoWeek, isoYear)
+        getOrCreateDailyPrediction(sign, weekday, isoWeek, isoYear, dateStr, forceRegenerate)
       )
     )
 
