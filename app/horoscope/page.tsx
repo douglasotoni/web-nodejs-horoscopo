@@ -401,12 +401,20 @@ export default function HoroscopePage() {
 
                             {daily.mantra && (
                               <div className={styles.cardMantraWrap}>
+                                <div className={styles.cardBlockLabel}>
+                                  <span className={styles.cardBlockLabelIcon}>◐</span>
+                                  Mantra
+                                </div>
                                 <p className={styles.cardMantra}>{daily.mantra}</p>
                               </div>
                             )}
 
                             {daily.impactPhrase && (
                               <div className={styles.cardImpactWrap}>
+                                <div className={styles.cardBlockLabel}>
+                                  <span className={styles.cardBlockLabelIcon}>✦</span>
+                                  Frase de impacto
+                                </div>
                                 <p className={styles.cardImpact}>{daily.impactPhrase}</p>
                               </div>
                             )}
