@@ -1,0 +1,33 @@
+---
+description: Características técnicas do projeto Horóscopo (stack, estrutura, convenções)
+alwaysApply: true
+---
+
+# Projeto web-reactjs-horoscopo
+
+## Stack
+
+- **Next.js 14** (App Router), **TypeScript**, **PostgreSQL**, **Prisma 5**
+- Dependências principais: `date-fns`, `zod`, `bcryptjs`, `swagger-ui-react`
+- Path alias: `@/*` aponta para a raiz do projeto (configurado em `tsconfig.json`)
+
+## Estrutura
+
+- **`app/`** – Rotas e páginas (App Router): `page.tsx`, `layout.tsx`, rotas em pastas
+- **`app/api/`** – Route handlers: um arquivo `route.ts` por rota (ex.: `app/api/horoscope/daily/route.ts`)
+- **`app/components/`** – Componentes reutilizáveis
+- **`lib/`** – Lógica de negócio e utilitários: `prisma.ts`, `generator.ts`, `openrouter.ts`, `zodiac-cache.ts`, `utils.ts`, `moon.ts`, etc.
+- **`prisma/`** – Schema, migrations, `seed.ts` (seed principal), `seed-zodiac.ts` (alternativo)
+- Estilos: **CSS Modules** (`.module.css`) colados às páginas/componentes
+
+## Convenções
+
+- **APIs**: usar `NextRequest`/`NextResponse`, validar query/body com **Zod** (`querySchema.parse(...)`), retornar `NextResponse.json()`. Em erro 500, em desenvolvimento incluir `details` com a mensagem real.
+- **Prisma**: cliente em `@/lib/prisma` (singleton). Schema com enums `Sign`, `Weekday`, `PredictionStatus`; modelos como `DailyPrediction`, `ZodiacSign`, tabelas de variações por signo (ImpactPhrase, Mantra, etc.).
+- **Gerador de previsões**: `lib/generator.ts` exporta `generateDailyPrediction` e usa `lib/zodiac-cache.ts` para buscar variações do banco (com fallback em dados em memória).
+- **Seed**: comando oficial é `npx prisma db seed` (roda `tsx prisma/seed.ts`). No Docker usa-se `db push` (não `migrate deploy`) e em seguida o seed.
+- **Idioma**: responder em **português** quando o usuário escrever em português.
+
+## Docker
+
+- `docker-compose.yml`: serviços `postgres` (PostgreSQL 16) e `web` (Node 20). O `web` executa `npm install`, `prisma generate`, `prisma db push`, `prisma db seed` e `npm run dev`. Dependência do `web` no Postgres com `condition: service_healthy`.
