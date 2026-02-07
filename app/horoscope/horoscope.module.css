@@ -587,6 +587,16 @@
   padding-left: 1.35rem;
 }
 
+.cardBlockContent {
+  padding-left: 1.35rem;
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #c4b5fd;
+}
+
 .compatibleSignsList {
   display: flex;
   flex-wrap: wrap;
@@ -611,26 +621,7 @@
   flex-shrink: 0;
 }
 
-/* ---- Linha de “quick info”: energia, cor, cristal ---- */
-.cardQuickRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1rem;
-  margin-bottom: 1rem;
-}
-
-.cardQuickItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.82rem;
-  color: #b8b0d0;
-}
-
-.cardQuickLabel {
-  color: #a78bfa;
-}
-
+/* ---- Energia, Cor, Cristal (blocos padronizados) ---- */
 .cardEnergyBar {
   display: flex;
   gap: 2px;
@@ -645,6 +636,12 @@
 
 .cardEnergyDotFilled {
   background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+}
+
+.cardEnergyLabel {
+  font-size: 0.85rem;
+  color: #a78bfa;
+  font-weight: 500;
 }
 
 .cardColorSwatch {

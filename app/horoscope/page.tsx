@@ -387,37 +387,48 @@ export default function HoroscopePage() {
                           <>
                             <div className={styles.cardDivider} aria-hidden />
 
-                            {(energyLevel > 0 || daily.luckyColor || daily.crystal) && (
-                              <div className={styles.cardQuickRow}>
-                                {energyLevel > 0 && (
-                                  <div className={styles.cardQuickItem}>
-                                    <span className={styles.cardQuickLabel}>Energia</span>
-                                    <div className={styles.cardEnergyBar}>
-                                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                                        <span
-                                          key={n}
-                                          className={`${styles.cardEnergyDot} ${n <= energyLevel ? styles.cardEnergyDotFilled : ''}`}
-                                        />
-                                      ))}
-                                    </div>
+                            {energyLevel > 0 && (
+                              <div className={styles.cardBlock}>
+                                <div className={styles.cardBlockLabel}>
+                                  <span className={styles.cardBlockLabelIcon}>⚡</span>
+                                  Energia
+                                </div>
+                                <div className={styles.cardBlockContent}>
+                                  <div className={styles.cardEnergyBar}>
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                                      <span
+                                        key={n}
+                                        className={`${styles.cardEnergyDot} ${n <= energyLevel ? styles.cardEnergyDotFilled : ''}`}
+                                      />
+                                    ))}
                                   </div>
-                                )}
-                                {daily.luckyColor && (
-                                  <div className={styles.cardQuickItem}>
-                                    <span
-                                      className={styles.cardColorSwatch}
-                                      style={{ backgroundColor: SIGN_COLOR_HEX[sign as SignId] ?? luckyColorHex ?? '#8b5cf6' }}
-                                      aria-hidden
-                                    />
-                                    <span>{daily.luckyColor}</span>
-                                  </div>
-                                )}
-                                {daily.crystal && (
-                                  <div className={styles.cardQuickItem}>
-                                    <span className={styles.cardQuickLabel}>Cristal</span>
-                                    <span>{daily.crystal}</span>
-                                  </div>
-                                )}
+                                  <span className={styles.cardEnergyLabel}>{energyLevel}/10</span>
+                                </div>
+                              </div>
+                            )}
+                            {daily.luckyColor && (
+                              <div className={styles.cardBlock}>
+                                <div className={styles.cardBlockLabel}>
+                                  <span className={styles.cardBlockLabelIcon}>◇</span>
+                                  Cor da sorte
+                                </div>
+                                <div className={styles.cardBlockContent}>
+                                  <span
+                                    className={styles.cardColorSwatch}
+                                    style={{ backgroundColor: SIGN_COLOR_HEX[sign as SignId] ?? luckyColorHex ?? '#8b5cf6' }}
+                                    aria-hidden
+                                  />
+                                  <span>{daily.luckyColor}</span>
+                                </div>
+                              </div>
+                            )}
+                            {daily.crystal && (
+                              <div className={styles.cardBlock}>
+                                <div className={styles.cardBlockLabel}>
+                                  <span className={styles.cardBlockLabelIcon}>◆</span>
+                                  Cristal
+                                </div>
+                                <p className={styles.cardBlockText}>{daily.crystal}</p>
                               </div>
                             )}
 
