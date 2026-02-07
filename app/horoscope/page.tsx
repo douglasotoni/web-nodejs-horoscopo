@@ -121,6 +121,12 @@ export default function HoroscopePage() {
   const [dailyData, setDailyData] = useState<DailyPrediction | DailyPrediction[] | null>(null)
   const [weeklyData, setWeeklyData] = useState<WeeklyPrediction | WeeklyPrediction[] | null>(null)
   const [aniversariantes, setAniversariantes] = useState<{ mesNome: string; aniversariantes: { nome: string; dia: number; dataFormatada: string }[] } | null>(null)
+  const [moonPhase, setMoonPhase] = useState<{
+    date: string
+    dateFormatted: string
+    moonAgeDays: number
+    phase: { id: string; name: string; nameShort: string; emoji: string; description: string; mystical: string; advice: string; keywords: string[] }
+  } | null>(null)
 
   const stars = useStarPositions(85)
 
@@ -130,12 +136,14 @@ export default function HoroscopePage() {
     const params = new URLSearchParams()
     if (date) params.set('date', date)
     if (selectedSign !== 'all') params.set('sign', selectedSign)
+    const dateParam = date || new Date().toISOString().slice(0, 10)
 
     try {
-      const [dailyRes, weeklyRes, anivRes] = await Promise.all([
+      const [dailyRes, weeklyRes, anivRes, moonRes] = await Promise.all([
         fetch(`/api/horoscope/daily?${params}`),
         fetch(`/api/horoscope/weekly?${params}`),
-        fetch(`/api/sertanejo/aniversariantes?date=${date || new Date().toISOString().slice(0, 10)}`)
+        fetch(`/api/sertanejo/aniversariantes?date=${dateParam}`),
+        fetch(`/api/moon/phase?date=${dateParam}`)
       ])
       if (!dailyRes.ok) throw new Error(await dailyRes.text())
       if (!weeklyRes.ok) throw new Error(await weeklyRes.text())
@@ -149,11 +157,18 @@ export default function HoroscopePage() {
       } else {
         setAniversariantes(null)
       }
+      if (moonRes.ok) {
+        const moon = await moonRes.json()
+        setMoonPhase(moon)
+      } else {
+        setMoonPhase(null)
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro ao carregar previsões')
       setDailyData(null)
       setWeeklyData(null)
       setAniversariantes(null)
+      setMoonPhase(null)
     } finally {
       setLoading(false)
     }
@@ -439,6 +454,32 @@ export default function HoroscopePage() {
                   )
                 })}
               </div>
+
+              {moonPhase && (
+                <div className={styles.moonPhaseBox}>
+                  <h3 className={styles.moonPhaseTitle}>
+                    <span className={styles.moonPhaseEmoji} aria-hidden>{moonPhase.phase.emoji}</span>
+                    Fase da Lua — {moonPhase.phase.name}
+                  </h3>
+                  <p className={styles.moonPhaseDate}>{moonPhase.dateFormatted}</p>
+                  <p className={styles.moonPhaseDesc}>{moonPhase.phase.description}</p>
+                  <div className={styles.moonPhaseBlock}>
+                    <span className={styles.moonPhaseLabel}>Energia e simbolismo</span>
+                    <p className={styles.moonPhaseText}>{moonPhase.phase.mystical}</p>
+                  </div>
+                  <div className={styles.moonPhaseBlock}>
+                    <span className={styles.moonPhaseLabel}>Conselho</span>
+                    <p className={styles.moonPhaseText}>{moonPhase.phase.advice}</p>
+                  </div>
+                  {moonPhase.phase.keywords.length > 0 && (
+                    <div className={styles.moonPhaseKeywords}>
+                      {moonPhase.phase.keywords.map((kw, i) => (
+                        <span key={i} className={styles.moonPhaseKeyword}>{kw}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {aniversariantes && (
                 <div className={styles.aniversariantesBox}>

@@ -143,6 +143,41 @@ export async function GET(req: NextRequest) {
             }
           }
         }
+      },
+      '/api/moon/phase': {
+        get: {
+          summary: 'Fase da lua',
+          description: 'Retorna a fase da lua do dia selecionado, com descrição, informações místicas e conselhos. **date**: formato YYYY-MM-DD; se omitido, usa a data de hoje.',
+          operationId: 'getMoonPhase',
+          tags: ['Lua'],
+          parameters: [
+            {
+              name: 'date',
+              in: 'query',
+              required: false,
+              description: 'Data no formato YYYY-MM-DD. Se omitido, usa a data de hoje.',
+              schema: { type: 'string', format: 'date', example: '2025-02-07' }
+            }
+          ],
+          responses: {
+            '200': {
+              description: 'Fase da lua e informações místicas',
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/MoonPhaseResponse' }
+                }
+              }
+            },
+            '500': {
+              description: 'Erro interno',
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/Error' }
+                }
+              }
+            }
+          }
+        }
       }
     },
     components: {
@@ -191,6 +226,27 @@ export async function GET(req: NextRequest) {
           properties: {
             error: { type: 'string' },
             details: { type: 'array', items: { type: 'object' }, description: 'Apenas em erros de validação' }
+          }
+        },
+        MoonPhaseResponse: {
+          type: 'object',
+          properties: {
+            date: { type: 'string', format: 'date', example: '2025-02-07' },
+            dateFormatted: { type: 'string', description: 'Data em português (ex.: sexta-feira, 7 de fevereiro de 2025)' },
+            moonAgeDays: { type: 'number', description: 'Idade da lua em dias desde a última lua nova' },
+            phase: {
+              type: 'object',
+              properties: {
+                id: { type: 'string', description: 'Identificador da fase (nova, crescente_inicial, quarto_crescente, etc.)' },
+                name: { type: 'string', description: 'Nome completo da fase' },
+                nameShort: { type: 'string', description: 'Nome curto da fase' },
+                emoji: { type: 'string', description: 'Emoji da fase (ex.: 🌑 🌕)' },
+                description: { type: 'string', description: 'Descrição astronômica' },
+                mystical: { type: 'string', description: 'Texto místico sobre a fase' },
+                advice: { type: 'string', description: 'Conselhos para o período' },
+                keywords: { type: 'array', items: { type: 'string' }, description: 'Palavras-chave da fase' }
+              }
+            }
           }
         }
       }
