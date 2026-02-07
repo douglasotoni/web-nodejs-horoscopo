@@ -330,7 +330,7 @@ async function seedZodiacData() {
     for (let i = 0; i < targetCount; i++) {
       const phrase = basePhrases[i % basePhrases.length]
       if (typeof phrase === 'string' && phrase.trim().length > 0) {
-        processedPhrases.push(`${phrase.trim()} ${signDisplay}`)
+        processedPhrases.push(`${phrase.trim()}`)
       }
     }
     
@@ -367,7 +367,7 @@ async function seedZodiacData() {
     for (let i = 0; i < targetCount; i++) {
       const mantra = baseMantras[i % baseMantras.length]
       if (typeof mantra === 'string' && mantra.trim().length > 0) {
-        processedMantras.push(`${mantra.trim()} ${signDisplay}`)
+        processedMantras.push(`${mantra.trim()}`)
       }
     }
     

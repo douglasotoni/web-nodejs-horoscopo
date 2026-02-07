@@ -147,9 +147,13 @@ export async function GET(req: NextRequest) {
       )
     }
 
+    const message = error instanceof Error ? error.message : String(error)
     console.error('Error fetching/generating daily prediction:', error)
     return NextResponse.json(
-      { error: 'Erro ao buscar ou gerar previsão' },
+      {
+        error: 'Erro ao buscar ou gerar previsão',
+        ...(process.env.NODE_ENV === 'development' && { details: message })
+      },
       { status: 500 }
     )
   }

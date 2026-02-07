@@ -150,8 +150,30 @@ export default function HoroscopePage() {
         fetch(`/api/famosos/aniversariantes?date=${dateParam}`),
         fetch(`/api/moon/phase?date=${dateParam}`)
       ])
-      if (!dailyRes.ok) throw new Error(await dailyRes.text())
-      if (!weeklyRes.ok) throw new Error(await weeklyRes.text())
+      if (!dailyRes.ok) {
+        const body = await dailyRes.text()
+        try {
+          const json = JSON.parse(body) as { error?: string; details?: string }
+          const msg = [json.error, json.details].filter(Boolean).join(' — ')
+          throw new Error(msg || body)
+        } catch (parseErr) {
+          if (parseErr instanceof SyntaxError) throw new Error(body)
+          if (parseErr instanceof Error) throw parseErr
+          throw new Error(body)
+        }
+      }
+      if (!weeklyRes.ok) {
+        const body = await weeklyRes.text()
+        try {
+          const json = JSON.parse(body) as { error?: string; details?: string }
+          const msg = [json.error, json.details].filter(Boolean).join(' — ')
+          throw new Error(msg || body)
+        } catch (parseErr) {
+          if (parseErr instanceof SyntaxError) throw new Error(body)
+          if (parseErr instanceof Error) throw parseErr
+          throw new Error(body)
+        }
+      }
       const daily = await dailyRes.json()
       const weekly = await weeklyRes.json()
       setDailyData(daily)

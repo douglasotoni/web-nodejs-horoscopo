@@ -168,8 +168,9 @@ async function seedZodiacData() {
     if (!signId) continue
     
     const expanded = expandToMinimum(impactPhrases, 30, (base, i) => {
+      const phrase = base[i % base.length]
       const signDisplay = signsData.find(s => s.name === signName)?.displayName || ''
-      return `${base} ${signDisplay}`
+      return `${phrase} ${signDisplay}`
     })
     
     await prisma.impactPhrase.deleteMany({ where: { signId } })
@@ -185,8 +186,9 @@ async function seedZodiacData() {
     if (!signId) continue
     
     const expanded = expandToMinimum(mantras, 30, (base, i) => {
+      const phrase = base[i % base.length]
       const signDisplay = signsData.find(s => s.name === signName)?.displayName || ''
-      return `${base} ${signDisplay}`
+      return `${phrase} ${signDisplay}`
     })
     
     await prisma.mantra.deleteMany({ where: { signId } })
