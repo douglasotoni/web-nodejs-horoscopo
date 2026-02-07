@@ -1,14 +1,204 @@
+/* ========== Fundo espacial: estrelas + nebulosas ========== */
 .page {
   min-height: 100vh;
-  background: linear-gradient(160deg, #0f0c29 0%, #1a1535 35%, #0d0d1a 100%);
   color: #e8e4f0;
+  position: relative;
+  isolation: isolate;
+}
+
+.spaceBg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 100% 50% at 80% 20%, rgba(30, 10, 50, 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(15, 5, 35, 0.6) 0%, transparent 55%),
+    radial-gradient(ellipse 120% 100% at 50% 50%, #0f0818 0%, #080410 50%, #030206 100%);
+}
+
+/* Camada base de névoa suave */
+.nebulaBase {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 30%,
+    rgba(88, 28, 135, 0.15) 0%,
+    rgba(59, 7, 100, 0.08) 30%,
+    transparent 60%
+  );
+  filter: blur(60px);
+  animation: nebulaFloat 25s ease-in-out infinite;
+}
+
+@keyframes nebulaFloat {
+  0%, 100% { opacity: 0.8; transform: scale(1) translate(0, 0); }
+  50% { opacity: 1; transform: scale(1.05) translate(2%, -1%); }
+}
+
+/* Nebulosas individuais - formato nuvem com múltiplos gradientes */
+.nebula {
+  position: absolute;
+  border-radius: 50%;
+  transform-origin: 50% 50%;
+  animation: nebulaRotate 90s linear infinite;
+}
+
+/* Nebulosa 1 - roxo/magenta grande, topo */
+.nebula1 {
+  width: 140%;
+  height: 85vh;
+  top: -25%;
+  left: -20%;
+  filter: blur(100px);
+  opacity: 0.7;
+  animation-duration: 110s;
+  animation-direction: reverse;
+  background: radial-gradient(
+    circle at 30% 40%,
+    rgba(147, 51, 234, 0.5) 0%,
+    rgba(126, 34, 206, 0.35) 25%,
+    rgba(88, 28, 135, 0.2) 50%,
+    transparent 70%
+  );
+}
+
+/* Nebulosa 2 - violeta, canto inferior direito */
+.nebula2 {
+  width: 100%;
+  height: 75vh;
+  bottom: -20%;
+  right: -15%;
+  filter: blur(90px);
+  opacity: 0.6;
+  background: radial-gradient(
+    circle at 60% 60%,
+    rgba(139, 92, 246, 0.45) 0%,
+    rgba(99, 102, 241, 0.25) 35%,
+    rgba(79, 70, 229, 0.12) 55%,
+    transparent 75%
+  );
+  animation: nebulaRotate 130s linear infinite, nebulaPulse 12s ease-in-out infinite;
+}
+
+/* Nebulosa 3 - centro-esquerda, azul-violeta */
+.nebula3 {
+  width: 80%;
+  height: 55vh;
+  top: 35%;
+  left: -10%;
+  filter: blur(85px);
+  opacity: 0.55;
+  animation-duration: 95s;
+  animation-direction: reverse;
+  background: radial-gradient(
+    circle at 40% 50%,
+    rgba(126, 34, 206, 0.35) 0%,
+    rgba(67, 56, 202, 0.2) 40%,
+    transparent 65%
+  );
+}
+
+/* Nebulosa 4 - azul profundo, meio da tela */
+.nebula4 {
+  width: 120%;
+  height: 70vh;
+  top: 15%;
+  left: -10%;
+  filter: blur(110px);
+  opacity: 0.4;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(49, 46, 129, 0.3) 0%,
+    rgba(37, 99, 235, 0.15) 30%,
+    transparent 60%
+  );
+  animation: nebulaRotate 140s linear infinite, nebulaPulse 15s ease-in-out infinite 1s;
+}
+
+/* Nebulosa 5 - rosa/violeta suave */
+.nebula5 {
+  width: 90%;
+  height: 50vh;
+  bottom: 10%;
+  left: 10%;
+  filter: blur(95px);
+  opacity: 0.5;
+  animation-duration: 100s;
+  animation-direction: reverse;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(192, 132, 252, 0.25) 0%,
+    rgba(167, 139, 250, 0.15) 40%,
+    transparent 70%
+  );
+}
+
+/* Nebulosa 6 - brilho central sutil (só pulso, sem rotação) */
+.nebula6 {
+  position: absolute;
+  width: 70%;
+  height: 50vh;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.4;
+  animation: nebulaPulse 18s ease-in-out infinite 0.5s;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(139, 92, 246, 0.25) 0%,
+    rgba(124, 58, 237, 0.12) 50%,
+    transparent 70%
+  );
+}
+
+@keyframes nebulaRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes nebulaPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.85; }
+}
+
+.starsLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  animation: starTwinkle ease-in-out infinite;
+  /* duration e delay vêm do inline style por estrela */
+}
+
+.starSmall { width: 2px; height: 2px; }
+.starMedium { width: 3px; height: 3px; }
+.starLarge { width: 4px; height: 4px; box-shadow: 0 0 6px rgba(255,255,255,0.8); }
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: var(--star-opacity-min, 0.4); transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.pageContent {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
 }
 
 .header {
   padding: 2.5rem 1.5rem 2rem;
   text-align: center;
-  background: linear-gradient(180deg, rgba(139, 92, 246, 0.12) 0%, transparent 100%);
-  border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+  background: linear-gradient(180deg, rgba(15, 12, 41, 0.85) 0%, rgba(10, 8, 28, 0.6) 100%);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  backdrop-filter: blur(8px);
 }
 
 .headerInner {
@@ -54,34 +244,6 @@
 
 .controls {
   margin-bottom: 2rem;
-}
-
-.tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
-}
-
-.tab {
-  padding: 0.6rem 1.2rem;
-  border: 1px solid rgba(139, 92, 246, 0.4);
-  border-radius: 8px;
-  background: rgba(30, 27, 50, 0.6);
-  color: #c4b5fd;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-
-.tab:hover {
-  background: rgba(139, 92, 246, 0.15);
-  border-color: rgba(139, 92, 246, 0.6);
-}
-
-.tabActive {
-  background: rgba(139, 92, 246, 0.35);
-  border-color: #8b5cf6;
-  color: #f5f3ff;
 }
 
 .filters {
@@ -305,6 +467,62 @@
   font-size: 1rem;
   color: #fff;
   box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+}
+
+.cardLuckyRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cardLuckyPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: #c4b5fd;
+  background: rgba(139, 92, 246, 0.25);
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.cardLuckyPillLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+}
+
+.cardSectionTitle {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #a78bfa;
+  margin: 0 0 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cardSectionTitle::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.4), transparent);
+}
+
+.cardSectionWeekly {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.cardWeeklyText {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #d4d0e0;
+  margin: 0;
 }
 
 /* ---- Corpo do card ---- */
