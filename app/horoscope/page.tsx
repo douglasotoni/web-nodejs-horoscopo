@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import { PageHeader } from '@/app/components/PageHeader'
+import { getSignDateRange } from '@/lib/zodiac-date'
 import styles from './horoscope.module.css'
 
 const SIGNS = [
@@ -363,6 +364,7 @@ export default function HoroscopePage() {
                           </div>
                           <div className={styles.cardTitleWrap}>
                             <h2 className={styles.cardTitle}>{signName(sign)}</h2>
+                            <p className={styles.cardSignDates}>{getSignDateRange(sign)}</p>
                             {(daily.element != null && daily.element !== '') || (daily.rulingPlanet != null && daily.rulingPlanet !== '') ? (
                               <div className={styles.cardMeta}>
                                 {daily.element != null && daily.element !== '' && (

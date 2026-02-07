@@ -437,6 +437,14 @@
   line-height: 1.25;
 }
 
+.cardSignDates {
+  font-size: 0.8rem;
+  color: #c4b5fd;
+  margin: 0.25rem 0 0;
+  font-weight: 500;
+  opacity: 0.95;
+}
+
 .cardMeta {
   display: flex;
   flex-wrap: wrap;

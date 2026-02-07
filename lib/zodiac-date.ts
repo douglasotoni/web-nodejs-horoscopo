@@ -48,6 +48,24 @@ const RANGES: [number, number, number, number][] = [
   [11, 22, 12, 21]   // Sagitário
 ]
 
+const MONTH_FULL: Record<number, string> = {
+  1: 'janeiro', 2: 'fevereiro', 3: 'março', 4: 'abril', 5: 'maio', 6: 'junho',
+  7: 'julho', 8: 'agosto', 9: 'setembro', 10: 'outubro', 11: 'novembro', 12: 'dezembro'
+}
+
+const SIGN_IDS_ORDER: SignFromDate['id'][] = [
+  'capricorn', 'aquarius', 'pisces', 'aries', 'taurus', 'gemini',
+  'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius'
+]
+
+/** Retorna o intervalo de datas do signo (ex.: "de 21 de março a 19 de abril") para exibição no card. */
+export function getSignDateRange(signId: string): string {
+  const i = SIGN_IDS_ORDER.indexOf(signId as SignFromDate['id'])
+  if (i < 0) return ''
+  const [startMes, startDia, endMes, endDia] = RANGES[i]
+  return `de ${startDia} de ${MONTH_FULL[startMes]} a ${endDia} de ${MONTH_FULL[endMes]}`
+}
+
 export function getSignFromDayMonth(dia: number, mes: number): SignFromDate {
   if (mes < 1 || mes > 12 || dia < 1 || dia > 31) return SIGNS[0]
   for (let i = 0; i < RANGES.length; i++) {
