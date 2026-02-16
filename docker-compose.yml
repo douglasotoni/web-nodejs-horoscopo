@@ -34,7 +34,7 @@ services:
       - NEXTAUTH_SECRET=your-secret-key-change-this-in-production-min-32-chars
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
-    command: ["sh", "-c", "npm install && npx prisma generate && npx prisma db push && (npx prisma db seed || echo 'Seed falhou; rode depois: docker compose exec web npx prisma db seed') && npm run dev"]
+    command: ["sh", "-c", "npm install && npx prisma generate && node scripts/wait-for-db.js && npx prisma db push && (npx prisma db seed || echo 'Seed falhou; rode depois: docker compose exec web npx prisma db seed') && npm run dev"]
     depends_on:
       postgres:
         condition: service_healthy
