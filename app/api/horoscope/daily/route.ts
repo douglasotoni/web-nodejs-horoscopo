@@ -43,7 +43,7 @@ async function getOrCreateDailyPrediction(
   }
 
   const generated = await generateDailyPrediction({ sign, weekday, isoWeek, isoYear })
-  const improvedText = await improveHoroscopeText(generated.text, sign, dateStr, tone)
+  const improvedText = await improveHoroscopeText(generated.text, sign, dateStr, tone, 'daily', generated.energyLevel)
   const finalText = (improvedText && improvedText.trim() !== '') ? improvedText.trim() : generated.text
   if (process.env.NODE_ENV === 'development' && improvedText) {
     console.log('[OpenRouter] Texto melhorado usado para', sign, dateStr)

@@ -46,9 +46,20 @@ function getApiKey(): string | null {
 export type HoroscopeContext = 'daily' | 'weekly'
 
 /**
+ * Descreve o nível de energia (1-10) em texto para o prompt da IA.
+ */
+function getEnergyContext(energyLevel: number | null | undefined): string {
+  if (energyLevel == null || energyLevel < 1 || energyLevel > 10) return ''
+  if (energyLevel <= 3) return ' A energia do dia para este signo está prevista como baixa (1-3/10): use linguagem que reflita calma, introspecção ou necessidade de descanso; evite sugerir muita agitação ou gasto de energia.'
+  if (energyLevel <= 6) return ' A energia do dia está em nível moderado (4-6/10): equilíbrio entre ação e descanso.'
+  return ' A energia do dia para este signo está prevista como alta (7-10/10): use linguagem que reflita vitalidade, disposição para ação e aproveitamento do pico de energia; mantenha o texto consistente com esse nível.'
+}
+
+/**
  * Envia o texto atual do horóscopo para o OpenRouter pedindo uma versão melhorada.
  * Retorna o texto melhorado ou null em caso de erro/timeout/chave ausente (use o texto original).
  * tone: opcional; define o tom da melhoria (bem_humorada, vibe_sertaneja, resumida).
+ * energyLevel: opcional; 1-10, para a IA manter a previsão consistente com muita/pouca energia.
  * context: 'daily' = previsão do dia; 'weekly' = previsão da semana (dateOrWeekStr é usado como rótulo).
  */
 export async function improveHoroscopeText(
@@ -56,7 +67,8 @@ export async function improveHoroscopeText(
   sign: string,
   dateOrWeekStr: string,
   tone?: ToneOption | string | null,
-  context: HoroscopeContext = 'daily'
+  context: HoroscopeContext = 'daily',
+  energyLevel?: number | null
 ): Promise<string | null> {
   const apiKey = getApiKey()
   if (!apiKey || originalText.trim() === '') {
@@ -68,7 +80,8 @@ export async function improveHoroscopeText(
     tone && TONE_OPTIONS.includes(tone as ToneOption)
       ? ` ${TONE_PROMPTS[tone as ToneOption]}`
       : ''
-  const systemPrompt = `Você é um revisor de textos de horóscopo. Sua tarefa é melhorar o texto recebido: deixá-lo mais fluido e envolvente, mantendo o tom de previsão astrológica e o mesmo significado. Responda apenas com o texto melhorado, em um único parágrafo, em português do Brasil. Não invente informações novas; preserve número da sorte e dados mencionados se existirem.${toneInstruction}`
+  const energyInstruction = getEnergyContext(energyLevel ?? null)
+  const systemPrompt = `Você é um revisor de textos de horóscopo. Sua tarefa é melhorar o texto recebido: deixá-lo mais fluido e envolvente, mantendo o tom de previsão astrológica e o mesmo significado. Responda apenas com o texto melhorado, em um único parágrafo, em português do Brasil. Não invente informações novas; preserve número da sorte e dados mencionados se existirem.${toneInstruction}${energyInstruction}`
   const periodLabel = context === 'weekly' ? `previsão da semana (${dateOrWeekStr})` : `data ${dateOrWeekStr}`
   const userPrompt = `Melhore este horóscopo ${context === 'weekly' ? 'da semana' : 'do dia'} para o signo de ${signName} - ${periodLabel}:\n\n${originalText}`
 
