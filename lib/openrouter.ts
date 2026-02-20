@@ -32,7 +32,7 @@ export type ToneOption = (typeof TONE_OPTIONS)[number]
 
 const TONE_PROMPTS: Record<ToneOption, string> = {
   bem_humorada: 'O texto melhorado deve ser bem humorado e leve: use um tom divertido e otimista, com toques de humor quando fizer sentido, sem perder o clima de horóscopo.',
-  vibe_sertaneja: 'O texto melhorado deve ter vibe sertaneja: use expressões e um jeito caloroso, romântico e “de raiz”, como nas letras de música sertaneja, mantendo o significado da previsão.',
+  vibe_sertaneja: 'O texto melhorado deve ter um tom sertanejo: use expressões e um jeito caloroso, romântico e “de raiz”, como nas letras de música sertaneja, mantendo o significado da previsão.',
   resumida: 'O texto melhorado deve ser resumido e direto: poucas frases, só o essencial da previsão, sem enrolação, em um único parágrafo curto.'
 }
 
@@ -41,6 +41,70 @@ function getApiKey(): string | null {
   if (!raw || typeof raw !== 'string') return null
   const key = raw.trim().replace(/^["']|["']$/g, '')
   return key.length > 0 ? key : null
+}
+
+const CHECK_TIMEOUT_MS = 10_000
+
+/**
+ * Verifica se a API OpenRouter está acessível e a chave é válida.
+ * Faz uma requisição mínima (uma palavra). Use para health check / diagnóstico.
+ */
+export async function checkOpenRouterConnection(): Promise<
+  { ok: true; model: string } | { ok: false; error: string }
+> {
+  const apiKey = getApiKey()
+  if (!apiKey) {
+    return { ok: false, error: 'OPENROUTER_API_KEY não configurada' }
+  }
+
+  const model = process.env.OPENROUTER_MODEL ?? DEFAULT_MODEL
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), CHECK_TIMEOUT_MS)
+
+  try {
+    const res = await fetch(OPENROUTER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: 'Responda apenas: OK' }],
+        max_tokens: 10,
+        temperature: 0
+      }),
+      signal: controller.signal
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => '')
+      const msg = body.slice(0, 200) || res.statusText
+      return { ok: false, error: `OpenRouter retornou ${res.status}: ${msg}` }
+    }
+
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string } }>
+      error?: { message?: string }
+    }
+
+    if (data.error?.message) {
+      return { ok: false, error: data.error.message }
+    }
+
+    const content = data.choices?.[0]?.message?.content?.trim()
+    if (content === undefined) {
+      return { ok: false, error: 'Resposta da OpenRouter sem conteúdo' }
+    }
+
+    return { ok: true, model }
+  } catch (err) {
+    clearTimeout(timeoutId)
+    const message = err instanceof Error ? err.message : String(err)
+    return { ok: false, error: message }
+  }
 }
 
 export type HoroscopeContext = 'daily' | 'weekly'
@@ -81,7 +145,7 @@ export async function improveHoroscopeText(
       ? ` ${TONE_PROMPTS[tone as ToneOption]}`
       : ''
   const energyInstruction = getEnergyContext(energyLevel ?? null)
-  const systemPrompt = `Você é um revisor de textos de horóscopo. Sua tarefa é melhorar o texto recebido: deixá-lo mais fluido e envolvente, mantendo o tom de previsão astrológica e o mesmo significado. Responda apenas com o texto melhorado, em um único parágrafo, em português do Brasil. Não invente informações novas; preserve número da sorte e dados mencionados se existirem.${toneInstruction}${energyInstruction}`
+  const systemPrompt = `Você é um revisor de textos de horóscopo. Sua tarefa é melhorar o texto recebido: deixá-lo mais fluido e envolvente, mantendo o tom de previsão astrológica e o mesmo significado. Responda apenas com o texto melhorado, em um único parágrafo, em português do Brasil. Não invente informações novas; preserve número da sorte e dados mencionados se existirem.${toneInstruction} e mude o tom da previsão vide nivel de energia previsto.${energyInstruction}`
   const periodLabel = context === 'weekly' ? `previsão da semana (${dateOrWeekStr})` : `data ${dateOrWeekStr}`
   const userPrompt = `Melhore este horóscopo ${context === 'weekly' ? 'da semana' : 'do dia'} para o signo de ${signName} - ${periodLabel}:\n\n${originalText}`
 

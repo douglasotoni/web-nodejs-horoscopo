@@ -15,14 +15,15 @@ export async function GET(req: NextRequest) {
     openapi: '3.0.3',
     info: {
       title: 'API Horóscopo',
-      description: 'API com endpoints de **Horóscopo** (previsão do dia e da semana por signo, reset), **Lua** (fase da lua e textos místicos) e **Famosos** (aniversariantes do mês).',
+      description: 'API com endpoints de **Horóscopo** (previsão do dia e da semana por signo, reset), **Lua** (fase da lua e textos místicos), **Famosos** (aniversariantes do mês) e **OpenRouter** (verificação do uso da IA).',
       version: '1.0.0'
     },
     servers: [{ url: baseUrl, description: 'Servidor atual' }],
     tags: [
       { name: 'Horóscopo', description: 'Previsão do dia, da semana e reset' },
       { name: 'Lua', description: 'Fase da lua e informações místicas' },
-      { name: 'Famosos', description: 'Aniversariantes do mês' }
+      { name: 'Famosos', description: 'Aniversariantes do mês' },
+      { name: 'OpenRouter', description: 'Verificação do uso da OpenRouter (IA)' }
     ],
     paths: {
       '/api/horoscope/daily': {
@@ -254,6 +255,46 @@ export async function GET(req: NextRequest) {
               content: {
                 'application/json': {
                   schema: { $ref: '#/components/schemas/Error' }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/openrouter/check': {
+        get: {
+          summary: 'Verificar uso da OpenRouter',
+          description: 'Verifica se a API está utilizando a OpenRouter com sucesso: chave configurada e requisição mínima à IA ok. Útil para health check ou diagnóstico.',
+          operationId: 'checkOpenRouter',
+          tags: ['OpenRouter'],
+          responses: {
+            '200': {
+              description: 'OpenRouter em uso com sucesso',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean', example: true },
+                      message: { type: 'string', example: 'OpenRouter está em uso com sucesso.' },
+                      model: { type: 'string', description: 'Modelo configurado (ex.: openai/gpt-3.5-turbo)' }
+                    }
+                  }
+                }
+              }
+            },
+            '503': {
+              description: 'OpenRouter não disponível ou não configurada',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean', example: false },
+                      message: { type: 'string' },
+                      error: { type: 'string', description: 'Detalhe do erro (ex.: chave não configurada, timeout)' }
+                    }
+                  }
                 }
               }
             }
