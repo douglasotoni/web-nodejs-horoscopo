@@ -1,9 +1,9 @@
 services:
   postgres:
     image: postgres:16
-    container_name: postgresql_db
+    container_name: postgresql_db_horoscopo
     ports:
-      - "5432:5432"
+      - "5435:5432"
     environment:
       POSTGRES_USER: usr_master
       POSTGRES_PASSWORD: "P#ssTu@5532"

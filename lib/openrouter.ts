@@ -36,6 +36,45 @@ const TONE_PROMPTS: Record<ToneOption, string> = {
   resumida: 'O texto melhorado deve ser resumido e direto: poucas frases, só o essencial da previsão, sem enrolação, em um único parágrafo curto.'
 }
 
+/** Substituições de linguagem neutra/inclusiva pelo português padrão (gentílicos dos signos e termos comuns). */
+const NEUTRAL_TO_STANDARD: Array<[RegExp, string]> = [
+  [/\barianx\b/gi, 'ariano'],
+  [/\bleoninx\b/gi, 'leonino'],
+  [/\btaurinx\b/gi, 'taurino'],
+  [/\bgemininx\b/gi, 'geminiano'],
+  [/\bcancerianx\b/gi, 'canceriano'],
+  [/\bvirginx\b/gi, 'virginiano'],
+  [/\blibrax\b/gi, 'libriano'],
+  [/\bescorpianx\b/gi, 'escorpiano'],
+  [/\bscorpiox\b/gi, 'escorpiano'],
+  [/\bsagittarix\b/gi, 'sagitariano'],
+  [/\bsagitarix\b/gi, 'sagitariano'],
+  [/\bcapricornx\b/gi, 'capricorniano'],
+  [/\baquarix\b/gi, 'aquariano'],
+  [/\bpiscianx\b/gi, 'pisciano'],
+  [/\btodes\b/gi, 'todos'],
+  [/\belu\b/gi, 'ele'],
+  [/\bamigue\b/gi, 'amigo'],
+  [/\bamigues\b/gi, 'amigos'],
+  [/\btodxs\b/gi, 'todos']
+]
+
+function toTitleCase(word: string): string {
+  if (!word.length) return word
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+}
+
+/** Remove linguagem neutra do texto (ex.: arianx → ariano, leoninx → leonino). */
+function removeNeutralLanguage(text: string): string {
+  let result = text
+  for (const [regex, standard] of NEUTRAL_TO_STANDARD) {
+    result = result.replace(regex, (match) =>
+      match.charAt(0) === match.charAt(0).toUpperCase() ? toTitleCase(standard) : standard
+    )
+  }
+  return result
+}
+
 function getApiKey(): string | null {
   const raw = process.env.OPENROUTER_API_KEY
   if (!raw || typeof raw !== 'string') return null
@@ -145,7 +184,7 @@ export async function improveHoroscopeText(
       ? ` ${TONE_PROMPTS[tone as ToneOption]}`
       : ''
   const energyInstruction = getEnergyContext(energyLevel ?? null)
-  const systemPrompt = `Você é um revisor de textos de horóscopo. Sua tarefa é melhorar o texto recebido: deixá-lo mais fluido e envolvente, mantendo o tom de previsão astrológica e o mesmo significado. Responda apenas com o texto melhorado, em um único parágrafo, em português do Brasil. Não invente informações novas; preserve número da sorte e dados mencionados se existirem.${toneInstruction} e mude o tom da previsão vide nivel de energia previsto.${energyInstruction}`
+  const systemPrompt = `Você é um revisor de textos de horóscopo. Sua tarefa é melhorar o texto recebido: deixá-lo mais fluido e envolvente, mantendo o tom de previsão astrológica e o mesmo significado. Responda apenas com o texto melhorado, em um único parágrafo, em português do Brasil. Não invente informações novas; preserve número da sorte e dados mencionados se existirem. Nunca use linguagem neutra ou inclusiva. Use exclusivamente português padrão com concordância de gênero. Para gentílicos dos signos use sempre: ariano (nunca arianx), taurino (nunca taurinx), geminiano (nunca gemininx), canceriano (nunca cancerianx), leonino (nunca leoninx), virginiano (nunca virginx), libriano (nunca librax), escorpiano (nunca escorpianx/scorpiox), sagitariano (nunca sagittarix), capricorniano (nunca capricornx), aquariano (nunca aquarix), pisciano (nunca piscianx). Evite todes, elu, amigue, -x; use todos/todas, ele/ela, amigo/amiga.${toneInstruction} e mude o tom da previsão vide nivel de energia previsto.${energyInstruction}`
   const periodLabel = context === 'weekly' ? `previsão da semana (${dateOrWeekStr})` : `data ${dateOrWeekStr}`
   const userPrompt = `Melhore este horóscopo ${context === 'weekly' ? 'da semana' : 'do dia'} para o signo de ${signName} - ${periodLabel}:\n\n${originalText}`
 
@@ -192,7 +231,7 @@ export async function improveHoroscopeText(
     const content = data.choices?.[0]?.message?.content?.trim()
     if (!content) return null
 
-    return content
+    return removeNeutralLanguage(content)
   } catch (err) {
     clearTimeout(timeoutId)
     if (err instanceof Error) {
@@ -217,7 +256,7 @@ export async function improveMoonPhaseTexts(
     return null
   }
 
-  const systemPrompt = `Você é um revisor de textos sobre fases da lua e astrologia. Sua tarefa é melhorar dois textos curtos: um sobre "Energia e simbolismo" da fase lunar e outro com "Conselho" para o período. Mantenha o significado, deixe mais fluido e envolvente, em português do Brasil. Não invente dados novos.
+  const systemPrompt = `Você é um revisor de textos sobre fases da lua e astrologia. Sua tarefa é melhorar dois textos curtos: um sobre "Energia e simbolismo" da fase lunar e outro com "Conselho" para o período. Mantenha o significado, deixe mais fluido e envolvente, em português do Brasil. Não invente dados novos. Nunca use linguagem neutra ou inclusiva. Use exclusivamente português padrão; para signos use ariano, leonino, taurino, geminiano, canceriano, virginiano, libriano, escorpiano, sagitariano, capricorniano, aquariano, pisciano (nunca arianx, leoninx, etc.).
 Responda EXATAMENTE no formato abaixo, sem outros textos antes ou depois:
 ENERGIA:
 (um único parágrafo com o texto melhorado da energia/simbolismo)
@@ -285,8 +324,8 @@ Melhore ambos e responda no formato ENERGIA: / CONSELHO: pedido.`
     if (!improvedMystical && !improvedAdvice) return null
 
     return {
-      mystical: improvedMystical && improvedMystical.length > 0 ? improvedMystical : mystical,
-      advice: improvedAdvice && improvedAdvice.length > 0 ? improvedAdvice : advice
+      mystical: improvedMystical && improvedMystical.length > 0 ? removeNeutralLanguage(improvedMystical) : mystical,
+      advice: improvedAdvice && improvedAdvice.length > 0 ? removeNeutralLanguage(improvedAdvice) : advice
     }
   } catch (err) {
     clearTimeout(timeoutId)
