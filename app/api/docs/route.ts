@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 const signEnum = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'] as const
 
 function getBaseUrl(req: NextRequest): string {
-  const host = req.headers.get('host') || 'localhost:3000'
+  const host = req.headers.get('host') || 'localhost:3002'
   const protocol = req.headers.get('x-forwarded-proto') || 'http'
   return `${protocol}://${host}`
 }
