@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { parseDateToContext } from '@/lib/utils'
 import { generateDailyPrediction } from '@/lib/generator'
-import { improveHoroscopeText } from '@/lib/openrouter'
+import { improveHoroscopeText, improveDailyExtraTexts } from '@/lib/openrouter'
 import type { Sign, Weekday } from '@prisma/client'
 
 const SIGNS: Sign[] = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
@@ -43,10 +43,24 @@ async function getOrCreateDailyPrediction(
   }
 
   const generated = await generateDailyPrediction({ sign, weekday, isoWeek, isoYear })
-  const improvedText = await improveHoroscopeText(generated.text, sign, dateStr, tone, 'daily', generated.energyLevel)
+  const [improvedText, improvedExtra] = await Promise.all([
+    improveHoroscopeText(generated.text, sign, dateStr, tone, 'daily', generated.energyLevel),
+    improveDailyExtraTexts(sign, dateStr, {
+      crystal: generated.crystal,
+      careerAdvice: generated.careerAdvice,
+      practicalAdvice: generated.practicalAdvice,
+      loveAdvice: generated.loveAdvice
+    }, tone)
+  ])
   const finalText = (improvedText && improvedText.trim() !== '') ? improvedText.trim() : generated.text
-  if (process.env.NODE_ENV === 'development' && improvedText) {
-    console.log('[OpenRouter] Texto melhorado usado para', sign, dateStr)
+  const extra = improvedExtra ?? {
+    crystal: generated.crystal,
+    careerAdvice: generated.careerAdvice,
+    practicalAdvice: generated.practicalAdvice,
+    loveAdvice: generated.loveAdvice
+  }
+  if (process.env.NODE_ENV === 'development' && (improvedText || improvedExtra)) {
+    console.log('[OpenRouter] Texto(s) melhorado(s) usado(s) para', sign, dateStr)
   }
 
   const data = {
@@ -59,7 +73,7 @@ async function getOrCreateDailyPrediction(
     luckyColorId: toId(generated.luckyColorId),
     emotion: generated.emotion,
     emotionId: toId(generated.emotionId),
-    practicalAdvice: generated.practicalAdvice,
+    practicalAdvice: extra.practicalAdvice,
     practicalAdviceId: toId(generated.practicalAdviceId),
     compatibleSigns: generated.compatibleSigns,
     numerologyMeaning: generated.numerologyMeaning,
@@ -70,13 +84,13 @@ async function getOrCreateDailyPrediction(
     dailyAlert: generated.dailyAlert,
     dailyAlertId: toId(generated.dailyAlertId),
     energyLevel: generated.energyLevel,
-    crystal: generated.crystal,
+    crystal: extra.crystal,
     crystalId: toId(generated.crystalId),
     mantra: generated.mantra,
     mantraId: toId(generated.mantraId),
-    loveAdvice: generated.loveAdvice,
+    loveAdvice: extra.loveAdvice,
     loveAdviceId: toId(generated.loveAdviceId),
-    careerAdvice: generated.careerAdvice,
+    careerAdvice: extra.careerAdvice,
     careerAdviceId: toId(generated.careerAdviceId),
     status: 'published' as const
   }

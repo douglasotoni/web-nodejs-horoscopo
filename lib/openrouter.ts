@@ -335,3 +335,118 @@ Melhore ambos e responda no formato ENERGIA: / CONSELHO: pedido.`
     return null
   }
 }
+
+export type DailyExtraTexts = {
+  crystal: string
+  careerAdvice: string
+  practicalAdvice: string
+  loveAdvice: string
+}
+
+/**
+ * Melhora os textos de Cristal, Carreira, Conselho prático e Amor da previsão do dia.
+ * Uma única chamada à IA; retorna os quatro textos melhorados ou null em caso de erro.
+ */
+export async function improveDailyExtraTexts(
+  sign: string,
+  dateStr: string,
+  texts: DailyExtraTexts,
+  tone?: ToneOption | string | null
+): Promise<DailyExtraTexts | null> {
+  const apiKey = getApiKey()
+  const hasAny = [texts.crystal, texts.careerAdvice, texts.practicalAdvice, texts.loveAdvice].some((t) => t?.trim())
+  if (!apiKey || !hasAny) return null
+
+  const signName = getSignName(sign)
+  const toneInstruction =
+    tone && TONE_OPTIONS.includes(tone as ToneOption) ? ` ${TONE_PROMPTS[tone as ToneOption]}` : ''
+  const systemPrompt = `Você é um revisor de textos de horóscopo. Melhore os quatro textos curtos abaixo (Cristal, Carreira, Conselho prático, Amor) para o signo de ${signName} na data ${dateStr}: deixe cada um mais fluido e envolvente, mantendo o significado e o tom de previsão astrológica. Responda em português do Brasil. Não invente informações novas. Nunca use linguagem neutra ou inclusiva; use português padrão com concordância de gênero (ariano, leonino, etc., nunca arianx, leoninx).${toneInstruction}
+Responda EXATAMENTE no formato abaixo, sem outros textos antes ou depois:
+CRISTAL:
+(uma linha ou frase curta melhorada para o cristal do dia)
+CARREIRA:
+(uma linha ou frase curta melhorada para conselho de carreira)
+CONSELHO_PRATICO:
+(uma linha ou frase curta melhorada para conselho prático)
+AMOR:
+(uma linha ou frase curta melhorada para conselho amoroso)`
+
+  const userPrompt = `Signo: ${signName} - Data: ${dateStr}
+
+Cristal atual: ${(texts.crystal || '').trim() || '(vazio)'}
+Carreira atual: ${(texts.careerAdvice || '').trim() || '(vazio)'}
+Conselho prático atual: ${(texts.practicalAdvice || '').trim() || '(vazio)'}
+Amor atual: ${(texts.loveAdvice || '').trim() || '(vazio)'}
+
+Melhore cada um e responda no formato CRISTAL: / CARREIRA: / CONSELHO_PRATICO: / AMOR: pedido.`
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
+  try {
+    const res = await fetch(OPENROUTER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: process.env.OPENROUTER_MODEL ?? DEFAULT_MODEL,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 600,
+        temperature: 0.5
+      }),
+      signal: controller.signal
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => '')
+      console.warn('[OpenRouter] Daily extra texts:', res.status, body.slice(0, 200))
+      return null
+    }
+
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string } }>
+      error?: { message?: string }
+    }
+
+    if (data.error?.message) {
+      console.warn('[OpenRouter]', data.error.message)
+      return null
+    }
+
+    const content = data.choices?.[0]?.message?.content?.trim()
+    if (!content) return null
+
+    const crystalMatch = content.match(/CRISTAL:\s*([\s\S]*?)(?=CARREIRA:|$)/i)
+    const careerMatch = content.match(/CARREIRA:\s*([\s\S]*?)(?=CONSELHO_PRATICO:|$)/i)
+    const practicalMatch = content.match(/CONSELHO_PRATICO:\s*([\s\S]*?)(?=AMOR:|$)/i)
+    const loveMatch = content.match(/AMOR:\s*([\s\S]*?)$/im)
+
+    const improvedCrystal = crystalMatch?.[1]?.trim()
+    const improvedCareer = careerMatch?.[1]?.trim()
+    const improvedPractical = practicalMatch?.[1]?.trim()
+    const improvedLove = loveMatch?.[1]?.trim()
+
+    const fallback = (improved: string | undefined, original: string) =>
+      improved && improved.length > 0 ? removeNeutralLanguage(improved) : original
+
+    return {
+      crystal: fallback(improvedCrystal, texts.crystal || ''),
+      careerAdvice: fallback(improvedCareer, texts.careerAdvice || ''),
+      practicalAdvice: fallback(improvedPractical, texts.practicalAdvice || ''),
+      loveAdvice: fallback(improvedLove, texts.loveAdvice || '')
+    }
+  } catch (err) {
+    clearTimeout(timeoutId)
+    if (err instanceof Error) {
+      console.warn('[OpenRouter]', err.message)
+    }
+    return null
+  }
+}
