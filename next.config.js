@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // CORS é aplicado no middleware.ts (permite diversos domínios; opcional ALLOWED_ORIGINS)
   // Configuração para hot reload no Docker
   webpackDevMiddleware: (config) => {
     config.watchOptions = {

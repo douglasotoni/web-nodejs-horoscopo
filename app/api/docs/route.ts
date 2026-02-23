@@ -4,8 +4,15 @@ const signEnum = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra'
 
 function getBaseUrl(req: NextRequest): string {
   const host = req.headers.get('host') || 'localhost:3002'
-  const protocol = req.headers.get('x-forwarded-proto') || 'http'
-  return `${protocol}://${host}`
+  let protocol = req.headers.get('x-forwarded-proto') || ''
+  if (protocol !== 'http' && protocol !== 'https') {
+    protocol = host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https'
+  }
+  const baseUrl = `${protocol}://${host}`
+  if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+    return `https://${host}`
+  }
+  return baseUrl
 }
 
 export async function GET(req: NextRequest) {
