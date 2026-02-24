@@ -8,6 +8,18 @@ interface GeneratorContext {
   isoYear: number
 }
 
+/** Remove prefixos/sufixos do seed (Valorize, É importante, etc.) para exibir só o nome da cor. */
+export function normalizeLuckyColorDisplay(text: string): string {
+  if (!text || typeof text !== 'string') return text
+  let s = text.trim()
+  const prefixes = [/^É importante\s+/i, /^Recomenda-se\s+/i, /^Mantenha\s+/i, /^Valorize\s+/i, /^Foque em\s+/i, /^Seja\s+/i, /^Demonstre\s+/i]
+  for (const p of prefixes) {
+    s = s.replace(p, '')
+  }
+  s = s.replace(/\s+hoje\s*$/i, '').replace(/\s+neste período\s*$/i, '').trim()
+  return s || text
+}
+
 // Temas expandidos por signo (12-15 temas cada)
 const signThemes: Record<Sign, string[]> = {
   aries: [
@@ -371,31 +383,136 @@ const moonPhaseThemes: Record<'new' | 'waxing' | 'full' | 'waning', string[]> = 
   ]
 }
 
-// Frases específicas por fase da lua
+// Frases específicas por fase da lua (máx. 30 por fase)
 const moonPhaseMessages: Record<'new' | 'waxing' | 'full' | 'waning', string[]> = {
   new: [
     'A Lua Nova favorece novos começos e plantio de sementes.',
     'Este é um momento propício para estabelecer novas intenções.',
     'A energia da Lua Nova traz oportunidades de renovação.',
-    'Momento ideal para planejar e refletir sobre seus objetivos.'
+    'Momento ideal para planejar e refletir sobre seus objetivos.',
+    'A Lua Nova convida a semear projetos e sonhos.',
+    'Renovação e recomeço estão favorecidos nesta fase.',
+    'Planeje com calma; a Lua Nova apoia o que você iniciar.',
+    'Momento de deixar para trás o que não serve mais.',
+    'A energia da Lua Nova favorece silêncio e introspecção.',
+    'Estabeleça metas e visualize o que deseja conquistar.',
+    'A Lua Nova traz clareza para novos caminhos.',
+    'Ideal para rituais de intenção e planejamento.',
+    'Aproveite esta fase para organizar ideias e prioridades.',
+    'A Lua Nova amplifica o poder de decisão.',
+    'Momento propício para conversas importantes e acordos.',
+    'Semeie agora o que deseja colher no próximo ciclo.',
+    'A energia lunar nova favorece criatividade e inovação.',
+    'Reflita sobre o que realmente importa para você.',
+    'A Lua Nova convida a limpar o que está pesado.',
+    'Inicie hoje um hábito ou projeto que deseja manter.',
+    'Momento de confiar no recomeço e no futuro.',
+    'A Lua Nova traz esperança e disposição para começar.',
+    'Estabeleça limites e intenções com clareza.',
+    'Aproveite o céu escuro para olhar para dentro.',
+    'A Lua Nova favorece meditação e autoconhecimento.',
+    'Planeje a semana ou o mês com foco no que importa.',
+    'Momento de pedir ao universo o que deseja atrair.',
+    'A energia da Lua Nova apoia mudanças positivas.',
+    'Deixe a intuição guiar suas novas escolhas.',
+    'A Lua Nova é porta de entrada para novos ciclos.'
   ],
   waxing: [
     'A Lua Crescente favorece o crescimento e desenvolvimento.',
     'Este período é ideal para colocar planos em ação.',
     'A energia crescente da lua apoia seus projetos.',
-    'Momento de construir e expandir suas realizações.'
+    'Momento de construir e expandir suas realizações.',
+    'A Lua Crescente amplifica esforços e dedicação.',
+    'Avance com confiança; o período favorece progresso.',
+    'Momento de investir em estudos e habilidades.',
+    'A energia da lua crescente apoia parcerias e acordos.',
+    'Construa passo a passo o que você planejou.',
+    'A Lua Crescente favorece comunicação e divulgação.',
+    'Aproveite para dar visibilidade a projetos e ideias.',
+    'Momento de nutrir o que foi iniciado na Lua Nova.',
+    'A energia crescente traz vitalidade e otimismo.',
+    'Avance em negociações e conversas importantes.',
+    'A Lua Crescente favorece trabalho em equipe.',
+    'Momento de somar forças com quem compartilha seus objetivos.',
+    'A lua crescente apoia expansão e novos aprendizados.',
+    'Invista em saúde e hábitos que fortaleçam você.',
+    'A energia da fase crescente favorece perseverança.',
+    'Momento de corrigir rotas e ajustar planos.',
+    'A Lua Crescente traz clareza para próximos passos.',
+    'Aproveite para consolidar relacionamentos e parcerias.',
+    'A energia crescente da lua favorece criatividade em ação.',
+    'Momento de pedir apoio e mostrar seu trabalho.',
+    'A Lua Crescente amplifica resultados de esforço contínuo.',
+    'Avance em metas que exigem tempo e dedicação.',
+    'A lua crescente apoia decisões tomadas com calma.',
+    'Momento de expandir horizontes e conhecer o novo.',
+    'A energia da fase favorece crescimento pessoal.',
+    'A Lua Crescente convida a não desistir no meio do caminho.',
+    'Momento de construir a base do que virá na Lua Cheia.'
   ],
   full: [
     'A Lua Cheia traz clareza e culminação de processos.',
     'Este é um momento de realização e celebração.',
     'A energia da Lua Cheia intensifica emoções e intuições.',
-    'Momento de colher os frutos de seus esforços.'
+    'Momento de colher os frutos de seus esforços.',
+    'A Lua Cheia ilumina o que estava na sombra.',
+    'Emoções e sentimentos podem ficar mais à flor da pele.',
+    'Momento de celebrar conquistas e agradecer.',
+    'A energia da Lua Cheia favorece conclusões e fechamentos.',
+    'Revele o que precisa ser visto; a lua ilumina tudo.',
+    'Momento propício para rituais de gratidão e abundância.',
+    'A Lua Cheia amplifica intuição e percepção.',
+    'Aproveite para encerrar ciclos que já cumpriram seu papel.',
+    'A energia da lua cheia favorece encontros e celebrações.',
+    'Momento de ver com clareza o que está funcionando ou não.',
+    'A Lua Cheia convida a honrar seu caminho e suas escolhas.',
+    'Emoções intensas podem pedir expressão e cuidado.',
+    'Momento de compartilhar resultados e reconhecimento.',
+    'A energia da Lua Cheia apoia perdão e liberação.',
+    'Deixe ir o que não cabe mais na sua história.',
+    'A Lua Cheia favorece visibilidade e reconhecimento.',
+    'Momento de equilibrar dar e receber.',
+    'A energia da lua cheia intensifica sonhos e desejos.',
+    'Aproveite para meditar ou contemplar sob a lua.',
+    'A Lua Cheia traz revelações e insights importantes.',
+    'Momento de fechar acordos e consolidar parcerias.',
+    'A energia da fase favorece criatividade e expressão.',
+    'Celebre sua jornada e a de quem caminha com você.',
+    'A Lua Cheia ilumina caminhos e decisões.',
+    'Momento de colher reconhecimento e gratidão.',
+    'A energia da Lua Cheia convida a clareza e verdade.'
   ],
   waning: [
     'A Lua Minguante favorece reflexão e liberação.',
     'Este período é ideal para finalizar e deixar ir.',
     'A energia minguante da lua apoia a conclusão de ciclos.',
-    'Momento de preparação para novos começos que virão.'
+    'Momento de preparação para novos começos que virão.',
+    'A Lua Minguante convida a descansar e repor energias.',
+    'Ideal para limpar ambientes, hábitos e pensamentos.',
+    'Momento de perdoar e soltar o que pesa.',
+    'A energia minguante favorece organização e arrumação.',
+    'Conclua pendências antes da próxima Lua Nova.',
+    'A Lua Minguante apoia desapego e liberação.',
+    'Momento de reduzir ritmo e priorizar repouso.',
+    'A energia da lua minguante favorece introspecção.',
+    'Aproveite para revisar projetos e ajustar o que for preciso.',
+    'A Lua Minguante convida a guardar energia para o novo ciclo.',
+    'Momento de encerrar conversas e ciclos antigos.',
+    'A energia minguante favorece desintoxicação e limpeza.',
+    'Deixe ir crenças e padrões que não servem mais.',
+    'A Lua Minguante apoia finalizações e entregas.',
+    'Momento de agradecer e fechar o que foi concluído.',
+    'A energia da fase favorece silêncio e escuta interior.',
+    'Reduza compromissos desnecessários e preserve sua energia.',
+    'A Lua Minguante traz clareza sobre o que deve ser solto.',
+    'Momento de organizar papéis, contas e obrigações.',
+    'A energia minguante apoia conclusão de tratamentos ou ciclos.',
+    'Aproveite para dormir bem e cuidar da saúde.',
+    'A Lua Minguante convida a confiar no que virá.',
+    'Momento de preparar o terreno para novas sementes.',
+    'A energia da lua minguante favorece gratidão e desapego.',
+    'Encerre o ciclo com leveza e abertura para o novo.',
+    'A Lua Minguante é o momento de descansar antes de recomeçar.'
   ]
 }
 
@@ -469,107 +586,167 @@ export const luckyColors: Record<Sign, string[]> = {
   pisces: ['verde água', 'roxo', 'azul claro', 'rosa']
 }
 
-// 4. Emoções específicas por signo
+// 4. Emoções específicas por signo (ampliado para diversidade nas 100 variações)
 export const emotions: Record<Sign, string[]> = {
-  aries: ['coragem', 'entusiasmo', 'determinação', 'confiança', 'impulsividade'],
-  taurus: ['tranquilidade', 'prazer', 'satisfação', 'estabilidade', 'sensualidade'],
-  gemini: ['curiosidade', 'alegria', 'versatilidade', 'inquietação', 'entusiasmo'],
-  cancer: ['sensibilidade', 'nostalgia', 'proteção', 'carinho', 'intuição'],
-  leo: ['orgulho', 'generosidade', 'alegria', 'confiança', 'criatividade'],
-  virgo: ['precisão', 'modéstia', 'preocupação', 'organização', 'discernimento'],
-  libra: ['harmonia', 'beleza', 'diplomacia', 'equilíbrio', 'romance'],
-  scorpio: ['intensidade', 'paixão', 'mistério', 'transformação', 'profundidade'],
-  sagittarius: ['liberdade', 'otimismo', 'aventura', 'filosofia', 'expansão'],
-  capricorn: ['ambição', 'disciplina', 'responsabilidade', 'realismo', 'perseverança'],
-  aquarius: ['originalidade', 'liberdade', 'humanitarismo', 'inovação', 'independência'],
-  pisces: ['intuição', 'compaixão', 'sonhos', 'espiritualidade', 'empatia']
+  aries: ['coragem', 'entusiasmo', 'determinação', 'confiança', 'impulsividade', 'coragem', 'ousadia', 'iniciativa', 'vitalidade', 'liderança'],
+  taurus: ['tranquilidade', 'prazer', 'satisfação', 'estabilidade', 'sensualidade', 'paciência', 'persistência', 'conforto', 'segurança', 'gratidão'],
+  gemini: ['curiosidade', 'alegria', 'versatilidade', 'inquietação', 'entusiasmo', 'comunicação', 'adaptabilidade', 'leveza', 'intelecto', 'sociabilidade'],
+  cancer: ['sensibilidade', 'nostalgia', 'proteção', 'carinho', 'intuição', 'acolhimento', 'empatia', 'memória', 'emotividade', 'cuidado'],
+  leo: ['orgulho', 'generosidade', 'alegria', 'confiança', 'criatividade', 'dignidade', 'calor humano', 'expressão', 'magnanimidade', 'vitalidade'],
+  virgo: ['precisão', 'modéstia', 'preocupação', 'organização', 'discernimento', 'praticidade', 'serviço', 'análise', 'humildade', 'eficência'],
+  libra: ['harmonia', 'beleza', 'diplomacia', 'equilíbrio', 'romance', 'justiça', 'parceria', 'estética', 'sociabilidade', 'graça'],
+  scorpio: ['intensidade', 'paixão', 'mistério', 'transformação', 'profundidade', 'poder', 'regeneração', 'investigação', 'lealdade', 'resiliência'],
+  sagittarius: ['liberdade', 'otimismo', 'aventura', 'filosofia', 'expansão', 'sabedoria', 'honestidade', 'exploração', 'humor', 'visão'],
+  capricorn: ['ambição', 'disciplina', 'responsabilidade', 'realismo', 'perseverança', 'estrutura', 'autoridade', 'paciência', 'conquista', 'dever'],
+  aquarius: ['originalidade', 'liberdade', 'humanitarismo', 'inovação', 'independência', 'idealismo', 'amizade', 'rebeldia', 'visão de futuro', 'igualdade'],
+  pisces: ['intuição', 'compaixão', 'sonhos', 'espiritualidade', 'empatia', 'criatividade', 'adaptação', 'sacrifício', 'transcendência', 'sensibilidade']
 }
 
-// 5. Conselhos práticos por signo
+// 5. Conselhos práticos por signo (ampliado para diversidade nas 100 variações)
 export const practicalAdvices: Record<Sign, string[]> = {
   aries: [
     'Inicie um novo projeto hoje',
     'Tome uma decisão importante',
     'Faça exercícios físicos',
     'Expresse sua opinião com confiança',
-    'Assuma a liderança em uma situação'
+    'Assuma a liderança em uma situação',
+    'Enfrente um desafio com coragem',
+    'Dê o primeiro passo em algo adiado',
+    'Seja assertivo sem agressividade',
+    'Aproveite o pico de energia',
+    'Evite decisões por impulso'
   ],
   taurus: [
     'Dedique tempo para relaxar',
     'Aprecie uma boa refeição',
     'Cuidar do jardim ou plantas',
     'Organize seu espaço pessoal',
-    'Valorize os momentos de prazer'
+    'Valorize os momentos de prazer',
+    'Cuide do corpo com carinho',
+    'Evite gastos por impulso',
+    'Mantenha a calma em discussões',
+    'Aprecie arte ou música',
+    'Fortaleça vínculos estáveis'
   ],
   gemini: [
     'Leia um livro interessante',
     'Converse com pessoas novas',
     'Aprenda algo novo hoje',
     'Escreva suas ideias',
-    'Faça networking'
+    'Faça networking',
+    'Organize suas informações',
+    'Evite dispersão em múltiplas tarefas',
+    'Ouça mais do que fale quando necessário',
+    'Troque ideias com alguém',
+    'Anote insights do dia'
   ],
   cancer: [
     'Passe tempo com a família',
     'Cozinhe algo especial',
     'Cuide de alguém querido',
     'Reflita sobre suas emoções',
-    'Crie um ambiente acolhedor'
+    'Crie um ambiente acolhedor',
+    'Proteja seu tempo de descanso',
+    'Evite guardar rancor',
+    'Converse sobre sentimentos',
+    'Cuide da casa ou do lar',
+    'Respeite sua sensibilidade'
   ],
   leo: [
     'Expresse sua criatividade',
     'Celebre suas conquistas',
     'Compartilhe sua alegria',
     'Faça algo que te divirta',
-    'Seja generoso com os outros'
+    'Seja generoso com os outros',
+    'Aceite elogios com graça',
+    'Evite competir por atenção',
+    'Liderar com exemplo',
+    'Divirta-se sem culpa',
+    'Reconheça o valor dos outros'
   ],
   virgo: [
     'Organize sua rotina',
     'Cuide da sua saúde',
     'Revise detalhes importantes',
     'Faça uma lista de tarefas',
-    'Pratique mindfulness'
+    'Pratique mindfulness',
+    'Evite criticar em excesso',
+    'Priorize o que é essencial',
+    'Descanse a mente',
+    'Aceite imperfeições',
+    'Faça uma coisa de cada vez'
   ],
   libra: [
     'Harmonize seu ambiente',
     'Passe tempo com seu parceiro',
     'Aprecie arte e beleza',
     'Busque equilíbrio nas decisões',
-    'Seja diplomático em conflitos'
+    'Seja diplomático em conflitos',
+    'Evite adiar decisões importantes',
+    'Cultive parcerias',
+    'Ouça os dois lados',
+    'Cuide da estética pessoal',
+    'Negocie com fair play'
   ],
   scorpio: [
     'Explore sua intuição',
     'Transforme algo em sua vida',
     'Aprofunde um relacionamento',
     'Investigue algo que te intriga',
-    'Libere o que não serve mais'
+    'Libere o que não serve mais',
+    'Evite controle excessivo',
+    'Conte com alguém de confiança',
+    'Renove-se por dentro',
+    'Proteja sua privacidade',
+    'Use a intensidade a seu favor'
   ],
   sagittarius: [
     'Planeje uma viagem',
     'Explore novos lugares',
     'Estude algo que te interessa',
     'Pratique esportes',
-    'Compartilhe sua filosofia'
+    'Compartilhe sua filosofia',
+    'Evite promessas que não pode cumprir',
+    'Mantenha a palavra',
+    'Abra a mente para outras crenças',
+    'Aventure-se com responsabilidade',
+    'Ensine ou aprenda algo'
   ],
   capricorn: [
     'Trabalhe em seus objetivos',
     'Planeje o futuro',
     'Assuma responsabilidades',
     'Demonstre sua competência',
-    'Construa algo duradouro'
+    'Construa algo duradouro',
+    'Reserve tempo para si',
+    'Evite trabalhar demais',
+    'Reconheça pequenas vitórias',
+    'Mantenha a disciplina',
+    'Cuide da saúde física'
   ],
   aquarius: [
     'Inove em algo',
     'Conecte-se com grupos',
     'Apoie uma causa social',
     'Use tecnologia criativamente',
-    'Seja original e autêntico'
+    'Seja original e autêntico',
+    'Ouça amigos e comunidade',
+    'Evite distanciamento emocional',
+    'Colabore em projetos',
+    'Quebre uma rotina',
+    'Defenda suas ideias'
   ],
   pisces: [
     'Pratique meditação',
     'Expresse sua criatividade',
     'Ajude alguém necessitado',
     'Conecte-se com sua espiritualidade',
-    'Confie em sua intuição'
+    'Confie em sua intuição',
+    'Evite fugir da realidade',
+    'Coloque limites quando necessário',
+    'Arte ou música podem curar',
+    'Descanse em natureza ou silêncio',
+    'Acredite nos seus sonhos'
   ]
 }
 
@@ -724,19 +901,20 @@ export const dailyAlerts: Record<Sign, string[]> = {
   ]
 }
 
+// Cristais por signo (ampliado para diversidade nas 100 variações)
 export const crystals: Record<Sign, string[]> = {
-  aries: ['Rubi', 'Ágata de fogo', 'Jaspe vermelho', 'Coral', 'Granada'],
-  taurus: ['Esmeralda', 'Quartzo rosa', 'Ágata musgo', 'Lápis-lazúli', 'Jade'],
-  gemini: ['Ágata', 'Citrino', 'Topázio amarelo', 'Ámbar', 'Calcita'],
-  cancer: ['Pérola', 'Quartzo rosa', 'Opala', 'Água-marinha', 'Lua'],
-  leo: ['Topázio', 'Citrino', 'Âmbar', 'Olho de tigre', 'Pirita'],
-  virgo: ['Safira', 'Jaspe', 'Ágata musgo', 'Peridoto', 'Amazonita'],
-  libra: ['Opala', 'Quartzo rosa', 'Lápis-lazúli', 'Água-marinha', 'Turquesa'],
-  scorpio: ['Obsidiana', 'Ágata musgo', 'Granada', 'Turmalina preta', 'Jaspe vermelho'],
-  sagittarius: ['Turquesa', 'Lápis-lazúli', 'Sodalita', 'Ametista', 'Topázio azul'],
-  capricorn: ['Ônix', 'Quartzo fumê', 'Obsidiana', 'Ágata', 'Hematita'],
-  aquarius: ['Ametista', 'Quartzo cristal', 'Sodalita', 'Lápis-lazúli', 'Água-marinha'],
-  pisces: ['Água-marinha', 'Ametista', 'Quartzo rosa', 'Opala', 'Pérola']
+  aries: ['Rubi', 'Ágata de fogo', 'Jaspe vermelho', 'Coral', 'Granada', 'Carnélia', 'Hematita'],
+  taurus: ['Esmeralda', 'Quartzo rosa', 'Ágata musgo', 'Lápis-lazúli', 'Jade', 'Rodocrosita', 'Quartzo verde'],
+  gemini: ['Ágata', 'Citrino', 'Topázio amarelo', 'Ámbar', 'Calcita', 'Quartzo azul', 'Crisoprásio'],
+  cancer: ['Pérola', 'Quartzo rosa', 'Opala', 'Água-marinha', 'Lua', 'Esmeralda', 'Calcedônia'],
+  leo: ['Topázio', 'Citrino', 'Âmbar', 'Olho de tigre', 'Pirita', 'Rubi', 'Granada'],
+  virgo: ['Safira', 'Jaspe', 'Ágata musgo', 'Peridoto', 'Amazonita', 'Citrino', 'Jade'],
+  libra: ['Opala', 'Quartzo rosa', 'Lápis-lazúli', 'Água-marinha', 'Turquesa', 'Esmeralda', 'Rodocrosita'],
+  scorpio: ['Obsidiana', 'Ágata musgo', 'Granada', 'Turmalina preta', 'Jaspe vermelho', 'Ônix', 'Ametista'],
+  sagittarius: ['Turquesa', 'Lápis-lazúli', 'Sodalita', 'Ametista', 'Topázio azul', 'Aventurina', 'Citrino'],
+  capricorn: ['Ônix', 'Quartzo fumê', 'Obsidiana', 'Ágata', 'Hematita', 'Jaspe', 'Turmalina'],
+  aquarius: ['Ametista', 'Quartzo cristal', 'Sodalita', 'Lápis-lazúli', 'Água-marinha', 'Fluorita', 'Larimar'],
+  pisces: ['Água-marinha', 'Ametista', 'Quartzo rosa', 'Opala', 'Pérola', 'Lua', 'Lápis-lazúli']
 }
 
 export const mantras: string[] = [
@@ -1580,7 +1758,8 @@ export async function generateDailyPrediction(context: GeneratorContext): Promis
   // 3. Cor da sorte (uma cor fixa por signo: sempre a primeira da lista)
   const luckyColorVariation = luckyColorsData[0]
   const luckyColorId = luckyColorVariation?.id && luckyColorVariation.id > 0 ? luckyColorVariation.id : null
-  const luckyColor = luckyColorVariation?.text ?? luckyColors[context.sign][0]
+  const luckyColorRaw = luckyColorVariation?.text ?? luckyColors[context.sign][0]
+  const luckyColor = normalizeLuckyColorDisplay(luckyColorRaw)
   
   // 4. Emoção específica
   const emotionSeed = generateLuckyNumber(seed + 'emotion')
@@ -1777,22 +1956,75 @@ export function generateWeeklyPrediction(context: Omit<GeneratorContext, 'weekda
       sentences.push(`A energia de ${context.sign} está alinhada com ${signMoonCombination}, potencializando ${moonTheme}.`)
     }
   
-  // Mensagem final
+  // Mensagem final (máx. 30 variações)
     const finalMessages = [
       'Mantenha-se atento aos sinais e confie em sua intuição.',
       'Esteja aberto às oportunidades que o universo oferece.',
       'Confie no processo e mantenha a fé em seus objetivos.',
-      'A sabedoria está em encontrar o equilíbrio entre ação e paciência.'
+      'A sabedoria está em encontrar o equilíbrio entre ação e paciência.',
+      'Ouça sua voz interior e respeite seu ritmo.',
+      'O universo conspira a favor de quem age com intenção.',
+      'Mantenha a calma e a clareza nas decisões desta semana.',
+      'Acredite no seu potencial e siga em frente.',
+      'Cultive gratidão e os bons frutos virão.',
+      'Seja gentil consigo mesmo e com os outros.',
+      'A paciência e a persistência são suas aliadas.',
+      'Confie no tempo certo das coisas.',
+      'Mantenha-se fiel aos seus valores e princípios.',
+      'Aproveite cada dia como uma nova chance.',
+      'A sabedoria está em saber quando agir e quando esperar.',
+      'Conecte-se com o que realmente importa para você.',
+      'O equilíbrio entre dar e receber trará harmonia.',
+      'Acredite que você está no lugar certo.',
+      'Mantenha a esperança e a disposição para o novo.',
+      'Sua intuição pode guiá-lo melhor do que imagina.',
+      'Respeite seus limites e recarregue quando precisar.',
+      'A semana favorece quem age com honestidade.',
+      'Confie em si mesmo e na sua capacidade de superar.',
+      'Mantenha o foco no que você pode controlar.',
+      'A gratidão abre portas para mais abundância.',
+      'Seja o protagonista da sua própria história.',
+      'A clareza virá quando você se permitir pausar.',
+      'Mantenha-se aberto a aprendizados e mudanças.',
+      'Acredite que o melhor ainda está por vir.',
+      'A sabedoria está em equilibrar coração e razão.'
     ]
     sentences.push(getRandomElement(finalMessages, seedNums[0]))
     
-    // Frase extra opcional
+    // Frase extra opcional (máx. 30 variações)
     if (seedNums[1] % 3 !== 0) {
       const extraMessages = [
         'Aproveite os momentos de calma para recarregar suas energias.',
         'Lembre-se de que cada dia traz novas possibilidades.',
         'A paciência será sua aliada nesta semana.',
-        'Mantenha-se conectado com suas metas e valores.'
+        'Mantenha-se conectado com suas metas e valores.',
+        'Cuide da saúde e do descanso tanto quanto do trabalho.',
+        'Pequenos gestos podem fazer grande diferença.',
+        'A semana favorece conversas sinceras e acordos.',
+        'Reserve um tempo para quem você ama.',
+        'Não subestime o poder de um bom descanso.',
+        'Mantenha a mente aberta para ideias diferentes.',
+        'A criatividade pode surgir quando você relaxa.',
+        'Conecte-se com a natureza quando possível.',
+        'A semana pede equilíbrio entre esforço e leveza.',
+        'Valorize as parcerias e a colaboração.',
+        'Um passo de cada vez leva você longe.',
+        'Aproveite para organizar o que está bagunçado.',
+        'Mantenha a comunicação clara com os outros.',
+        'A semana pode trazer surpresas positivas.',
+        'Cuide das palavras que você usa consigo e com os outros.',
+        'Respeite seu corpo e seus sinais de cansaço.',
+        'A gratidão transforma o olhar sobre a semana.',
+        'Mantenha-se presente no aqui e agora.',
+        'A semana favorece quem sabe pedir ajuda.',
+        'Pequenas vitórias também merecem celebração.',
+        'Conecte-se com seus objetivos de forma prática.',
+        'A paciência com os outros reflete em você.',
+        'Mantenha a esperança mesmo em dias difíceis.',
+        'A semana pode ser de viradas positivas.',
+        'Valorize o silêncio e a introspecção quando precisar.',
+        'Acredite que você tem o que precisa para seguir.',
+        'Mantenha-se alinhado com o que faz sentido para você.'
       ]
       sentences.push(getRandomElement(extraMessages, seedNums[2]))
     }

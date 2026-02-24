@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { parseDateToContext } from '@/lib/utils'
-import { generateDailyPrediction } from '@/lib/generator'
+import { generateDailyPrediction, normalizeLuckyColorDisplay } from '@/lib/generator'
 import { improveHoroscopeText, improveDailyExtraTexts } from '@/lib/openrouter'
 import type { Sign, Weekday } from '@prisma/client'
 
@@ -109,7 +109,10 @@ async function getOrCreateDailyPrediction(
     update: data
   })
 
-  return prediction
+  return {
+    ...prediction,
+    luckyColor: normalizeLuckyColorDisplay(prediction.luckyColor ?? '')
+  }
 }
 
 /**

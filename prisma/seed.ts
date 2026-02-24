@@ -94,25 +94,62 @@ async function seedZodiacData() {
     { name: 'pisces', displayName: 'Peixes', element: 'água', quality: 'mutável', rulingPlanet: 'Netuno' }
   ]
 
+  /** Limite máximo de variações por tipo (por signo quando aplicável). */
+  const LIMITS = {
+    practicalAdvices: 30,
+    recommendedActivities: 20,
+    dailyAlerts: 20,
+    mantras: 30,
+    loveAdvices: 20,
+    impactPhrases: 40,
+    careerAdvices: 100,
+    crystals: 100,
+    luckyColors: 100,
+    emotions: 100
+  } as const
+
   function expandToMinimum<T>(items: T[], targetCount: number, generator: (base: T[], index: number) => T): T[] {
-    if (items.length >= targetCount) return items
+    const limit = Math.min(targetCount, 200)
+    if (items.length >= limit) return items.slice(0, limit)
     const expanded = [...items]
-    for (let i = items.length; i < targetCount; i++) {
+    for (let i = items.length; i < limit; i++) {
       expanded.push(generator(items, i))
     }
     return expanded
   }
 
+  /** Templates com contexto de previsão horóscopo para gerar até 100 variações. */
   function generateVariation(baseTexts: string[], index: number): string {
     const base = baseTexts[index % baseTexts.length]
-    const variations = [
-      base, `${base} hoje`, `${base} neste período`,
-      `É importante ${base.toLowerCase()}`, `Recomenda-se ${base.toLowerCase()}`,
-      `Mantenha ${base.toLowerCase()}`, `Valorize ${base.toLowerCase()}`,
-      `Foque em ${base.toLowerCase()}`, `Seja ${base.toLowerCase()}`,
-      `Demonstre ${base.toLowerCase()}`
+    const b = base.toLowerCase()
+    const templates = [
+      () => base,
+      () => `${base} hoje`,
+      () => `${base} neste período`,
+      () => `Para hoje: ${b}`,
+      () => `O dia favorece ${b}`,
+      () => `As estrelas favorecem ${b}`,
+      () => `O momento pede ${b}`,
+      () => `É importante ${b}`,
+      () => `Recomenda-se ${b}`,
+      () => `Mantenha ${b}`,
+      () => `Valorize ${b}`,
+      () => `Foque em ${b}`,
+      () => `Seja ${b}`,
+      () => `Demonstre ${b}`,
+      () => `Aproveite ${b}`,
+      () => `Dê prioridade a ${b}`,
+      () => `Evite negligenciar ${b}`,
+      () => `No trabalho: ${b}`,
+      () => `No amor: ${b}`,
+      () => `Na saúde: ${b}`,
+      () => `Na rotina: ${b}`,
+      () => `Em decisões: ${b}`,
+      () => `${base} — boa energia para o dia`,
+      () => `Previsão do dia: ${b}`,
+      () => `Conselho das estrelas: ${b}`,
     ]
-    return variations[index % variations.length]
+    return templates[index % templates.length]()
   }
 
   const createdSigns: Partial<Record<Sign, number>> = {}
@@ -131,16 +168,27 @@ async function seedZodiacData() {
     console.log(`✅ Signo ${signData.displayName} criado/atualizado`)
   }
 
-  // Popular todas as tabelas
+  // Para cores da sorte: apenas nomes de cores (sem prefixos)
+  function expandColorsOnly(baseTexts: string[], targetCount: number): string[] {
+    const limit = Math.min(targetCount, 200)
+    if (baseTexts.length >= limit) return baseTexts.slice(0, limit)
+    const out = [...baseTexts]
+    for (let i = baseTexts.length; i < limit; i++) {
+      out.push(baseTexts[i % baseTexts.length])
+    }
+    return out
+  }
+
+  // Popular todas as tabelas (limites por tipo: 20/30/40/100)
   const tables = [
-    { name: 'conselhos profissionais', data: careerAdvices, model: prisma.careerAdvice, minCount: 30 },
-    { name: 'conselhos amorosos', data: loveAdvices, model: prisma.loveAdvice, minCount: 30 },
-    { name: 'cristais', data: crystals, model: prisma.crystal, minCount: 30 },
-    { name: 'alertas do dia', data: dailyAlerts, model: prisma.dailyAlert, minCount: 30 },
-    { name: 'atividades recomendadas', data: recommendedActivities, model: prisma.recommendedActivity, minCount: 30 },
-    { name: 'conselhos práticos', data: practicalAdvices, model: prisma.practicalAdvice, minCount: 30 },
-    { name: 'cores da sorte', data: luckyColors, model: prisma.luckyColor, minCount: 30 },
-    { name: 'emoções', data: emotions, model: prisma.emotion, minCount: 30 }
+    { name: 'conselhos profissionais', data: careerAdvices, model: prisma.careerAdvice, minCount: LIMITS.careerAdvices },
+    { name: 'conselhos amorosos', data: loveAdvices, model: prisma.loveAdvice, minCount: LIMITS.loveAdvices },
+    { name: 'cristais', data: crystals, model: prisma.crystal, minCount: LIMITS.crystals },
+    { name: 'alertas do dia', data: dailyAlerts, model: prisma.dailyAlert, minCount: LIMITS.dailyAlerts },
+    { name: 'atividades recomendadas', data: recommendedActivities, model: prisma.recommendedActivity, minCount: LIMITS.recommendedActivities },
+    { name: 'conselhos práticos', data: practicalAdvices, model: prisma.practicalAdvice, minCount: LIMITS.practicalAdvices },
+    { name: 'cores da sorte', data: luckyColors, model: prisma.luckyColor, minCount: LIMITS.luckyColors },
+    { name: 'emoções', data: emotions, model: prisma.emotion, minCount: LIMITS.emotions }
   ]
 
   for (const table of tables) {
@@ -148,12 +196,14 @@ async function seedZodiacData() {
     for (const signName of Object.keys(createdSigns) as Sign[]) {
       const signId = createdSigns[signName]
       if (!signId) continue
-      
+
       const items = (table.data as Record<Sign, string[]>)[signName] || []
-      const expanded = expandToMinimum(items, table.minCount, (base, i) => generateVariation(base, i))
-      
+      const expanded = table.name === 'cores da sorte'
+        ? expandColorsOnly(items, table.minCount)
+        : expandToMinimum(items, table.minCount, (base, i) => generateVariation(base, i))
+
       await table.model.deleteMany({ where: { signId } })
-      
+
       for (const text of expanded) {
         await table.model.create({ data: { signId, text } })
       }
@@ -167,7 +217,7 @@ async function seedZodiacData() {
     const signId = createdSigns[signName]
     if (!signId) continue
     
-    const expanded = expandToMinimum(impactPhrases, 30, (base, i) => {
+    const expanded = expandToMinimum(impactPhrases, LIMITS.impactPhrases, (base, i) => {
       const phrase = base[i % base.length]
       const signDisplay = signsData.find(s => s.name === signName)?.displayName || ''
       return `${phrase} ${signDisplay}`
@@ -185,7 +235,7 @@ async function seedZodiacData() {
     const signId = createdSigns[signName]
     if (!signId) continue
     
-    const expanded = expandToMinimum(mantras, 30, (base, i) => {
+    const expanded = expandToMinimum(mantras, LIMITS.mantras, (base, i) => {
       const phrase = base[i % base.length]
       const signDisplay = signsData.find(s => s.name === signName)?.displayName || ''
       return `${phrase} ${signDisplay}`
